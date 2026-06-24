@@ -62,6 +62,7 @@ Bem-vindo à base de conhecimento modular e interconectada do projeto **Infinita
 *O registro de casos clínicos na matéria.*
 
 *   [[clientes/_template-cliente|template-cliente]] — O modelo padrão para registro e acompanhamento semanal de novos clientes.
+*   [[clientes/mariana|mariana]] — Acompanhamento do ciclo de Cura Cósmica de 5 semanas (Em andamento - Sessão 2).
 
 ---
 
