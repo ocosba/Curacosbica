@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; }
+  ::selection { background:rgba(214,178,106,.28); }
+</style>
+</helmet>
+<div style="min-height:100vh; background:#0b0a12; color:#e9e6f0; font-family:'Spectral',Georgia,serif; padding:clamp(20px,5vw,72px) clamp(16px,5vw,40px);">
+  <div style="max-width:880px; margin:0 auto;">
+
+    <!-- header -->
+    <div style="border-bottom:1px solid rgba(214,178,106,.22); padding-bottom:30px; margin-bottom:42px;">
+      <p style="font-family:'Chakra Petch',sans-serif; font-size:12px; letter-spacing:.34em; text-transform:uppercase; color:#d6b26a; margin:0 0 16px;">Documento de Handoff · Para agente especializado</p>
+      <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(28px,5vw,46px); line-height:1.1; margin:0 0 16px; color:#fff;">Cura Arcturiana — Página interativa &amp; Protótipo da Jornada</h1>
+      <p style="font-weight:300; font-size:clamp(15px,2.2vw,18px); line-height:1.7; color:#b7b2c6; margin:0; max-width:64ch;">Especificação completa de duas peças que conversam entre si sob uma única tese: <em style="color:#e6c987;">a espiritualidade trabalha através de você, não por você.</em> Use o prompt abaixo como contexto de partida e a especificação como referência detalhada.</p>
+    </div>
+
+    <!-- ============ O PROMPT (copiável) ============ -->
+    <div data-block style="border:1px solid rgba(214,178,106,.34); border-radius:18px; background:linear-gradient(160deg, rgba(40,32,58,.55), rgba(20,17,30,.5)); padding:clamp(22px,4vw,34px); margin-bottom:48px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:20px; flex-wrap:wrap;">
+        <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:20px; margin:0; color:#e6c987;">★ Prompt para colar no outro agente</h2>
+        <button onClick="{{ copyPrompt }}" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
+      </div>
+      <div ref="{{ promptRef }}" style="font-family:'Chakra Petch',sans-serif; font-weight:400; font-size:13.5px; line-height:1.85; color:#cfcadd; white-space:pre-wrap; background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:22px 20px; max-height:none;">{{ promptText }}</div>
+    </div>
+
+    <!-- ============ VISÃO GERAL ============ -->
+    <section style="margin-bottom:48px;">
+      <p style="font-family:'Chakra Petch',sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:#d6b26a; margin:0 0 12px;">01 · Visão geral</p>
+      <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(22px,3.4vw,30px); margin:0 0 18px; color:#fff;">A tese e o produto</h2>
+      <p style="font-weight:300; font-size:16px; line-height:1.8; color:#c4bfd2; margin:0 0 16px;">O SACM (Sistema Arcturiano de Cura Multidimensional) é uma terapia espiritual à distância de <strong style="color:#e6c987; font-weight:500;">5 sessões semanais</strong> conduzida por <strong style="color:#e6c987; font-weight:500;">Leo Cosba</strong>. O reposicionamento central abandona a promessa passiva ("a cura age na raiz, você não precisa fazer nada") e adota a <strong style="color:#e6c987; font-weight:500;">auto-responsabilidade ativa</strong>: o trabalho espiritual desbloqueia e impulsiona, mas os passos no plano físico são do paciente.</p>
+      <div style="display:grid; gap:12px; margin-top:20px;">
+        <sc-for list="{{ pilares }}" as="p" hint-placeholder-count="3">
+          <div style="display:flex; gap:14px; align-items:flex-start; padding:16px 18px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:rgba(255,255,255,.02);">
+            <span style="font-family:'Chakra Petch',sans-serif; font-size:13px; color:#d6b26a; font-weight:700; flex:none; margin-top:2px;">{{ p.k }}</span>
+            <p style="margin:0; font-weight:300; font-size:14.5px; line-height:1.65; color:#c4bfd2;">{{ p.v }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ============ PEÇA 1: LANDING ============ -->
+    <section style="margin-bottom:48px;">
+      <p style="font-family:'Chakra Petch',sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:#d6b26a; margin:0 0 12px;">02 · Peça um</p>
+      <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(22px,3.4vw,30px); margin:0 0 6px; color:#fff;">Landing page — “Cura Arcturiana”</h2>
+      <p style="font-weight:300; font-size:14px; color:#8f8aa3; margin:0 0 22px; font-family:'Chakra Petch',sans-serif;">arquivo: Cura Arcturiana.dc.html · standalone: index.html · tema escuro místico, mobile-first</p>
+      <div style="display:grid; gap:10px;">
+        <sc-for list="{{ lpSecoes }}" as="s" hint-placeholder-count="13">
+          <div style="display:grid; grid-template-columns:34px 1fr; gap:14px; padding:15px 18px; border:1px solid rgba(255,255,255,.07); border-radius:12px; background:rgba(255,255,255,.02);">
+            <span style="font-family:'Chakra Petch',sans-serif; font-size:14px; font-weight:700; color:#d6b26a;">{{ s.n }}</span>
+            <div>
+              <h3 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; margin:0 0 5px; color:#ece8f4;">{{ s.t }}</h3>
+              <p style="margin:0; font-weight:300; font-size:13.5px; line-height:1.6; color:#a8a3ba;">{{ s.d }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ============ PEÇA 2: JORNADA ============ -->
+    <section style="margin-bottom:48px;">
+      <p style="font-family:'Chakra Petch',sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:#d6b26a; margin:0 0 12px;">03 · Peça dois</p>
+      <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(22px,3.4vw,30px); margin:0 0 6px; color:#fff;">Protótipo da jornada — “Sistema SACM”</h2>
+      <p style="font-weight:300; font-size:14px; color:#8f8aa3; margin:0 0 22px; font-family:'Chakra Petch',sans-serif;">arquivo: Sistema SACM.dc.html · 4 telas navegáveis por abas · dados de exemplo (paciente “Mariana”)</p>
+      <div style="display:grid; gap:14px;">
+        <sc-for list="{{ telas }}" as="t" hint-placeholder-count="4">
+          <div style="border:1px solid rgba(214,178,106,.2); border-radius:14px; background:linear-gradient(155deg, rgba(40,32,58,.4), rgba(20,17,30,.35)); padding:20px 22px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+              <span style="width:30px; height:30px; border-radius:50%; border:1px solid rgba(214,178,106,.4); display:flex; align-items:center; justify-content:center; font-family:'Chakra Petch',sans-serif; font-size:13px; font-weight:700; color:#d6b26a; flex:none;">{{ t.n }}</span>
+              <h3 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:17px; margin:0; color:#fff;">{{ t.t }}</h3>
+              <span style="margin-left:auto; font-family:'Chakra Petch',sans-serif; font-size:11px; color:#8f8aa3;">{{ t.quem }}</span>
+            </div>
+            <p style="margin:0 0 10px; font-weight:300; font-size:14px; line-height:1.65; color:#c4bfd2;">{{ t.d }}</p>
+            <p style="margin:0; font-weight:300; font-size:13px; line-height:1.6; color:#9a95ad;"><span style="color:#d6b26a; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; font-family:'Chakra Petch',sans-serif;">contém · </span>{{ t.x }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ============ SISTEMA VISUAL ============ -->
+    <section style="margin-bottom:48px;">
+      <p style="font-family:'Chakra Petch',sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:#d6b26a; margin:0 0 12px;">04 · Sistema visual</p>
+      <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(22px,3.4vw,30px); margin:0 0 18px; color:#fff;">Linguagem &amp; tom</h2>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px;">
+        <sc-for list="{{ swatches }}" as="c" hint-placeholder-count="5">
+          <div style="border:1px solid rgba(255,255,255,.08); border-radius:12px; overflow:hidden;">
+            <div style="height:54px; background:{{ c.hex }};"></div>
+            <div style="padding:9px 12px;">
+              <p style="margin:0; font-family:'Chakra Petch',sans-serif; font-size:12px; color:#ece8f4;">{{ c.name }}</p>
+              <p style="margin:2px 0 0; font-family:'Chakra Petch',sans-serif; font-size:11px; color:#8f8aa3;">{{ c.hex }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:grid; gap:10px;">
+        <sc-for list="{{ sistema }}" as="x" hint-placeholder-count="4">
+          <p style="margin:0; font-weight:300; font-size:14.5px; line-height:1.7; color:#c4bfd2;"><strong style="color:#e6c987; font-weight:500;">{{ x.k }} — </strong>{{ x.v }}</p>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ============ DIRETRIZES DE COPY ============ -->
+    <section style="margin-bottom:20px;">
+      <p style="font-family:'Chakra Petch',sans-serif; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:#d6b26a; margin:0 0 12px;">05 · Diretrizes de copy</p>
+      <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(22px,3.4vw,30px); margin:0 0 18px; color:#fff;">Regras inegociáveis</h2>
+      <div style="display:grid; gap:10px;">
+        <sc-for list="{{ regras }}" as="r" hint-placeholder-count="6">
+          <div style="display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border-left:2px solid #d6b26a; background:rgba(214,178,106,.06); border-radius:0 10px 10px 0;">
+            <p style="margin:0; font-weight:300; font-size:14.5px; line-height:1.65; color:#cfcadd;">{{ r }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <p style="text-align:center; margin:48px 0 0; font-family:'Chakra Petch',sans-serif; font-size:11px; letter-spacing:.2em; color:#5f5b70; text-transform:uppercase;">Que a luz dos Arcturianos ilumine os seus próprios passos</p>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  state = { copied: false };
+
+  promptRef = (el) => { this._p = el; };
+
+  copyPrompt = () => {
+    const txt = this.PROMPT;
+    const done = () => { this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 2000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done).catch(() => {
+        try { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch(_){}
+      });
+    } else {
+      try { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch(_){}
+    }
+  };
+
+  PROMPT = `CONTEXTO DO PROJETO — "Cura Arcturiana" (SACM)
+
+Você vai trabalhar em um produto digital de terapia espiritual à distância chamado SACM (Sistema Arcturiano de Cura Multidimensional), conduzido pelo terapeuta Leo Cosba. São 5 sessões semanais (um ciclo de 1 mês). Existem duas peças que conversam entre si: (1) uma LANDING PAGE de captação e (2) um PROTÓTIPO da JORNADA do paciente.
+
+TESE CENTRAL (não negociável):
+"A espiritualidade trabalha ATRAVÉS de você, não POR você." O trabalho espiritual desbloqueia e impulsiona os movimentos da própria pessoa, atuando na raiz energética das suas travas — mas os passos no plano físico são do paciente. Tom de mentor firme, empático e inegociável; NÃO místico-passivo. O produto FILTRA quem espera milagre passivo e ATRAI quem está disposto a agir.
+
+DINÂMICA DE CADA SESSÃO (3 tempos):
+01 Você relata → 02 Trabalhamos na raiz (trabalho espiritual) → 03 Você recebe direção (feedback prático e direcionado: os próximos passos que o paciente precisa dar).
+
+PILARES (4): Geometria Sagrada (símbolos arcturianos como códigos de frequência) · Hierarquia de Luz (Arcturianos e Mestres) · Amor Incondicional (acolhimento, respeito ao livre-arbítrio) · Auto-responsabilidade (nada é feito no lugar da pessoa; caminhar é a parte dela).
+
+PEÇA 1 — LANDING PAGE (mobile-first, tema escuro místico):
+Hero ("A espiritualidade trabalha através de você. Não por você.") → Sobre o trabalho → O que é o SACM → 4 Pilares → Carrossel de Transformações ARRASTÁVEL (relações / saúde / prosperidade) → Camadas do trabalho (8) → QUIZ que é um FILTRO DE PRONTIDÃO ("Você está disposto a fazer a sua parte?", 4 respostas que qualificam) → Como funciona (3 tempos + ciclo de 5 passos) → Terapeuta (Leo Cosba) → Depoimentos → FAQ (9, eixo ativo) → CTA final ("Quero dar o meu primeiro passo").
+
+PEÇA 2 — PROTÓTIPO DA JORNADA (4 telas navegáveis por abas):
+1. FORMULÁRIO de entrada — o paciente RELATA sua semana (perguntas sensíveis e guiadas, emoções, escala de bem-estar, intenção do ciclo). É o movimento que abre o trabalho.
+2. PAINEL do terapeuta — Leo lê o relato, vê linha do tempo e evolução de bem-estar, escreve a síntese energética e define OS PRÓXIMOS PASSOS (direcionamento prático, não conselho genérico).
+3. RELATÓRIO de direcionamento — o que o paciente recebe após a sessão: ecos do relato, camadas tratadas, síntese e "Os seus próximos passos".
+4. FECHAMENTO DE CICLO / CHECKPOINT DE VIDA — documento estruturado e rico: SEMANA A SEMANA (5 sessões com foco, camadas tocadas, relato de chegada e "o que se moveu"), AS TRÊS ÁREAS DA VIDA (relações/saúde/prosperidade com nota de→até e colunas Antes/Agora), e o CHECKPOINT (onde você está agora · o que ainda pede o seu movimento · práticas para sustentar). É uma consulta de balanço de vida pós-tratamento.
+
+DIRETRIZES DE COPY (inegociáveis):
+- Sempre devolver a agência ao paciente. Verbos de ação ("dar o próximo passo", "se mover", "agir", "colocar em prática").
+- NUNCA prometer que a transformação acontece SOBRE a pessoa enquanto ela espera. NUNCA "você não precisa fazer nada".
+- Firmeza empática: pode dizer "talvez ainda não seja a sua hora" a quem não quer agir.
+- Disclaimer sempre presente: terapia complementar; não substitui acompanhamento médico/psicológico/psiquiátrico.
+- Respeito ao livre-arbítrio e ao tempo da pessoa. Sem emojis. Português do Brasil.
+
+ESTÉTICA: tema escuro místico (fundos quase-pretos arroxeados), dourado (#d6b26a) como acento, toques de orquídea/violeta. Tipografia: Poppins (títulos), Spectral (corpo, serifada e contemplativa), Chakra Petch (rótulos técnicos/números). Geometria sagrada como motivo visual. Mobile é o foco principal (público brasileiro, majoritariamente mobile).
+
+SUA TAREFA: [descreva aqui o que você quer que o agente faça — ex: criar variações de copy, novas seções, traduzir, expandir a jornada, etc.]`;
+
+  renderVals() {
+    const copyBtnStyle = 'font-family:"Chakra Petch",sans-serif; font-size:12.5px; font-weight:600; letter-spacing:.04em; padding:10px 18px; border-radius:999px; cursor:pointer; border:1px solid ' + (this.state.copied ? '#7bbf8a' : 'rgba(214,178,106,.5)') + '; background:' + (this.state.copied ? 'rgba(123,191,138,.16)' : 'rgba(214,178,106,.12)') + '; color:' + (this.state.copied ? '#9fe0ad' : '#e6c987') + '; transition:all .2s;';
+
+    const pilares = [
+      { k: '01', v: 'Geometria Sagrada — os símbolos arcturianos são códigos de frequência; cada um age sobre um padrão específico.' },
+      { k: '02', v: 'Hierarquia de Luz — trabalho conduzido em conexão com os Arcturianos e os Mestres de Luz.' },
+      { k: '03', v: 'Amor Incondicional — nada é forçado; respeito ao livre-arbítrio e ao tempo da pessoa.' },
+      { k: '04', v: 'Auto-responsabilidade — nada é feito no lugar da pessoa; caminhar é a parte dela. É o coração da nova tese.' }
+    ];
+
+    const lpSecoes = [
+      { n: '01', t: 'Hero', d: '“A espiritualidade trabalha através de você. Não por você.” + sub-headline do movimento próprio + CTAs ativos.' },
+      { n: '02', t: 'Sobre o trabalho', d: '“A espiritualidade abre o caminho. Quem caminha é você.” Explica a raiz energética das travas.' },
+      { n: '03', t: 'O que é o SACM', d: 'Desbloqueio para a ação — não um milagre para esperar. Corpos sutis + geometrias sagradas.' },
+      { n: '04', t: 'Os 4 pilares', d: 'Geometria Sagrada, Hierarquia de Luz, Amor Incondicional, Auto-responsabilidade.' },
+      { n: '05', t: 'Transformações (carrossel)', d: 'ARRASTÁVEL por ponteiro/toque: relações · saúde · prosperidade. Dots clicáveis + dica de swipe no mobile.' },
+      { n: '06', t: 'Camadas do trabalho', d: '8 camadas (limpeza, corte de vínculos, poder pessoal, criança interior, ancestralidade, Eu Superior, karma, proteção).' },
+      { n: '07', t: 'Quiz = Filtro de prontidão', d: '“Você está disposto a fazer a sua parte?” 4 respostas que qualificam e filtram quem chega.' },
+      { n: '08', t: 'Como funciona', d: 'A dinâmica dos 3 tempos (relata → trabalho → direção) + o ciclo de 1 mês em 5 passos.' },
+      { n: '09', t: 'Terapeuta', d: 'Leo Cosba. “Eu não caminho por você. Eu te dou luz, clareza e direção — para que você caminhe.”' },
+      { n: '10', t: 'Depoimentos', d: '“Quem decidiu se mover.” Relatos de pessoas que agiram.' },
+      { n: '11', t: 'FAQ', d: '9 perguntas no eixo ativo (incl. “Esse trabalho é para qualquer pessoa? Não.” e “O que eu preciso fazer?”).' },
+      { n: '12', t: 'CTA final', d: '“A sua transformação começa com um movimento seu.” Conversa de alinhamento gratuita. WhatsApp + Instagram.' }
+    ];
+
+    const telas = [
+      { n: '1', t: 'Formulário de entrada', quem: 'o paciente', d: 'O paciente RELATA sua semana num fluxo guiado e sensível — é o movimento que abre o trabalho.', x: 'perguntas passo a passo, seleção de emoções, escala de bem-estar (1–10), intenção do ciclo, palavra-fio-condutor.' },
+      { n: '2', t: 'Painel do terapeuta', quem: 'Leo Cosba', d: 'Leo lê o relato, acompanha a evolução e estrutura a devolutiva da sessão.', x: 'linha do tempo das sessões, gráfico de bem-estar, comparação entre semanas, síntese energética, camadas tratadas, e os PRÓXIMOS PASSOS (direcionamento prático).' },
+      { n: '3', t: 'Relatório de direcionamento', quem: 'o paciente recebe', d: 'O que o paciente recebe depois da sessão — clareza + direção, não relatório passivo.', x: 'ecos do relato, leitura energética, camadas tratadas (com ícones), síntese e a seção “Os seus próximos passos”.' },
+      { n: '4', t: 'Fechamento / Checkpoint de vida', quem: '5ª sessão', d: 'Documento estruturado e rico — uma consulta de balanço de vida pós-tratamento.', x: 'SEMANA A SEMANA (foco + camadas + relato + o que se moveu), AS TRÊS ÁREAS DA VIDA (nota de→até, Antes/Agora) e o CHECKPOINT (onde você está · o que ainda pede movimento · práticas para sustentar).' }
+    ];
+
+    const swatches = [
+      { name: 'Fundo profundo', hex: '#0b0a12' },
+      { name: 'Fundo arroxeado', hex: '#1a1525' },
+      { name: 'Dourado (acento)', hex: '#d6b26a' },
+      { name: 'Dourado suave', hex: '#e6c987' },
+      { name: 'Orquídea/violeta', hex: '#8a6fb0' }
+    ];
+
+    const sistema = [
+      { k: 'Tipografia', v: 'Poppins (títulos, geométrica), Spectral (corpo, serifada e contemplativa), Chakra Petch (rótulos técnicos, números, eyebrows).' },
+      { k: 'Motivo visual', v: 'geometria sagrada — círculos, polígonos e símbolos desenhados em SVG como linguagem de cura.' },
+      { k: 'Atmosfera', v: 'escuro místico com brilhos dourados sutis (glow), gradientes radiais discretos, vidro fosco (backdrop-blur).' },
+      { k: 'Plataforma', v: 'mobile-first — público brasileiro, majoritariamente mobile. Interações por toque (carrossel arrastável, abas).' }
+    ];
+
+    const regras = [
+      'Sempre devolver a agência ao paciente: verbos de ação (“dar o próximo passo”, “se mover”, “agir”, “colocar em prática”).',
+      'NUNCA prometer que a transformação acontece SOBRE a pessoa enquanto ela espera. Eliminar todo “você não precisa fazer nada”.',
+      'Firmeza empática: é legítimo dizer “talvez ainda não seja a sua hora” a quem não quer agir. Filtrar é parte da estratégia.',
+      'Disclaimer sempre: terapia complementar de bem-estar; não substitui acompanhamento médico, psicológico ou psiquiátrico.',
+      'Respeitar o livre-arbítrio e o tempo da pessoa. Sem emojis. Português do Brasil, tom de mentor firme e acolhedor.',
+      'Termos-chave distribuídos com naturalidade: espiritualidade ativa, desbloqueio para a ação, auto-responsabilidade, direcionamento prático.'
+    ];
+
+    return {
+      copyPrompt: this.copyPrompt, promptRef: this.promptRef, promptText: this.PROMPT,
+      copyLabel: this.state.copied ? '✓ Copiado' : 'Copiar prompt', copyBtnStyle,
+      pilares, lpSecoes, telas, swatches, sistema, regras
+    };
+  }
+}
+</script>
+</body>
+</html>

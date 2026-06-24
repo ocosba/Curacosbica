@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-58 -58 116 116" width="256" height="256" fill="none">
+<line x1="42" y1="0" x2="52" y2="0" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="40.95" y1="9.35" x2="50.7" y2="11.57" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="37.84" y1="18.22" x2="46.85" y2="22.56" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="32.84" y1="26.19" x2="40.66" y2="32.42" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="26.19" y1="32.84" x2="32.42" y2="40.66" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="18.22" y1="37.84" x2="22.56" y2="46.85" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="9.35" y1="40.95" x2="11.57" y2="50.7" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="0" y1="42" x2="0" y2="52" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-9.35" y1="40.95" x2="-11.57" y2="50.7" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-18.22" y1="37.84" x2="-22.56" y2="46.85" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-26.19" y1="32.84" x2="-32.42" y2="40.66" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-32.84" y1="26.19" x2="-40.66" y2="32.42" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-37.84" y1="18.22" x2="-46.85" y2="22.56" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-40.95" y1="9.35" x2="-50.7" y2="11.57" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-42" y1="0" x2="-52" y2="0" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-40.95" y1="-9.35" x2="-50.7" y2="-11.57" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-37.84" y1="-18.22" x2="-46.85" y2="-22.56" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-32.84" y1="-26.19" x2="-40.66" y2="-32.42" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-26.19" y1="-32.84" x2="-32.42" y2="-40.66" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-18.22" y1="-37.84" x2="-22.56" y2="-46.85" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="-9.35" y1="-40.95" x2="-11.57" y2="-50.7" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="0" y1="-42" x2="0" y2="-52" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="9.35" y1="-40.95" x2="11.57" y2="-50.7" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="18.22" y1="-37.84" x2="22.56" y2="-46.85" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="26.19" y1="-32.84" x2="32.42" y2="-40.66" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="32.84" y1="-26.19" x2="40.66" y2="-32.42" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="37.84" y1="-18.22" x2="46.85" y2="-22.56" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<line x1="40.95" y1="-9.35" x2="50.7" y2="-11.57" stroke="#E3BE45" stroke-width="1.4" opacity="0.8"></line>
+<path d="M0,-19 C-8,-37 -36,-30 -36,-8 C-36,8 -14,19 0,30 C14,19 36,8 36,-8 C36,-30 8,-37 0,-19 Z" fill="#E3BE45"></path>
+</svg>

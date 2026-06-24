@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+<title>Sistema SACM — Formulário · Painel · Relatório</title>
+<style>
+  html { scroll-behavior:smooth; background:#0b0826; }
+  body { margin:0; background:#0b0826; }
+  * { box-sizing:border-box; }
+  ::selection { background:rgba(227,190,69,.32); }
+  @keyframes arcPulse { 0%,100%{transform:scale(1);opacity:.45} 50%{transform:scale(1.12);opacity:.8} }
+  @keyframes arcSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes arcSpinR { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
+  @keyframes arcRise { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+  textarea, input { font-family:'Poppins',sans-serif; }
+  textarea:focus, input:focus { outline:none; border-color:var(--c-gold) !important; }
+  textarea::placeholder, input::placeholder { color:var(--c-dim); opacity:.55; }
+  @media print {
+    [data-noprint] { display:none !important; }
+    [data-report] { box-shadow:none !important; border:none !important; }
+  }
+</style>
+</helmet>
+
+<div data-root style="--c-bg0:#0b0826; --c-bg1:#15104a; --c-bg2:#241a6e; --c-gold:#E3BE45; --c-gold-soft:#f2dd93; --c-violet:#C3B8EC; --c-violet-deep:#4a2f7e; --c-orchid:#B06CB0; --c-glow:#cfc6f3; --c-text:#ECE9FA; --c-dim:#ABA1CE; --c-line:rgba(227,190,69,.20); min-height:100vh; background:radial-gradient(ellipse 85% 50% at 50% -6%, var(--c-bg2), transparent 56%), radial-gradient(ellipse 60% 42% at 90% 100%, color-mix(in oklab, var(--c-orchid) 26%, transparent), transparent 56%), radial-gradient(ellipse 55% 42% at 6% 64%, color-mix(in oklab, var(--c-violet-deep) 38%, transparent), transparent 55%), var(--c-bg0); color:var(--c-text); font-family:'Poppins',sans-serif;">
+
+  <!-- DEMO SWITCHER -->
+  <div data-noprint style="position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:center; gap:14px; padding:11px 16px; background:color-mix(in oklab,var(--c-bg0) 78%,transparent); backdrop-filter:blur(14px); border-bottom:1px solid var(--c-line);">
+    <span style="font-size:10px; letter-spacing:.26em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">Protótipo</span>
+    <div style="display:flex; gap:6px; padding:5px; border-radius:999px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 50%,transparent);">
+      <button onClick="{{ goForm }}" style="{{ tabFormStyle }}">1 · Formulário dela</button>
+      <button onClick="{{ goPainel }}" style="{{ tabPainelStyle }}">2 · Seu painel</button>
+      <button onClick="{{ goRelatorio }}" style="{{ tabRelatorioStyle }}">3 · Relatório dela</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div data-noprint style="position:fixed; left:50%; bottom:34px; transform:translateX(-50%); z-index:60; padding:14px 26px; border-radius:999px; background:linear-gradient(120deg,var(--c-gold),var(--c-gold-soft)); color:#24160a; font-size:14px; font-weight:600; box-shadow:0 10px 40px rgba(0,0,0,.45); animation:arcRise .4s ease;">{{ toast }}</div>
+  </sc-if>
+
+  <!-- ============ TELA 1 · FORMULÁRIO ============ -->
+  <sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:680px; margin:0 auto; padding:clamp(40px,6vw,72px) clamp(20px,5vw,40px) 100px;">
+    <div style="text-align:center; margin-bottom:46px;">
+      <div style="display:flex; justify-content:center; margin-bottom:24px;">{{ markGlow }}</div>
+      <p style="display:inline-flex; align-items:center; gap:12px; margin:0 0 18px; font-size:11.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--c-gold); font-weight:600;"><span style="width:24px;height:1px;background:var(--c-gold);opacity:.6;"></span>Antes da sua sessão<span style="width:24px;height:1px;background:var(--c-gold);opacity:.6;"></span></p>
+      <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(28px,5vw,42px); line-height:1.12; margin:0 0 18px;">Vamos nos sintonizar</h1>
+      <p style="font-weight:300; font-size:clamp(15px,1.8vw,17px); line-height:1.75; color:var(--c-dim); max-width:46ch; margin:0 auto;">Respira fundo. Não existe resposta certa — só o que é verdadeiro para você agora. O que você trouxer aqui guia a sessão desta semana.</p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:22px;">
+      <!-- nome -->
+      <div>
+        <label style="display:block; font-size:13px; font-weight:500; color:var(--c-gold-soft); letter-spacing:.02em; margin:0 0 9px;">Seu nome</label>
+        <input value="{{ f_nome }}" onInput="{{ onNome }}" placeholder="Como prefere ser chamada(o)" style="width:100%; padding:14px 18px; border-radius:13px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:15px; transition:border-color .3s;">
+      </div>
+
+      <sc-for list="{{ formFields }}" as="field" hint-placeholder-count="7">
+        <div>
+          <label style="display:block; font-size:13px; font-weight:500; color:var(--c-gold-soft); letter-spacing:.02em; margin:0 0 4px;">{{ field.label }}</label>
+          <p style="font-size:12.5px; font-weight:300; color:var(--c-dim); margin:0 0 10px; line-height:1.5;">{{ field.sub }}</p>
+          <textarea value="{{ field.value }}" onInput="{{ field.on }}" placeholder="{{ field.placeholder }}" rows="3" style="width:100%; padding:14px 18px; border-radius:13px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:15px; line-height:1.6; resize:vertical; transition:border-color .3s;"></textarea>
+        </div>
+      </sc-for>
+
+      <!-- emoções -->
+      <div>
+        <label style="display:block; font-size:13px; font-weight:500; color:var(--c-gold-soft); letter-spacing:.02em; margin:0 0 4px;">Emoções que predominaram</label>
+        <p style="font-size:12.5px; font-weight:300; color:var(--c-dim); margin:0 0 12px; line-height:1.5;">Toque em todas que estiveram presentes.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:9px;">
+          <sc-for list="{{ emocoes }}" as="e" hint-placeholder-count="12">
+            <button onClick="{{ e.on }}" style="{{ e.style }}">{{ e.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- bem-estar -->
+      <div>
+        <label style="display:block; font-size:13px; font-weight:500; color:var(--c-gold-soft); letter-spacing:.02em; margin:0 0 4px;">Como está o seu bem-estar geral?</label>
+        <p style="font-size:12.5px; font-weight:300; color:var(--c-dim); margin:0 0 12px; line-height:1.5;">De 1 (muito difícil) a 10 (muito leve).</p>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <sc-for list="{{ escala }}" as="n" hint-placeholder-count="10">
+            <button onClick="{{ n.on }}" style="{{ n.style }}">{{ n.v }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <button onClick="{{ enviarForm }}" style="margin-top:14px; padding:17px 28px; border-radius:999px; border:none; cursor:pointer; background:linear-gradient(120deg,var(--c-gold),var(--c-gold-soft)); color:#24160a; font-family:'Poppins',sans-serif; font-weight:600; font-size:16px; box-shadow:0 0 44px color-mix(in oklab,var(--c-gold) 40%,transparent); transition:transform .3s;" style-hover="transform:translateY(-2px)">Enviar para o Leo</button>
+      <p style="text-align:center; font-size:12px; font-weight:300; color:var(--c-dim); margin:2px 0 0;">As suas respostas vão direto para o terapeuta preparar a sua sessão.</p>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ TELA 2 · PAINEL ============ -->
+  <sc-if value="{{ isPainel }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1180px; margin:0 auto; padding:clamp(28px,4vw,44px) clamp(16px,4vw,32px) 90px;">
+    <div style="margin-bottom:30px;">
+      <p style="margin:0 0 8px; font-size:11.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Painel do terapeuta</p>
+      <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(24px,3.4vw,34px); line-height:1.1; margin:0;">Preparar a sessão de <span style="color:var(--c-gold-soft);">{{ f_nome }}</span></h1>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:24px; align-items:start;">
+
+      <!-- COLUNA: respostas dela -->
+      <div style="position:sticky; top:78px; border:1px solid var(--c-line); border-radius:20px; background:linear-gradient(165deg, color-mix(in oklab,var(--c-bg2) 50%,transparent), color-mix(in oklab,var(--c-bg1) 44%,transparent)); padding:26px 24px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px;">
+          <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; letter-spacing:.04em; margin:0; color:var(--c-text);">O que ela trouxe</h2>
+          <span style="display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--c-dim);">Bem-estar <strong style="font-family:'Chakra Petch',sans-serif; font-size:16px; color:var(--c-gold);">{{ f_bem }}</strong>/10</span>
+        </div>
+        <sc-if value="{{ hasEmocoes }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px;">
+            <sc-for list="{{ emocoesSel }}" as="e" hint-placeholder-count="3">
+              <span style="padding:5px 12px; border-radius:999px; font-size:12px; color:var(--c-gold-soft); border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-gold) 9%,transparent);">{{ e }}</span>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <sc-for list="{{ answerCards }}" as="a" hint-placeholder-count="7">
+            <sc-if value="{{ a.value }}" hint-placeholder-val="{{ true }}">
+              <div style="padding-bottom:14px; border-bottom:1px solid color-mix(in oklab,var(--c-line) 60%,transparent);">
+                <p style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-orchid); margin:0 0 6px; font-weight:600;">{{ a.label }}</p>
+                <p style="font-weight:300; font-size:14px; line-height:1.6; color:var(--c-text); margin:0;">{{ a.value }}</p>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- COLUNA: construir relatório -->
+      <div style="border:1px solid var(--c-line); border-radius:20px; background:color-mix(in oklab,var(--c-bg1) 30%,transparent); padding:26px 24px; display:flex; flex-direction:column; gap:22px;">
+        <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; letter-spacing:.04em; margin:0; color:var(--c-text);">Escrever o relatório</h2>
+
+        <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:14px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 8px;">Sessão nº</label>
+            <div style="display:flex; gap:6px;">
+              <sc-for list="{{ sessaoNums }}" as="s" hint-placeholder-count="5">
+                <button onClick="{{ s.on }}" style="{{ s.style }}">{{ s.v }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 8px;">Data</label>
+            <input value="{{ r_data }}" onInput="{{ onData }}" style="width:100%; padding:11px 14px; border-radius:11px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px;">
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Ecos da semana dela</label>
+          <p style="font-size:11.5px; font-weight:300; color:var(--c-dim); margin:0 0 9px;">Conecte o relato dela ao que apareceu na sessão.</p>
+          <textarea value="{{ r_ecos }}" onInput="{{ onEcos }}" rows="4" style="width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px; line-height:1.6; resize:vertical;"></textarea>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Camadas tratadas nesta sessão</label>
+          <p style="font-size:11.5px; font-weight:300; color:var(--c-dim); margin:0 0 11px;">Selecione as que foram trabalhadas.</p>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <sc-for list="{{ camadaChips }}" as="c" hint-placeholder-count="8">
+              <button onClick="{{ c.on }}" style="{{ c.style }}">{{ c.title }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Síntese da leitura energética</label>
+          <textarea value="{{ r_sintese }}" onInput="{{ onSintese }}" rows="4" style="width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px; line-height:1.6; resize:vertical;"></textarea>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 9px;">Símbolo da semana</label>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <sc-for list="{{ simboloChips }}" as="s" hint-placeholder-count="4">
+              <button onClick="{{ s.on }}" style="{{ s.style }}">{{ s.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Para a sua semana</label>
+          <p style="font-size:11.5px; font-weight:300; color:var(--c-dim); margin:0 0 9px;">Atenções específicas do que foi movido — não conselhos genéricos.</p>
+          <div style="display:flex; flex-direction:column; gap:9px;">
+            <input value="{{ r_o1 }}" onInput="{{ onO1 }}" placeholder="Atenção 1" style="width:100%; padding:12px 15px; border-radius:11px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px;">
+            <input value="{{ r_o2 }}" onInput="{{ onO2 }}" placeholder="Atenção 2" style="width:100%; padding:12px 15px; border-radius:11px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px;">
+            <input value="{{ r_o3 }}" onInput="{{ onO3 }}" placeholder="Atenção 3 (opcional)" style="width:100%; padding:12px 15px; border-radius:11px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px;">
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Mensagem de fechamento</label>
+          <textarea value="{{ r_fechamento }}" onInput="{{ onFechamento }}" rows="3" style="width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px; line-height:1.6; resize:vertical;"></textarea>
+        </div>
+
+        <button onClick="{{ gerarRelatorio }}" style="margin-top:4px; padding:15px 26px; border-radius:999px; border:none; cursor:pointer; background:linear-gradient(120deg,var(--c-gold),var(--c-gold-soft)); color:#24160a; font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; box-shadow:0 0 36px color-mix(in oklab,var(--c-gold) 36%,transparent); transition:transform .3s;" style-hover="transform:translateY(-2px)">Gerar relatório dela →</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ TELA 3 · RELATÓRIO ============ -->
+  <sc-if value="{{ isRelatorio }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:760px; margin:0 auto; padding:clamp(24px,4vw,48px) clamp(16px,4vw,28px) 90px;">
+    <div data-report style="border:1px solid var(--c-line); border-radius:26px; overflow:hidden; background:linear-gradient(170deg, color-mix(in oklab,var(--c-bg2) 40%,transparent), color-mix(in oklab,var(--c-bg0) 60%,transparent)); box-shadow:0 30px 90px rgba(0,0,0,.5);">
+
+      <!-- header -->
+      <div style="position:relative; text-align:center; padding:clamp(40px,6vw,60px) clamp(24px,5vw,52px) clamp(30px,4vw,40px); border-bottom:1px solid var(--c-line); overflow:hidden;">
+        <div style="position:absolute; inset:0; background:radial-gradient(ellipse 80% 70% at 50% 0%, color-mix(in oklab,var(--c-orchid) 22%,transparent), transparent 64%); pointer-events:none;"></div>
+        <div style="position:relative;">
+          <div style="display:flex; justify-content:center; margin-bottom:20px;">{{ markGlow }}</div>
+          <p style="margin:0 0 14px; font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Relatório de sessão</p>
+          <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(26px,4vw,38px); line-height:1.12; margin:0 0 8px;">{{ f_nome }}</h1>
+          <p style="font-weight:300; font-size:14px; color:var(--c-dim); margin:0 0 26px;">{{ r_data }}</p>
+          <!-- ciclo -->
+          <div style="display:inline-flex; align-items:center; gap:11px; padding:9px 18px; border-radius:999px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg0) 50%,transparent);">
+            <span style="font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--c-dim); font-weight:600;">Sessão {{ r_numLabel }} de 05</span>
+            <span style="display:flex; gap:7px;">
+              <sc-for list="{{ cicloDots }}" as="d" hint-placeholder-count="5">
+                <span style="{{ d.style }}"></span>
+              </sc-for>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:clamp(34px,5vw,52px) clamp(24px,5vw,54px);">
+
+        <!-- ecos -->
+        <div style="margin-bottom:46px;">
+          <p style="display:inline-flex; align-items:center; gap:10px; margin:0 0 16px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;"><span style="width:20px;height:1px;background:var(--c-gold);opacity:.6;"></span>Ecos da sua semana</p>
+          <p style="font-weight:300; font-size:clamp(15px,1.9vw,18px); line-height:1.85; color:var(--c-text); margin:0;">{{ r_ecos }}</p>
+        </div>
+
+        <!-- o que foi tratado -->
+        <div style="margin-bottom:46px;">
+          <p style="display:inline-flex; align-items:center; gap:10px; margin:0 0 8px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;"><span style="width:20px;height:1px;background:var(--c-gold);opacity:.6;"></span>O que foi tratado</p>
+          <sc-if value="{{ r_sintese }}" hint-placeholder-val="{{ true }}">
+            <p style="font-weight:300; font-size:15.5px; line-height:1.8; color:var(--c-dim); margin:0 0 26px;">{{ r_sintese }}</p>
+          </sc-if>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <sc-for list="{{ camadasTratadas }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex; align-items:center; gap:18px; padding:16px 20px; border-radius:16px; border:1px solid var(--c-line); background:linear-gradient(150deg, color-mix(in oklab,var(--c-bg2) 44%,transparent), color-mix(in oklab,var(--c-bg1) 38%,transparent));">
+                <span style="flex:none;">{{ c.icon }}</span>
+                <div>
+                  <h3 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:16px; margin:0 0 3px; color:var(--c-gold-soft);">{{ c.title }}</h3>
+                  <p style="font-weight:300; font-size:13.5px; line-height:1.55; color:var(--c-dim); margin:0;">{{ c.body }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- símbolo -->
+        <div style="margin-bottom:46px; text-align:center; padding:clamp(28px,4vw,40px) 0; border-top:1px solid var(--c-line); border-bottom:1px solid var(--c-line);">
+          <p style="margin:0 0 22px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">O símbolo da semana</p>
+          <div style="display:flex; justify-content:center; margin-bottom:22px;">{{ simboloMandala }}</div>
+          <h3 style="font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:clamp(20px,2.6vw,26px); letter-spacing:.04em; margin:0 0 12px; color:var(--c-text);">{{ r_simbolo }}</h3>
+          <p style="font-weight:300; font-size:15px; line-height:1.75; color:var(--c-dim); max-width:42ch; margin:0 auto 18px;">{{ simboloDesc }}</p>
+          <p style="font-weight:300; font-style:italic; font-size:14px; color:var(--c-gold-soft); margin:0;">Contemple-o por um instante antes de dormir — ele sela o que foi movido.</p>
+        </div>
+
+        <!-- orientações -->
+        <div style="margin-bottom:46px;">
+          <p style="display:inline-flex; align-items:center; gap:10px; margin:0 0 18px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;"><span style="width:20px;height:1px;background:var(--c-gold);opacity:.6;"></span>Para a sua semana</p>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <sc-for list="{{ orientacoes }}" as="o" hint-placeholder-count="3">
+              <div style="display:flex; align-items:flex-start; gap:16px;">
+                <span style="flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--c-line); display:flex; align-items:center; justify-content:center; font-family:'Chakra Petch',sans-serif; font-size:13px; font-weight:700; color:var(--c-gold); background:color-mix(in oklab,var(--c-bg1) 50%,transparent);">{{ o.n }}</span>
+                <p style="font-weight:300; font-size:15px; line-height:1.7; color:var(--c-text); margin:4px 0 0;">{{ o.text }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- fechamento -->
+        <div style="text-align:center; padding-top:8px;">
+          <p style="font-weight:300; font-size:clamp(15px,1.9vw,17px); line-height:1.85; color:var(--c-text); max-width:48ch; margin:0 auto 28px;">{{ r_fechamento }}</p>
+          <p style="font-family:'Poppins',sans-serif; font-weight:300; font-style:italic; font-size:clamp(15px,1.9vw,18px); letter-spacing:.04em; color:var(--c-gold-soft); margin:0 0 6px;">Que a luz dos Arcturianos possa te guiar na sua jornada.</p>
+          <p style="font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-orchid); font-weight:600; margin:18px 0 0;">Leo Cosba · Terapeuta Multidimensional</p>
+        </div>
+      </div>
+
+      <div style="padding:22px 28px; border-top:1px solid var(--c-line); text-align:center;">
+        <p style="font-weight:300; font-size:11.5px; line-height:1.6; color:var(--c-dim); opacity:.8; margin:0; max-width:60ch; margin:0 auto;">Terapia complementar de bem-estar e desenvolvimento espiritual. Não substitui acompanhamento médico, psicológico ou psiquiátrico.</p>
+      </div>
+    </div>
+
+    <div data-noprint style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:28px;">
+      <button onClick="{{ imprimir }}" style="padding:13px 28px; border-radius:999px; border:1px solid var(--c-line); cursor:pointer; background:color-mix(in oklab,var(--c-bg1) 50%,transparent); color:var(--c-gold-soft); font-family:'Poppins',sans-serif; font-size:14px; font-weight:500; transition:border-color .3s;" style-hover="border-color:var(--c-gold)">Salvar em PDF / imprimir</button>
+      <button onClick="{{ goPainel }}" style="padding:13px 28px; border-radius:999px; border:1px solid var(--c-line); cursor:pointer; background:none; color:var(--c-dim); font-family:'Poppins',sans-serif; font-size:14px; font-weight:500; transition:color .3s;" style-hover="color:var(--c-gold-soft)">← Voltar ao painel</button>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+
+<template id="__bundler_thumbnail" data-bg-color="#0b0826">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0b0826"/>
+    <g transform="translate(600 400)" fill="none" stroke="#E3BE45" stroke-width="6">
+      <circle r="190" opacity="0.5"/>
+      <polygon points="0,-170 147,85 -147,85" stroke="#B06CB0"/>
+      <circle r="60" stroke="#f2dd93"/>
+      <circle r="9" fill="#E3BE45" stroke="none"/>
+    </g>
+  </svg>
+</template>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    view: 'form',
+    toast: null,
+    // formulário
+    f_nome: 'Mariana',
+    f_semana: 'Foi uma semana de altos e baixos. Comecei mais animada, mas no meio bateu um cansaço que não passava, mesmo dormindo.',
+    f_pesou: 'Uma discussão com a minha mãe que mexeu comigo muito mais do que eu esperava.',
+    f_moveu: 'Consegui dormir melhor nas duas últimas noites e voltei a caminhar de manhã.',
+    f_sonhos: 'Sonhei que estava numa casa antiga procurando uma porta que eu não conseguia encontrar.',
+    f_corpo: 'Peso no peito, sono irregular, ombros muito tensos.',
+    f_relacoes: 'Com a minha mãe — o mesmo padrão de cobrança de sempre.',
+    f_intencao: 'Quero parar de me sentir responsável pela felicidade de todo mundo.',
+    f_emocoes: ['Cansaço', 'Sobrecarga', 'Esperança'],
+    f_bem: 6,
+    // relatório
+    r_num: 2,
+    r_data: '19 de junho de 2026',
+    r_ecos: 'Você chegou cansada e com o peito pesado — e trouxe uma cena antiga: a cobrança da sua mãe, o mesmo padrão que se repete. O sonho da porta que não se acha fala exatamente disso: uma passagem que já existe, mas que ainda não se abriu. Foi por aí que a sessão caminhou.',
+    r_camadas: ['corte', 'crianca', 'poder'],
+    r_sintese: 'Trabalhamos o vínculo de cobrança que te liga à figura materna — um contrato antigo que te fez responsável pela felicidade dos outros desde muito cedo. Ao afrouxar esse laço, a criança que aprendeu a se anular pôde ser acolhida, e parte do seu poder pessoal, que ficava cedido nessa relação, começou a voltar para você.',
+    r_simbolo: 'Merkabah',
+    r_o1: 'Quando a vontade de resolver a vida do outro aparecer, apenas observe — sem agir. Note que ela passa.',
+    r_o2: 'Se a imagem da sua mãe vier com peso, respire e diga em silêncio: "isso é dela, não é meu para carregar".',
+    r_o3: 'Repare nos momentos em que você diz "sim" sem querer. Não precisa mudar ainda — só perceber.',
+    r_fechamento: 'Você deu um passo corajoso essa semana. O que parecia só cansaço era um peso antigo pedindo para ser solto. Vá com leveza — eu sigo ao seu lado.'
+  };
+
+  CAMADAS = [
+    { key:'limpeza', title:'Limpeza e equilíbrio energético', body:'Dissolve o peso e a desarmonia acumulados no campo.', icon:'limpeza' },
+    { key:'corte', title:'Corte de contratos e vínculos', body:'Encerra ligações invisíveis que drenam a sua energia.', icon:'corte' },
+    { key:'poder', title:'Resgate do poder pessoal', body:'Recolhe a presença interna que ficou cedida ou adormecida.', icon:'poder' },
+    { key:'crianca', title:'Cura da criança interior', body:'Acolhe feridas antigas que ainda comandam reações de hoje.', icon:'crianca' },
+    { key:'dna', title:'Purificação do DNA e ancestralidade', body:'Limpa heranças energéticas carregadas por gerações.', icon:'dna' },
+    { key:'eu', title:'Reconexão com o Eu Superior', body:'Fortalece a conexão com a sua essência.', icon:'eu' },
+    { key:'karma', title:'Cura e liberação kármica', body:'Desativa repetições que atravessam a sua história.', icon:'karma' },
+    { key:'protecao', title:'Proteção e selagem do campo', body:'Sela o que foi trabalhado e fortalece o seu campo.', icon:'protecao' }
+  ];
+  SIMBOLOS = {
+    'Flor da Vida': 'Harmoniza o todo — realinha o seu campo à sua forma original, onde tudo se conecta.',
+    'Cubo de Metatron': 'Estrutura e ordena — devolve direção e clareza ao que estava disperso.',
+    'Merkabah': 'Protege e eleva — sustenta e blinda o seu campo durante o movimento da cura.',
+    'Toroide': 'Faz a energia voltar a circular — dissolve o que estava estagnado e em repetição.'
+  };
+  EMO = ['Ansiedade','Tristeza','Cansaço','Irritação','Medo','Confusão','Solidão','Sobrecarga','Esperança','Alegria','Gratidão','Paz'];
+
+  componentDidMount() {
+    try {
+      const sub = JSON.parse(localStorage.getItem('sacm_submission') || 'null');
+      const rep = JSON.parse(localStorage.getItem('sacm_report') || 'null');
+      const patch = {};
+      if (sub) Object.assign(patch, sub);
+      if (rep) Object.assign(patch, rep);
+      const v = localStorage.getItem('sacm_view');
+      if (v) patch.view = v;
+      if (Object.keys(patch).length) this.setState(patch);
+    } catch (e) {}
+  }
+
+  setView = (v) => { this.setState({ view: v }); try { localStorage.setItem('sacm_view', v); } catch(e){} };
+  goForm = () => this.setView('form');
+  goPainel = () => this.setView('painel');
+  goRelatorio = () => this.setView('relatorio');
+  field = (k) => (e) => this.setState({ [k]: e.target.value });
+  flash = (msg) => { this.setState({ toast: msg }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); };
+
+  toggleEmo = (label) => this.setState(s => {
+    const has = s.f_emocoes.includes(label);
+    return { f_emocoes: has ? s.f_emocoes.filter(x => x !== label) : [...s.f_emocoes, label] };
+  });
+  setBem = (n) => this.setState({ f_bem: n });
+  setNum = (n) => this.setState({ r_num: n });
+  setSimbolo = (s) => this.setState({ r_simbolo: s });
+  toggleCamada = (key) => this.setState(s => {
+    const has = s.r_camadas.includes(key);
+    return { r_camadas: has ? s.r_camadas.filter(x => x !== key) : [...s.r_camadas, key] };
+  });
+
+  saveForm = () => {
+    const s = this.state;
+    const sub = { f_nome:s.f_nome, f_semana:s.f_semana, f_pesou:s.f_pesou, f_moveu:s.f_moveu, f_sonhos:s.f_sonhos, f_corpo:s.f_corpo, f_relacoes:s.f_relacoes, f_intencao:s.f_intencao, f_emocoes:s.f_emocoes, f_bem:s.f_bem };
+    try { localStorage.setItem('sacm_submission', JSON.stringify(sub)); } catch(e){}
+  };
+  enviarForm = () => { this.saveForm(); this.flash('Enviado para o Leo ✦'); this.setView('painel'); };
+
+  gerarRelatorio = () => {
+    const s = this.state;
+    const rep = { r_num:s.r_num, r_data:s.r_data, r_ecos:s.r_ecos, r_camadas:s.r_camadas, r_sintese:s.r_sintese, r_simbolo:s.r_simbolo, r_o1:s.r_o1, r_o2:s.r_o2, r_o3:s.r_o3, r_fechamento:s.r_fechamento };
+    try { localStorage.setItem('sacm_report', JSON.stringify(rep)); } catch(e){}
+    this.flash('Relatório gerado ✦');
+    this.setView('relatorio');
+  };
+  imprimir = () => window.print();
+
+  // ---------- brand mark ----------
+  cosbaMark(size, withRays) {
+    const h = React.createElement;
+    const gold = 'var(--c-gold)', lav = 'var(--c-violet)', orchid = 'var(--c-orchid)';
+    const kids = [];
+    if (withRays) for (let i = 0; i < 40; i++) { const a = (i/40)*Math.PI*2; kids.push(h('line', { key:'ray'+i, x1:Math.cos(a)*78, y1:10+Math.sin(a)*78, x2:Math.cos(a)*96, y2:10+Math.sin(a)*96, stroke:lav, strokeWidth:1, opacity:0.3 })); }
+    kids.push(h('circle', { key:'ring', cx:0, cy:10, r:66, fill:'none', stroke:orchid, strokeWidth:2.4 }));
+    [0,45,135,180,225,315].forEach((deg,i) => { const a = deg*Math.PI/180; kids.push(h('circle', { key:'dot'+i, cx:Math.cos(a)*66, cy:10+Math.sin(a)*66, r:4.2, fill:orchid })); });
+    kids.push(h('circle', { key:'sc', cx:0, cy:10, r:27, fill:'none', stroke:lav, strokeWidth:2 }));
+    for (let i = 0; i < 6; i++) { const a = i*Math.PI/3; kids.push(h('circle', { key:'s'+i, cx:Math.cos(a)*27, cy:10+Math.sin(a)*27, r:27, fill:'none', stroke:lav, strokeWidth:2 })); }
+    kids.push(h('polygon', { key:'tu', points:'0,-96 -21,-60 21,-60', fill:'none', stroke:gold, strokeWidth:2.6 }));
+    kids.push(h('polygon', { key:'td', points:'0,-48 -21,-84 21,-84', fill:'none', stroke:gold, strokeWidth:2.6 }));
+    kids.push(h('circle', { key:'eye', cx:0, cy:-72, r:6.5, fill:'none', stroke:gold, strokeWidth:2 }));
+    kids.push(h('circle', { key:'pupil', cx:0, cy:-72, r:2.2, fill:gold }));
+    return h('svg', { width:size, height:size*(228/200), viewBox:'-100 -128 200 228', fill:'none' }, kids);
+  }
+
+  // ---------- symbol mandala ----------
+  symbolMandala(kind) {
+    const h = React.createElement;
+    const gold = 'var(--c-gold)', lav = 'var(--c-violet)', orchid = 'var(--c-orchid)', glow = 'var(--c-glow)';
+    const spin = (id, dur, rev, children) => h('g', { key:id, style:{ transformBox:'fill-box', transformOrigin:'center', animation:'arc'+(rev?'SpinR':'Spin')+' '+dur+'s linear infinite' } }, children);
+    const ticks = [];
+    for (let i = 0; i < 48; i++) { const a = (i/48)*Math.PI*2; const r1 = 122, r2 = i%4===0 ? 134 : 128; ticks.push(h('line', { key:'t'+i, x1:Math.cos(a)*r1, y1:Math.sin(a)*r1, x2:Math.cos(a)*r2, y2:Math.sin(a)*r2, stroke:gold, strokeWidth:i%4===0?1.4:0.8, opacity:i%4===0?0.8:0.4 })); }
+    const tickRing = spin('ring1', 110, false, [ h('circle', { key:'rc', cx:0, cy:0, r:122, fill:'none', stroke:gold, strokeWidth:1, opacity:0.5 }), ...ticks ]);
+    const core = h('g', { key:'core' }, [ h('circle', { key:'cg', cx:0, cy:0, r:10, fill:'none', stroke:gold, strokeWidth:1.6 }), h('circle', { key:'cp', cx:0, cy:0, r:3.4, fill:gold }) ]);
+    let layers = [];
+    if (kind === 'Cubo de Metatron') {
+      const pts = [[0,0]];
+      for (let i=0;i<6;i++){const a=i*Math.PI/3; pts.push([Math.cos(a)*44, Math.sin(a)*44]);}
+      for (let i=0;i<6;i++){const a=i*Math.PI/3; pts.push([Math.cos(a)*88, Math.sin(a)*88]);}
+      const lines = [];
+      for (let i=1;i<pts.length;i++) for (let j=i+1;j<pts.length;j++){ lines.push(h('line',{key:'ml'+i+'_'+j, x1:pts[i][0],y1:pts[i][1],x2:pts[j][0],y2:pts[j][1], stroke:lav, strokeWidth:0.5, opacity:0.3})); }
+      const circ = pts.map((p,i)=>h('circle',{key:'mc'+i, cx:p[0],cy:p[1],r:14, fill:'none', stroke:i===0?gold:lav, strokeWidth:1.2, opacity:i===0?0.95:0.7}));
+      layers = [ spin('metatron', 160, true, [...lines, ...circ]), core ];
+    } else if (kind === 'Merkabah') {
+      const triUp = spin('tria', 64, false, [ h('polygon',{key:'u',points:'0,-104 90,52 -90,52', fill:'none', stroke:gold, strokeWidth:1.6, opacity:0.82}), h('circle',{key:'cc',cx:0,cy:0,r:62, fill:'none', stroke:gold, strokeWidth:0.6, opacity:0.3}) ]);
+      const triDown = spin('trib', 64, true, [ h('polygon',{key:'d',points:'0,104 90,-52 -90,-52', fill:'none', stroke:orchid, strokeWidth:1.6, opacity:0.82}) ]);
+      const dots = [];
+      for (let i=0;i<12;i++){const a=(i/12)*Math.PI*2; dots.push(h('circle',{key:'d'+i, cx:Math.cos(a)*80, cy:Math.sin(a)*80, r:2.2, fill:glow, opacity:0.6}));}
+      layers = [ spin('mdots', 84, false, dots), triUp, triDown, h('circle',{key:'eye',cx:0,cy:0,r:14,fill:'none',stroke:gold,strokeWidth:1.4}), core ];
+    } else if (kind === 'Toroide') {
+      const ell = [];
+      for (let i=0;i<9;i++){ const ang=(i/9)*180; ell.push(h('ellipse',{key:'e'+i, cx:0, cy:0, rx:106, ry:40, fill:'none', stroke:i%2?orchid:lav, strokeWidth:0.9, opacity:0.5, transform:'rotate('+ang+')'})); }
+      const innerEll = [];
+      for (let i=0;i<7;i++){ const ang=(i/7)*180; innerEll.push(h('ellipse',{key:'i'+i, cx:0, cy:0, rx:58, ry:22, fill:'none', stroke:gold, strokeWidth:0.8, opacity:0.45, transform:'rotate('+ang+')'})); }
+      layers = [ spin('tor1', 100, false, ell), spin('tor2', 58, true, innerEll), h('circle',{key:'tc',cx:0,cy:0,r:92,fill:'none',stroke:gold,strokeWidth:0.6,opacity:0.3}), core ];
+    } else {
+      const r = 26;
+      const fpts = [[0,0]];
+      for (let i=0;i<6;i++){const a=i*Math.PI/3; fpts.push([Math.cos(a)*r, Math.sin(a)*r]);}
+      for (let i=0;i<6;i++){const a=i*Math.PI/3+Math.PI/6; fpts.push([Math.cos(a)*r*Math.sqrt(3), Math.sin(a)*r*Math.sqrt(3)]);}
+      for (let i=0;i<6;i++){const a=i*Math.PI/3; fpts.push([Math.cos(a)*r*2, Math.sin(a)*r*2]);}
+      const flower = fpts.map((p,i)=>h('circle',{key:'f'+i, cx:p[0],cy:p[1],r:r, fill:'none', stroke:lav, strokeWidth:1.2, opacity:i===0?0.9:0.6}));
+      const merk = spin('merk', 120, true, [ h('polygon',{key:'mu',points:'0,-96 83,48 -83,48', fill:'none', stroke:orchid, strokeWidth:1.2, opacity:0.5}), h('polygon',{key:'md',points:'0,96 83,-48 -83,-48', fill:'none', stroke:orchid, strokeWidth:1.2, opacity:0.5}) ]);
+      const dots = [];
+      for (let i=0;i<12;i++){const a=(i/12)*Math.PI*2; dots.push(h('circle',{key:'d'+i, cx:Math.cos(a)*74, cy:Math.sin(a)*74, r:2.4, fill:glow, opacity:0.7}));}
+      layers = [ merk, spin('dots', 60, false, dots), h('g',{key:'flower'}, flower), core ];
+    }
+    return h('svg', { width:'min(60vw,240px)', height:'min(60vw,240px)', viewBox:'-150 -150 300 300', fill:'none', style:{ display:'block', filter:'drop-shadow(0 0 20px color-mix(in oklab, var(--c-orchid) 38%, transparent))' } }, [ tickRing, ...layers ]);
+  }
+
+  icon(kind, size) {
+    size = size || 56;
+    const g = 'var(--c-gold)', v = 'var(--c-violet)', gl = 'var(--c-glow)';
+    const h = React.createElement;
+    const c = (p,k) => h('circle', Object.assign({ key:k, fill:'none' }, p));
+    const ln = (p,k) => h('line', Object.assign({ key:k }, p));
+    const pg = (p,k) => h('polygon', Object.assign({ key:k, fill:'none' }, p));
+    const ringel = (col) => c({ cx:0, cy:0, r:46, stroke:col||g, strokeWidth:0.9, opacity:0.26 }, 'ring');
+    let kids = [];
+    switch (kind) {
+      case 'limpeza': { kids = [ringel(v), ln({x1:0,y1:-40,x2:0,y2:40,stroke:v,strokeWidth:1.1,opacity:0.6},'ax')]; [-32,-16,0,16,32].forEach((y,i)=>kids.push(c({cx:0,cy:y,r:i===2?7:5,stroke:i===2?g:v,strokeWidth:1.3},'n'+i))); kids.push(c({cx:0,cy:0,r:2.4,fill:gl},'core')); break; }
+      case 'corte': { kids = [ringel(v), c({cx:-14,cy:14,r:13,stroke:v,strokeWidth:1.3},'a'), c({cx:14,cy:-14,r:13,stroke:v,strokeWidth:1.3},'b'), ln({x1:-34,y1:34,x2:34,y2:-34,stroke:g,strokeWidth:1.7},'cut')]; break; }
+      case 'poder': { kids = [ringel(g), pg({points:'0,-32 28,16 -28,16',stroke:g,strokeWidth:1.5},'u'), pg({points:'0,32 28,-16 -28,-16',stroke:v,strokeWidth:1.5},'dn'), c({cx:0,cy:0,r:5,stroke:gl,strokeWidth:1.3},'e'), c({cx:0,cy:0,r:2,fill:g},'p')]; break; }
+      case 'crianca': { kids = [ringel(v), c({cx:0,cy:0,r:13,stroke:g,strokeWidth:1.3},'c0')]; for(let i=0;i<6;i++){const a=i*Math.PI/3;kids.push(c({cx:Math.cos(a)*13,cy:Math.sin(a)*13,r:13,stroke:v,strokeWidth:1.1,opacity:0.75},'s'+i));} kids.push(c({cx:0,cy:0,r:2.6,fill:gl},'core')); break; }
+      case 'dna': { kids = [ringel(g)]; for(let i=0;i<7;i++){const y=-36+i*12;const x=17*Math.sin(i*0.92);kids.push(c({cx:x,cy:y,r:3,fill:g},'l'+i));kids.push(c({cx:-x,cy:y,r:3,fill:v},'r'+i));if(i<6){kids.push(ln({x1:x,y1:y,x2:-17*Math.sin((i+1)*0.92),y2:-36+(i+1)*12,stroke:gl,strokeWidth:0.7,opacity:0.4},'rung'+i));}} break; }
+      case 'eu': { kids = [ringel(g), c({cx:0,cy:0,r:30,stroke:v,strokeWidth:1.2,opacity:0.55},'o1'), c({cx:0,cy:0,r:16,stroke:g,strokeWidth:1.3},'o2')]; for(let i=0;i<12;i++){const a=(i/12)*Math.PI*2;kids.push(ln({x1:Math.cos(a)*20,y1:Math.sin(a)*20,x2:Math.cos(a)*27,y2:Math.sin(a)*27,stroke:gl,strokeWidth:1,opacity:0.7},'ry'+i));} kids.push(c({cx:0,cy:0,r:4,fill:gl},'core')); break; }
+      case 'karma': { kids = [ringel(v), c({cx:-12,cy:0,r:18,stroke:g,strokeWidth:1.3},'a'), c({cx:12,cy:0,r:18,stroke:v,strokeWidth:1.3},'b'), c({cx:0,cy:0,r:3,fill:gl},'c')]; break; }
+      case 'protecao': { kids = [ringel(g)]; const hx=(r)=>{const p=[];for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;p.push((Math.cos(a)*r).toFixed(1)+','+(Math.sin(a)*r).toFixed(1));}return p.join(' ');}; kids.push(pg({points:hx(31),stroke:g,strokeWidth:1.5},'h1')); kids.push(pg({points:hx(19),stroke:v,strokeWidth:1.2,opacity:0.75},'h2')); kids.push(c({cx:0,cy:0,r:4,fill:gl},'core')); break; }
+      default: kids = [ringel(g)];
+    }
+    return h('svg', { width:size, height:size, viewBox:'-50 -50 100 100', fill:'none' }, kids);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const view = s.view;
+    const tab = (active) => 'padding:9px 16px; border-radius:999px; border:none; cursor:pointer; font-family:Poppins,sans-serif; font-size:13px; font-weight:500; white-space:nowrap; transition:all .3s; background:' + (active ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'transparent') + '; color:' + (active ? '#24160a' : 'var(--c-dim)') + ';';
+
+    // form fields
+    const fdefs = [
+      { k:'f_semana', label:'Como foi a sua semana?', sub:'Em geral, sem filtro. O que marcou.', placeholder:'Pode escrever livremente...' },
+      { k:'f_pesou', label:'O que pesou ou trouxe dificuldade?', sub:'O que te puxou para baixo ou ficou atravessado.', placeholder:'O que pediu mais esforço...' },
+      { k:'f_moveu', label:'O que se moveu ou melhorou?', sub:'Mesmo que pequeno. Toda mudança conta.', placeholder:'O que fluiu melhor...' },
+      { k:'f_sonhos', label:'Sonhos marcantes?', sub:'Imagens, cenas ou sensações que ficaram.', placeholder:'Se lembrar de algum...' },
+      { k:'f_corpo', label:'Como esteve o seu corpo?', sub:'Sono, energia, tensões, sintomas físicos.', placeholder:'Sensações no corpo...' },
+      { k:'f_relacoes', label:'Alguma situação específica nas relações?', sub:'Com alguém em particular, se houver.', placeholder:'Com quem e o quê...' },
+      { k:'f_intencao', label:'Qual a sua intenção ou pedido para esta sessão?', sub:'O que você gostaria de mover agora.', placeholder:'O que você pede...' }
+    ];
+    const formFields = fdefs.map(d => ({ label:d.label, sub:d.sub, placeholder:d.placeholder, value:s[d.k], on:this.field(d.k) }));
+
+    const emocoes = this.EMO.map(label => {
+      const sel = s.f_emocoes.includes(label);
+      return { label, on:() => this.toggleEmo(label), style:'padding:8px 15px; border-radius:999px; cursor:pointer; font-family:Poppins,sans-serif; font-size:13px; font-weight:400; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-text)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+    const escala = [1,2,3,4,5,6,7,8,9,10].map(v => {
+      const sel = s.f_bem === v;
+      return { v, on:() => this.setBem(v), style:'width:42px; height:42px; border-radius:12px; cursor:pointer; font-family:"Chakra Petch",sans-serif; font-size:16px; font-weight:700; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-dim)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+
+    // painel answer cards
+    const answerCards = [
+      { label:'A semana', value:s.f_semana },
+      { label:'O que pesou', value:s.f_pesou },
+      { label:'O que se moveu', value:s.f_moveu },
+      { label:'Sonhos', value:s.f_sonhos },
+      { label:'O corpo', value:s.f_corpo },
+      { label:'Relações', value:s.f_relacoes },
+      { label:'Intenção', value:s.f_intencao }
+    ];
+    const emocoesSel = s.f_emocoes;
+
+    const sessaoNums = [1,2,3,4,5].map(v => {
+      const sel = s.r_num === v;
+      return { v, on:() => this.setNum(v), style:'flex:1; padding:10px 0; border-radius:10px; cursor:pointer; font-family:"Chakra Petch",sans-serif; font-size:15px; font-weight:700; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-dim)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+    const camadaChips = this.CAMADAS.map(cm => {
+      const sel = s.r_camadas.includes(cm.key);
+      return { title:cm.title, on:() => this.toggleCamada(cm.key), style:'padding:8px 14px; border-radius:999px; cursor:pointer; font-family:Poppins,sans-serif; font-size:12.5px; font-weight:400; text-align:left; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-text)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+    const simboloChips = Object.keys(this.SIMBOLOS).map(label => {
+      const sel = s.r_simbolo === label;
+      return { label, on:() => this.setSimbolo(label), style:'padding:9px 16px; border-radius:999px; cursor:pointer; font-family:"Chakra Petch",sans-serif; font-size:13px; font-weight:600; letter-spacing:.02em; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-text)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+
+    // relatório
+    const numStr = String(s.r_num).padStart(2, '0');
+    const cicloDots = [1,2,3,4,5].map(i => ({ style:'width:' + (i === s.r_num ? '22px' : '7px') + '; height:7px; border-radius:999px; background:' + (i <= s.r_num ? 'var(--c-gold)' : 'color-mix(in oklab,var(--c-gold) 26%,transparent)') + '; transition:all .4s;' }));
+    const camadasTratadas = s.r_camadas.map(key => {
+      const cm = this.CAMADAS.find(x => x.key === key) || {};
+      return { title:cm.title, body:cm.body, icon:this.icon(cm.icon, 54) };
+    });
+    const orientacoes = [s.r_o1, s.r_o2, s.r_o3].filter(x => x && x.trim()).map((text, i) => ({ n:String(i+1), text }));
+    const simboloDesc = this.SIMBOLOS[s.r_simbolo] || '';
+
+    return {
+      // nav
+      goForm:this.goForm, goPainel:this.goPainel, goRelatorio:this.goRelatorio,
+      tabFormStyle:tab(view==='form'), tabPainelStyle:tab(view==='painel'), tabRelatorioStyle:tab(view==='relatorio'),
+      isForm:view==='form', isPainel:view==='painel', isRelatorio:view==='relatorio',
+      toast:s.toast,
+      markGlow:this.cosbaMark(58, true),
+      // form
+      f_nome:s.f_nome, onNome:this.field('f_nome'),
+      formFields, emocoes, escala, enviarForm:this.enviarForm,
+      // painel
+      f_bem:s.f_bem, hasEmocoes:emocoesSel.length>0, emocoesSel, answerCards,
+      r_data:s.r_data, onData:this.field('r_data'),
+      r_ecos:s.r_ecos, onEcos:this.field('r_ecos'),
+      r_sintese:s.r_sintese, onSintese:this.field('r_sintese'),
+      r_fechamento:s.r_fechamento, onFechamento:this.field('r_fechamento'),
+      r_o1:s.r_o1, onO1:this.field('r_o1'), r_o2:s.r_o2, onO2:this.field('r_o2'), r_o3:s.r_o3, onO3:this.field('r_o3'),
+      sessaoNums, camadaChips, simboloChips, gerarRelatorio:this.gerarRelatorio,
+      // relatório
+      r_numLabel:numStr, cicloDots, camadasTratadas, orientacoes,
+      r_simbolo:s.r_simbolo, simboloDesc, simboloMandala:this.symbolMandala(s.r_simbolo),
+      imprimir:this.imprimir
+    };
+  }
+}
+</script>
+</body>
+</html>

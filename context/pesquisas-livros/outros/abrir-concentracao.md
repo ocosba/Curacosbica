@@ -1,0 +1,3 @@
+Não foi possível encontrar um livro com o título exato "Abrir Concentração" nas pesquisas realizadas. O conteúdo relacionado a este tema aponta para ensinamentos e cursos do psiquiatra Italo Marsili, que aborda a concentração e a atenção em seu trabalho, mas não em uma obra publicada com este nome específico.
+
+Dada a ausência de dados sobre o livro pesquisado, não é possível preencher o template solicitado com informações verídicas sobre autor, ano, sinopse e temas principais.

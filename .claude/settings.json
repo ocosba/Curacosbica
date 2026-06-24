@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "tubelab": {
+      "type": "sse",
+      "url": "https://public-api.tubelab.net/mcp",
+      "headers": {
+        "Authorization": "Bearer ${TUBELAB_API_KEY}"
+      }
+    }
+  }
+}

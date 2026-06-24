@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+<title>Sistema SACM — A jornada de quem se move</title>
+<style>
+  html { scroll-behavior:smooth; background:#0b0826; }
+  body { margin:0; background:#0b0826; }
+  * { box-sizing:border-box; }
+  ::selection { background:rgba(227,190,69,.32); }
+  @keyframes arcPulse { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.1);opacity:.85} }
+  @keyframes arcSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes arcSpinR { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
+  @keyframes arcRise { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+  @keyframes arcBreath { 0%,100%{transform:scale(1);opacity:.85} 50%{transform:scale(1.06);opacity:1} }
+  textarea, input { font-family:'Poppins',sans-serif; }
+  textarea:focus, input:focus { outline:none; border-color:var(--c-gold) !important; }
+  textarea::placeholder, input::placeholder { color:var(--c-dim); opacity:.5; }
+  @media print {
+    [data-noprint] { display:none !important; }
+    [data-doc] { box-shadow:none !important; border:none !important; }
+  }
+</style>
+</helmet>
+
+<div data-root style="--c-bg0:#0b0826; --c-bg1:#15104a; --c-bg2:#241a6e; --c-gold:#E3BE45; --c-gold-soft:#f2dd93; --c-violet:#C3B8EC; --c-violet-deep:#4a2f7e; --c-orchid:#B06CB0; --c-glow:#cfc6f3; --c-text:#ECE9FA; --c-dim:#ABA1CE; --c-line:rgba(227,190,69,.20); min-height:100vh; background:radial-gradient(ellipse 85% 50% at 50% -6%, var(--c-bg2), transparent 56%), radial-gradient(ellipse 60% 42% at 90% 100%, color-mix(in oklab, var(--c-orchid) 26%, transparent), transparent 56%), radial-gradient(ellipse 55% 42% at 6% 64%, color-mix(in oklab, var(--c-violet-deep) 38%, transparent), transparent 55%), var(--c-bg0); color:var(--c-text); font-family:'Poppins',sans-serif;">
+
+  <!-- DEMO SWITCHER -->
+  <div data-noprint style="position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:center; gap:14px; padding:11px 16px; background:color-mix(in oklab,var(--c-bg0) 80%,transparent); backdrop-filter:blur(14px); border-bottom:1px solid var(--c-line); flex-wrap:wrap;">
+    <span style="font-size:10px; letter-spacing:.26em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">Protótipo · jornada</span>
+    <div style="display:flex; gap:5px; padding:5px; border-radius:999px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 50%,transparent); flex-wrap:wrap; justify-content:center;">
+      <button onClick="{{ goForm }}" style="{{ tabFormStyle }}">1 · Ela relata</button>
+      <button onClick="{{ goPainel }}" style="{{ tabPainelStyle }}">2 · Seu painel</button>
+      <button onClick="{{ goRelatorio }}" style="{{ tabRelatorioStyle }}">3 · Direcionamento (dia seguinte)</button>
+      <button onClick="{{ goFechamento }}" style="{{ tabFechamentoStyle }}">4 · Fechamento de ciclo</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div data-noprint style="position:fixed; left:50%; bottom:34px; transform:translateX(-50%); z-index:60; padding:14px 26px; border-radius:999px; background:linear-gradient(120deg,var(--c-gold),var(--c-gold-soft)); color:#24160a; font-size:14px; font-weight:600; box-shadow:0 10px 40px rgba(0,0,0,.45); animation:arcRise .4s ease;">{{ toast }}</div>
+  </sc-if>
+
+  <!-- ============ TELA 1 · FORMULÁRIO MEDITATIVO ============ -->
+  <sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:calc(100vh - 52px); display:flex; align-items:center; justify-content:center; padding:clamp(28px,5vw,64px) clamp(20px,5vw,40px);">
+
+    <!-- INTRO -->
+    <sc-if value="{{ phaseIntro }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:560px; text-align:center; animation:arcRise .6s ease;">
+      <div style="display:flex; justify-content:center; margin-bottom:30px; animation:arcBreath 7s ease-in-out infinite;">{{ markGlow }}</div>
+      <p style="margin:0 0 20px; font-size:11.5px; letter-spacing:.3em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Início da sua jornada</p>
+      <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(28px,5vw,44px); line-height:1.14; margin:0 0 22px;">Tudo começa<br>com o seu relato</h1>
+      <p style="font-weight:300; font-size:clamp(15px,1.9vw,17px); line-height:1.85; color:var(--c-dim); max-width:44ch; margin:0 auto 16px;">Antes de responder, encontre um lugar calmo. Respire fundo três vezes. Não há respostas certas — só o que é verdadeiro para você agora.</p>
+      <p style="font-weight:300; font-size:clamp(14px,1.8vw,16px); line-height:1.8; color:var(--c-gold-soft); max-width:42ch; margin:0 auto 38px; font-style:italic;">Este trabalho é uma via de mão dupla: o quanto você se entrega aqui é o quanto ele pode te impulsionar a agir.</p>
+      <div style="max-width:360px; margin:0 auto;">
+        <label style="display:block; font-size:13px; font-weight:500; color:var(--c-gold-soft); margin:0 0 10px;">Como prefere ser chamada(o)?</label>
+        <input value="{{ f_nome }}" onInput="{{ onNome }}" placeholder="Seu nome" style="width:100%; text-align:center; padding:15px 18px; border-radius:13px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:16px; margin-bottom:22px; transition:border-color .3s;">
+        <button onClick="{{ startForm }}" style="width:100%; padding:17px 28px; border-radius:999px; border:none; cursor:pointer; background:linear-gradient(120deg,var(--c-gold),var(--c-gold-soft)); color:#24160a; font-family:'Poppins',sans-serif; font-weight:600; font-size:16px; box-shadow:0 0 44px color-mix(in oklab,var(--c-gold) 40%,transparent); transition:transform .3s;" style-hover="transform:translateY(-2px)">Quando estiver pronta(o), começar</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- QUESTION -->
+    <sc-if value="{{ phaseQ }}" hint-placeholder-val="{{ false }}">
+    <div style="width:100%; max-width:620px;">
+      <!-- progress -->
+      <div style="display:flex; align-items:center; justify-content:center; gap:7px; margin-bottom:clamp(34px,6vw,52px);">
+        <sc-for list="{{ progressDots }}" as="d" hint-placeholder-count="11">
+          <span style="{{ d.style }}"></span>
+        </sc-for>
+      </div>
+
+      <div style="opacity:{{ stepOpacity }}; transform:translateY({{ stepShift }}); transition:opacity .42s ease, transform .42s ease;">
+        <p style="text-align:center; margin:0 0 18px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">{{ stepCounter }}</p>
+        <h2 style="text-align:center; font-family:'Poppins',sans-serif; font-weight:500; font-size:clamp(23px,3.6vw,32px); line-height:1.3; margin:0 0 18px; text-wrap:balance;">{{ curLabel }}</h2>
+        <p style="text-align:center; font-weight:300; font-style:italic; font-size:clamp(14px,1.8vw,15.5px); line-height:1.7; color:var(--c-dim); max-width:46ch; margin:0 auto clamp(28px,4vw,38px); text-wrap:pretty;">{{ curGuide }}</p>
+
+        <!-- text type -->
+        <sc-if value="{{ curIsText }}" hint-placeholder-val="{{ true }}">
+          <textarea value="{{ curValue }}" onInput="{{ onCur }}" placeholder="{{ curPlaceholder }}" rows="5" style="width:100%; padding:20px 22px; border-radius:16px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 40%,transparent); color:var(--c-text); font-size:16px; line-height:1.7; resize:vertical; transition:border-color .3s;"></textarea>
+        </sc-if>
+
+        <!-- emoções -->
+        <sc-if value="{{ curIsEmo }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+            <sc-for list="{{ emocoes }}" as="e" hint-placeholder-count="12">
+              <button onClick="{{ e.on }}" style="{{ e.style }}">{{ e.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- escala -->
+        <sc-if value="{{ curIsScale }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-wrap:wrap; gap:9px; justify-content:center;">
+            <sc-for list="{{ escala }}" as="n" hint-placeholder-count="10">
+              <button onClick="{{ n.on }}" style="{{ n.style }}">{{ n.v }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- nav -->
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:clamp(34px,5vw,46px);">
+        <button onClick="{{ prevStep }}" style="{{ backStyle }}">← Voltar</button>
+        <button onClick="{{ nextStep }}" style="padding:14px 32px; border-radius:999px; border:none; cursor:pointer; background:linear-gradient(120deg,var(--c-gold),var(--c-gold-soft)); color:#24160a; font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; box-shadow:0 0 30px color-mix(in oklab,var(--c-gold) 32%,transparent); transition:transform .3s;" style-hover="transform:translateY(-2px)">{{ nextLabel }}</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- DONE -->
+    <sc-if value="{{ phaseDone }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:540px; text-align:center; animation:arcRise .6s ease;">
+      <div style="display:flex; justify-content:center; margin-bottom:30px; animation:arcBreath 7s ease-in-out infinite;">{{ markGlow }}</div>
+      <p style="margin:0 0 18px; font-size:11.5px; letter-spacing:.3em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Recebido ✦</p>
+      <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(26px,4.4vw,38px); line-height:1.16; margin:0 0 22px;">Obrigado por se abrir</h1>
+      <p style="font-weight:300; font-size:clamp(15px,1.9vw,17px); line-height:1.85; color:var(--c-dim); max-width:42ch; margin:0 auto 30px;">Suas palavras chegaram ao Leo. Ele vai se sintonizar com você nos próximos dias e enviar o seu direcionamento. Até lá, carregue com você:</p>
+      <sc-if value="{{ f_palavra }}" hint-placeholder-val="{{ true }}">
+        <div style="display:inline-block; padding:18px 30px; border-radius:18px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-gold) 8%,transparent);">
+          <p style="font-family:'Poppins',sans-serif; font-weight:300; font-style:italic; font-size:clamp(17px,2.4vw,22px); color:var(--c-gold-soft); margin:0;">“{{ f_palavra }}”</p>
+        </div>
+      </sc-if>
+      <div style="margin-top:34px;">
+        <button onClick="{{ goPainel }}" data-noprint style="padding:13px 26px; border-radius:999px; border:1px solid var(--c-line); cursor:pointer; background:none; color:var(--c-dim); font-family:'Poppins',sans-serif; font-size:13px; font-weight:500; transition:color .3s;" style-hover="color:var(--c-gold-soft)">Ver como chega no painel do Leo →</button>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+  </sc-if>
+
+  <!-- ============ TELA 2 · PAINEL ============ -->
+  <sc-if value="{{ isPainel }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1200px; margin:0 auto; padding:clamp(28px,4vw,44px) clamp(16px,4vw,32px) 90px;">
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:24px;">
+      <div>
+        <p style="margin:0 0 8px; font-size:11.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Painel do terapeuta</p>
+        <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(24px,3.4vw,34px); line-height:1.1; margin:0;">Jornada de <span style="color:var(--c-gold-soft);">{{ f_nome }}</span></h1>
+      </div>
+      <span style="display:inline-flex; align-items:center; gap:8px; font-size:11.5px; color:var(--c-dim); padding:7px 14px; border-radius:999px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 40%,transparent);"><span style="width:7px; height:7px; border-radius:50%; background:#6fcf97; box-shadow:0 0 8px #6fcf97;"></span>Rascunho salvo automaticamente</span>
+    </div>
+
+    <!-- linha do tempo + evolução -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; margin-bottom:26px;">
+      <div style="border:1px solid var(--c-line); border-radius:18px; background:color-mix(in oklab,var(--c-bg1) 30%,transparent); padding:20px 22px;">
+        <p style="margin:0 0 18px; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">Linha do tempo · ciclo de 5 sessões</p>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:4px;">
+          <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="5">
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:9px; position:relative;">
+              <span style="{{ t.dotStyle }}">{{ t.n }}</span>
+              <span style="font-size:11px; color:var(--c-dim); text-align:center; line-height:1.3;">{{ t.date }}</span>
+              <span style="{{ t.tagStyle }}">{{ t.tag }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="border:1px solid var(--c-line); border-radius:18px; background:color-mix(in oklab,var(--c-bg1) 30%,transparent); padding:20px 22px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <p style="margin:0; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">Evolução do bem-estar</p>
+          <span style="font-size:12px; color:var(--c-dim);">agora <strong style="font-family:'Chakra Petch',sans-serif; font-size:16px; color:var(--c-gold);">{{ f_bem }}</strong>/10</span>
+        </div>
+        <div style="display:flex; justify-content:center;">{{ wellbeingChart }}</div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:24px; align-items:start;">
+
+      <!-- COLUNA: respostas dela -->
+      <div style="border:1px solid var(--c-line); border-radius:20px; background:linear-gradient(165deg, color-mix(in oklab,var(--c-bg2) 50%,transparent), color-mix(in oklab,var(--c-bg1) 44%,transparent)); padding:26px 24px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px;">
+          <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; letter-spacing:.04em; margin:0; color:var(--c-text);">O que ela trouxe</h2>
+          <button onClick="{{ toggleCompare }}" style="{{ compareBtnStyle }}">{{ compareLabel }}</button>
+        </div>
+        <sc-if value="{{ hasEmocoes }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px;">
+            <sc-for list="{{ emocoesSel }}" as="e" hint-placeholder-count="3">
+              <span style="padding:5px 12px; border-radius:999px; font-size:12px; color:var(--c-gold-soft); border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-gold) 9%,transparent);">{{ e }}</span>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <sc-for list="{{ answerCards }}" as="a" hint-placeholder-count="7">
+            <sc-if value="{{ a.value }}" hint-placeholder-val="{{ true }}">
+              <div style="padding-bottom:14px; border-bottom:1px solid color-mix(in oklab,var(--c-line) 60%,transparent);">
+                <p style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-orchid); margin:0 0 6px; font-weight:600;">{{ a.label }}</p>
+                <p style="font-weight:300; font-size:14px; line-height:1.6; color:var(--c-text); margin:0;">{{ a.value }}</p>
+                <sc-if value="{{ a.prev }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-weight:300; font-size:12.5px; line-height:1.55; color:var(--c-dim); margin:8px 0 0; padding-left:12px; border-left:2px solid color-mix(in oklab,var(--c-violet) 40%,transparent);"><span style="color:var(--c-violet); font-style:italic;">semana passada:</span> {{ a.prev }}</p>
+                </sc-if>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- COLUNA: construir relatório -->
+      <div style="border:1px solid var(--c-line); border-radius:20px; background:color-mix(in oklab,var(--c-bg1) 30%,transparent); padding:26px 24px; display:flex; flex-direction:column; gap:22px;">
+        <h2 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; letter-spacing:.04em; margin:0; color:var(--c-text);">Escrever o relatório de direcionamento</h2>
+
+        <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:14px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 8px;">Sessão nº</label>
+            <div style="display:flex; gap:6px;">
+              <sc-for list="{{ sessaoNums }}" as="s" hint-placeholder-count="5">
+                <button onClick="{{ s.on }}" style="{{ s.style }}">{{ s.v }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 8px;">Data do envio</label>
+            <input value="{{ r_data }}" onInput="{{ onData }}" style="width:100%; padding:11px 14px; border-radius:11px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px;">
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Ecos da semana dela</label>
+          <p style="font-size:11.5px; font-weight:300; color:var(--c-dim); margin:0 0 9px;">Conecte o relato dela ao que você sentiu ao trabalhar à distância.</p>
+          <textarea value="{{ r_ecos }}" onInput="{{ onEcos }}" rows="4" style="width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px; line-height:1.6; resize:vertical;"></textarea>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Camadas tratadas nesta sessão</label>
+          <p style="font-size:11.5px; font-weight:300; color:var(--c-dim); margin:0 0 11px;">Selecione as que foram trabalhadas à distância.</p>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <sc-for list="{{ camadaChips }}" as="c" hint-placeholder-count="8">
+              <button onClick="{{ c.on }}" style="{{ c.style }}">{{ c.title }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Síntese da leitura energética</label>
+          <textarea value="{{ r_sintese }}" onInput="{{ onSintese }}" rows="4" style="width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px; line-height:1.6; resize:vertical;"></textarea>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Os próximos passos dela</label>
+          <p style="font-size:11.5px; font-weight:300; color:var(--c-dim); margin:0 0 9px;">Os próximos passos que ela precisa dar — práticos e direcionados, não conselhos genéricos.</p>
+          <div style="display:flex; flex-direction:column; gap:9px;">
+            <input value="{{ r_o1 }}" onInput="{{ onO1 }}" placeholder="Próximo passo 1" style="width:100%; padding:12px 15px; border-radius:11px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px;">
+            <input value="{{ r_o2 }}" onInput="{{ onO2 }}" placeholder="Próximo passo 2" style="width:100%; padding:12px 15px; border-radius:11px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px;">
+            <input value="{{ r_o3 }}" onInput="{{ onO3 }}" placeholder="Próximo passo 3 (opcional)" style="width:100%; padding:12px 15px; border-radius:11px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px;">
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:500; color:var(--c-gold-soft); margin:0 0 4px;">Mensagem de fechamento</label>
+          <textarea value="{{ r_fechamento }}" onInput="{{ onFechamento }}" rows="3" style="width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 46%,transparent); color:var(--c-text); font-size:14px; line-height:1.6; resize:vertical;"></textarea>
+        </div>
+
+        <button onClick="{{ gerarRelatorio }}" style="margin-top:4px; padding:15px 26px; border-radius:999px; border:none; cursor:pointer; background:linear-gradient(120deg,var(--c-gold),var(--c-gold-soft)); color:#24160a; font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; box-shadow:0 0 36px color-mix(in oklab,var(--c-gold) 36%,transparent); transition:transform .3s;" style-hover="transform:translateY(-2px)">Gerar relatório dela →</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ TELA 3 · RELATÓRIO SEMANAL (imagem) ============ -->
+  <sc-if value="{{ isRelatorio }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:640px; margin:0 auto; padding:clamp(20px,4vw,40px) clamp(14px,4vw,24px) 80px;">
+    <p data-noprint style="text-align:center; font-size:12px; font-weight:300; color:var(--c-dim); margin:0 0 18px;">Esta é a imagem que ela recebe no dia seguinte — leve, para abrir no celular.</p>
+    <div data-doc style="border:1px solid var(--c-line); border-radius:24px; overflow:hidden; background:linear-gradient(172deg, color-mix(in oklab,var(--c-bg2) 42%,transparent), color-mix(in oklab,var(--c-bg0) 64%,transparent)); box-shadow:0 30px 90px rgba(0,0,0,.5);">
+
+      <!-- header -->
+      <div style="position:relative; text-align:center; padding:clamp(34px,5vw,48px) clamp(24px,5vw,44px) clamp(26px,4vw,32px); border-bottom:1px solid var(--c-line); overflow:hidden;">
+        <div style="position:absolute; inset:0; background:radial-gradient(ellipse 80% 80% at 50% 0%, color-mix(in oklab,var(--c-orchid) 20%,transparent), transparent 64%); pointer-events:none;"></div>
+        <div style="position:relative;">
+          <div style="display:flex; justify-content:center; margin-bottom:16px;">{{ markSmall }}</div>
+          <p style="margin:0 0 12px; font-size:10.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Sua sessão desta semana</p>
+          <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(22px,3.6vw,30px); line-height:1.14; margin:0 0 14px;">{{ f_nome }}</h1>
+          <div style="display:inline-flex; align-items:center; gap:11px; padding:8px 16px; border-radius:999px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg0) 50%,transparent);">
+            <span style="font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-dim); font-weight:600;">Sessão {{ r_numLabel }} de 05</span>
+            <span style="display:flex; gap:6px;">
+              <sc-for list="{{ cicloDots }}" as="d" hint-placeholder-count="5">
+                <span style="{{ d.style }}"></span>
+              </sc-for>
+            </span>
+            <span style="font-size:11px; color:var(--c-dim);">· {{ r_data }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:clamp(28px,4.5vw,42px) clamp(24px,5vw,44px);">
+
+        <!-- ecos -->
+        <div style="margin-bottom:36px;">
+          <p style="margin:0 0 14px; font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Ecos da sua semana</p>
+          <p style="font-weight:300; font-size:clamp(15px,2vw,17px); line-height:1.85; color:var(--c-text); margin:0;">{{ r_ecos }}</p>
+        </div>
+
+        <!-- o que foi tratado -->
+        <div style="margin-bottom:36px;">
+          <p style="margin:0 0 8px; font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">O que foi tratado</p>
+          <sc-if value="{{ r_sintese }}" hint-placeholder-val="{{ true }}">
+            <p style="font-weight:300; font-size:15px; line-height:1.8; color:var(--c-dim); margin:0 0 20px;">{{ r_sintese }}</p>
+          </sc-if>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <sc-for list="{{ camadasTratadas }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex; align-items:center; gap:15px; padding:13px 16px; border-radius:14px; border:1px solid var(--c-line); background:linear-gradient(150deg, color-mix(in oklab,var(--c-bg2) 42%,transparent), color-mix(in oklab,var(--c-bg1) 36%,transparent));">
+                <span style="flex:none;">{{ c.icon }}</span>
+                <h3 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:14.5px; margin:0; color:var(--c-gold-soft);">{{ c.title }}</h3>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- orientações -->
+        <div style="margin-bottom:34px;">
+          <p style="margin:0 0 16px; font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Os seus próximos passos</p>
+          <div style="display:flex; flex-direction:column; gap:13px;">
+            <sc-for list="{{ orientacoes }}" as="o" hint-placeholder-count="3">
+              <div style="display:flex; align-items:flex-start; gap:14px;">
+                <span style="flex:none; width:28px; height:28px; border-radius:50%; border:1px solid var(--c-line); display:flex; align-items:center; justify-content:center; font-family:'Chakra Petch',sans-serif; font-size:12px; font-weight:700; color:var(--c-gold); background:color-mix(in oklab,var(--c-bg1) 50%,transparent);">{{ o.n }}</span>
+                <p style="font-weight:300; font-size:14.5px; line-height:1.7; color:var(--c-text); margin:3px 0 0;">{{ o.text }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- fechamento -->
+        <div style="text-align:center; padding-top:6px; border-top:1px solid var(--c-line); margin-top:6px; padding-top:30px;">
+          <p style="font-weight:300; font-size:clamp(14px,1.9vw,16px); line-height:1.85; color:var(--c-text); max-width:46ch; margin:0 auto 22px;">{{ r_fechamento }}</p>
+          <p style="font-family:'Poppins',sans-serif; font-weight:300; font-style:italic; font-size:clamp(14px,1.9vw,16px); letter-spacing:.03em; color:var(--c-gold-soft); margin:0;">Que a luz dos Arcturianos ilumine os seus próprios passos.</p>
+          <p style="font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-orchid); font-weight:600; margin:16px 0 0;">Leo Cosba</p>
+        </div>
+      </div>
+    </div>
+
+    <div data-noprint style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:24px;">
+      <button onClick="{{ imprimir }}" style="padding:13px 26px; border-radius:999px; border:1px solid var(--c-line); cursor:pointer; background:color-mix(in oklab,var(--c-bg1) 50%,transparent); color:var(--c-gold-soft); font-family:'Poppins',sans-serif; font-size:14px; font-weight:500; transition:border-color .3s;" style-hover="border-color:var(--c-gold)">Salvar como imagem / imprimir</button>
+      <button onClick="{{ goPainel }}" style="padding:13px 26px; border-radius:999px; border:1px solid var(--c-line); cursor:pointer; background:none; color:var(--c-dim); font-family:'Poppins',sans-serif; font-size:14px; font-weight:500; transition:color .3s;" style-hover="color:var(--c-gold-soft)">← Voltar ao painel</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ TELA 4 · FECHAMENTO DE CICLO ============ -->
+  <sc-if value="{{ isFechamento }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:780px; margin:0 auto; padding:clamp(20px,4vw,44px) clamp(14px,4vw,28px) 90px;">
+    <p data-noprint style="text-align:center; font-size:12px; font-weight:300; color:var(--c-dim); margin:0 0 20px;">Checkpoint de vida · o documento estruturado, construído junto na 5ª sessão e disponível para baixar.</p>
+    <div data-doc style="border:1px solid var(--c-line); border-radius:26px; overflow:hidden; background:linear-gradient(172deg, color-mix(in oklab,var(--c-bg2) 44%,transparent), color-mix(in oklab,var(--c-bg0) 62%,transparent)); box-shadow:0 30px 90px rgba(0,0,0,.5);">
+
+      <!-- header -->
+      <div style="position:relative; text-align:center; padding:clamp(44px,6vw,64px) clamp(24px,5vw,52px) clamp(34px,4vw,44px); border-bottom:1px solid var(--c-line); overflow:hidden;">
+        <div style="position:absolute; inset:0; background:radial-gradient(ellipse 90% 80% at 50% 0%, color-mix(in oklab,var(--c-orchid) 24%,transparent), transparent 62%); pointer-events:none;"></div>
+        <div style="position:relative;">
+          <div style="display:flex; justify-content:center; margin-bottom:22px;">{{ markGlow }}</div>
+          <p style="margin:0 0 14px; font-size:11px; letter-spacing:.32em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Fechamento de ciclo · Checkpoint de vida</p>
+          <h1 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:clamp(28px,4.4vw,42px); line-height:1.12; margin:0 0 12px;">A jornada de {{ f_nome }}</h1>
+          <p style="font-weight:300; font-size:14px; color:var(--c-dim); margin:0;">5 sessões · 29 de maio a 26 de junho de 2026</p>
+        </div>
+      </div>
+
+      <div style="padding:clamp(34px,5vw,54px) clamp(24px,5vw,54px);">
+
+        <!-- intenção → onde chegou -->
+        <div style="margin-bottom:48px;">
+          <p style="margin:0 0 20px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">De onde você partiu, até onde chegou</p>
+          <div style="display:grid; grid-template-columns:1fr; gap:16px;">
+            <div style="padding:22px 24px; border-radius:18px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 34%,transparent);">
+              <p style="margin:0 0 8px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--c-violet); font-weight:600;">Sua intenção no início</p>
+              <p style="font-weight:300; font-style:italic; font-size:clamp(16px,2.2vw,19px); line-height:1.7; color:var(--c-gold-soft); margin:0;">“{{ f_intencao }}”</p>
+            </div>
+            <div style="display:flex; justify-content:center; color:var(--c-dim); font-size:20px;">↓</div>
+            <div style="padding:22px 24px; border-radius:18px; border:1px solid var(--c-line); background:linear-gradient(150deg, color-mix(in oklab,var(--c-bg2) 46%,transparent), color-mix(in oklab,var(--c-bg1) 40%,transparent));">
+              <p style="margin:0 0 8px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">Onde você chegou</p>
+              <p style="font-weight:300; font-size:clamp(15px,2vw,17px); line-height:1.85; color:var(--c-text); margin:0;">{{ fc_chegada }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- evolução do bem-estar -->
+        <div style="margin-bottom:48px; text-align:center; padding:clamp(26px,4vw,36px) 0; border-top:1px solid var(--c-line); border-bottom:1px solid var(--c-line);">
+          <p style="margin:0 0 22px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Sua evolução ao longo do ciclo</p>
+          <div style="display:flex; justify-content:center;">{{ fechamentoChart }}</div>
+          <p style="font-weight:300; font-size:14px; line-height:1.7; color:var(--c-dim); max-width:40ch; margin:18px auto 0;">{{ fc_evolucaoNota }}</p>
+        </div>
+
+        <!-- semana a semana -->
+        <div style="margin-bottom:48px;">
+          <p style="margin:0 0 8px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Semana a semana</p>
+          <p style="font-weight:300; font-size:13.5px; color:var(--c-dim); margin:0 0 22px;">Cada sessão foi um passo. Veja o que se moveu em cada uma.</p>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <sc-for list="{{ semanas }}" as="w" hint-placeholder-count="5">
+              <div style="display:grid; grid-template-columns:auto 1fr; gap:18px; padding:20px 22px; border-radius:18px; border:1px solid var(--c-line); background:linear-gradient(150deg, color-mix(in oklab,var(--c-bg2) 44%,transparent), color-mix(in oklab,var(--c-bg1) 38%,transparent));">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+                  <span style="width:42px; height:42px; border-radius:50%; border:1px solid var(--c-line); display:flex; align-items:center; justify-content:center; font-family:'Chakra Petch',sans-serif; font-size:17px; font-weight:700; color:var(--c-gold); background:color-mix(in oklab,var(--c-bg1) 55%,transparent); flex:none;">{{ w.n }}</span>
+                  <span style="font-size:10px; color:var(--c-dim);">{{ w.data }}</span>
+                </div>
+                <div>
+                  <h3 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:15.5px; margin:0 0 9px; color:var(--c-gold-soft);">{{ w.foco }}</h3>
+                  <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:11px;">
+                    <sc-for list="{{ w.camadas }}" as="cm" hint-placeholder-count="2">
+                      <span style="padding:3px 10px; border-radius:999px; font-size:10.5px; color:var(--c-violet); border:1px solid color-mix(in oklab,var(--c-violet) 30%,transparent); background:color-mix(in oklab,var(--c-violet-deep) 22%,transparent);">{{ cm }}</span>
+                    </sc-for>
+                  </div>
+                  <p style="font-weight:300; font-size:13.5px; line-height:1.62; color:var(--c-dim); margin:0 0 7px;">{{ w.relato }}</p>
+                  <p style="font-weight:400; font-size:13.5px; line-height:1.62; color:var(--c-text); margin:0;"><span style="color:var(--c-gold); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600;">o que se moveu · </span>{{ w.shift }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- as três áreas da vida -->
+        <div style="margin-bottom:48px;">
+          <p style="margin:0 0 8px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">As três áreas da sua vida</p>
+          <p style="font-weight:300; font-size:13.5px; color:var(--c-dim); margin:0 0 22px;">Onde o movimento mais apareceu — de onde você partiu, até onde chegou.</p>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <sc-for list="{{ areas }}" as="a" hint-placeholder-count="3">
+              <div style="padding:22px 24px; border-radius:18px; border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-bg1) 30%,transparent);">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
+                  <span style="flex:none;">{{ a.icon }}</span>
+                  <h3 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:16px; margin:0; color:var(--c-text);">{{ a.title }}</h3>
+                  <span style="margin-left:auto; font-family:'Chakra Petch',sans-serif; font-size:14px; color:var(--c-dim);">{{ a.de }} <span style="color:var(--c-gold);">→</span> <span style="color:var(--c-gold-soft); font-size:17px;">{{ a.ate }}</span></span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                  <div>
+                    <p style="margin:0 0 5px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-violet); font-weight:600;">Antes</p>
+                    <p style="font-weight:300; font-size:13px; line-height:1.55; color:var(--c-dim); margin:0;">{{ a.antes }}</p>
+                  </div>
+                  <div>
+                    <p style="margin:0 0 5px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">Agora</p>
+                    <p style="font-weight:300; font-size:13px; line-height:1.55; color:var(--c-text); margin:0;">{{ a.agora }}</p>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- camadas trabalhadas -->
+        <div style="margin-bottom:48px;">
+          <p style="margin:0 0 20px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">As camadas que tocamos juntos</p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;">
+            <sc-for list="{{ camadasMapa }}" as="c" hint-placeholder-count="8">
+              <div style="display:flex; align-items:center; gap:12px; padding:13px 15px; border-radius:14px; border:1px solid {{ c.border }}; background:{{ c.bg }}; opacity:{{ c.opacity }};">
+                <span style="flex:none;">{{ c.icon }}</span>
+                <span style="font-weight:400; font-size:12.5px; line-height:1.35; color:{{ c.color }};">{{ c.title }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- checkpoint de vida -->
+        <div style="margin-bottom:48px; padding:clamp(24px,4vw,34px); border-radius:22px; border:1px solid color-mix(in oklab,var(--c-gold) 30%,transparent); background:radial-gradient(ellipse 90% 70% at 50% 0%, color-mix(in oklab,var(--c-orchid) 16%,transparent), transparent 70%), color-mix(in oklab,var(--c-bg1) 36%,transparent);">
+          <p style="margin:0 0 16px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Checkpoint de vida</p>
+          <p style="margin:0 0 7px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">Onde você está agora</p>
+          <p style="font-weight:300; font-size:clamp(14px,2vw,16px); line-height:1.8; color:var(--c-text); margin:0 0 28px;">{{ cpAgora }}</p>
+
+          <p style="margin:0 0 13px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">O que ainda pede o seu movimento</p>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:28px;">
+            <sc-for list="{{ cpMovimentos }}" as="m" hint-placeholder-count="3">
+              <div style="display:flex; align-items:flex-start; gap:13px;">
+                <span style="flex:none; width:26px; height:26px; border-radius:50%; border:1px solid var(--c-line); display:flex; align-items:center; justify-content:center; font-family:'Chakra Petch',sans-serif; font-size:12px; font-weight:700; color:var(--c-gold); background:color-mix(in oklab,var(--c-bg1) 50%,transparent);">{{ m.n }}</span>
+                <p style="font-weight:300; font-size:14px; line-height:1.65; color:var(--c-text); margin:2px 0 0;">{{ m.text }}</p>
+              </div>
+            </sc-for>
+          </div>
+
+          <p style="margin:0 0 13px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--c-orchid); font-weight:600;">Práticas para sustentar</p>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <sc-for list="{{ cpPraticas }}" as="pr" hint-placeholder-count="3">
+              <span style="padding:8px 14px; border-radius:999px; font-size:12.5px; color:var(--c-gold-soft); border:1px solid var(--c-line); background:color-mix(in oklab,var(--c-gold) 8%,transparent);">{{ pr }}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- mensagem de integração -->
+        <div style="text-align:center; padding-top:6px;">
+          <p style="margin:0 0 18px; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--c-gold); font-weight:600;">Uma palavra de integração</p>
+          <p style="font-weight:300; font-size:clamp(15px,2vw,18px); line-height:1.9; color:var(--c-text); max-width:50ch; margin:0 auto 30px;">{{ fc_integracao }}</p>
+          <p style="font-family:'Poppins',sans-serif; font-weight:300; font-style:italic; font-size:clamp(15px,2vw,18px); letter-spacing:.03em; color:var(--c-gold-soft); margin:0 0 6px;">Que a luz dos Arcturianos siga iluminando os seus próprios passos.</p>
+          <p style="font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-orchid); font-weight:600; margin:18px 0 0;">Leo Cosba · Terapeuta Multidimensional</p>
+        </div>
+      </div>
+
+      <div style="padding:22px 28px; border-top:1px solid var(--c-line); text-align:center;">
+        <p style="font-weight:300; font-size:11.5px; line-height:1.6; color:var(--c-dim); opacity:.8; margin:0 auto; max-width:60ch;">Terapia complementar de bem-estar e desenvolvimento espiritual. Não substitui acompanhamento médico, psicológico ou psiquiátrico.</p>
+      </div>
+    </div>
+
+    <div data-noprint style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:26px;">
+      <button onClick="{{ imprimir }}" style="padding:14px 30px; border-radius:999px; border:none; cursor:pointer; background:linear-gradient(120deg,var(--c-gold),var(--c-gold-soft)); color:#24160a; font-family:'Poppins',sans-serif; font-size:15px; font-weight:600; box-shadow:0 0 36px color-mix(in oklab,var(--c-gold) 34%,transparent); transition:transform .3s;" style-hover="transform:translateY(-2px)">Baixar documento (PDF)</button>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+
+<template id="__bundler_thumbnail" data-bg-color="#0b0826">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0b0826"/>
+    <g transform="translate(600 400)" fill="none" stroke="#E3BE45" stroke-width="6">
+      <circle r="190" opacity="0.5"/>
+      <polygon points="0,-170 147,85 -147,85" stroke="#B06CB0"/>
+      <circle r="60" stroke="#f2dd93"/>
+      <circle r="9" fill="#E3BE45" stroke="none"/>
+    </g>
+  </svg>
+</template>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:920}}">
+class Component extends DCLogic {
+  state = {
+    view: 'form',
+    phase: 'intro',   // intro | q | done
+    step: 0,
+    stepShown: true,
+    compare: false,
+    toast: null,
+    // identidade
+    f_nome: 'Mariana',
+    // respostas de abertura
+    q_chega: 'Chego um pouco ansiosa, mas aliviada por finalmente reservar esse tempo.',
+    q_trouxe: 'Sinto que vivo no automático e carrego um peso que não sei nomear. Quero entender de onde vem.',
+    q_energia: 'A cobrança em casa, e a sensação de que preciso dar conta de tudo sozinha.',
+    q_repete: 'Sempre acabo cuidando de todo mundo e me esquecendo. E depois fico exausta e ressentida.',
+    q_corpo: 'Sono irregular, ombros tensos, um peso no peito que não passa.',
+    q_bem_faz: 'Caminhar de manhã cedo e ouvir música sozinha no fim do dia.',
+    q_sonhos: 'Sonhei com uma casa antiga onde eu procurava uma porta que não encontrava.',
+    q_intencao: 'Quero parar de me sentir responsável pela felicidade de todo mundo.',
+    q_palavra: 'Eu também importo.',
+    f_emocoes: ['Cansaço', 'Sobrecarga', 'Esperança'],
+    f_bem: 6,
+    // relatório
+    r_num: 2,
+    r_data: '20 de junho de 2026',
+    r_ecos: 'Você chegou cansada e com o peito pesado, e trouxe uma cena antiga: a cobrança em casa, o mesmo padrão que se repete. Ao me sintonizar com o seu campo, senti exatamente esse peso no peito — e o sonho da porta que não se acha fala disso: uma passagem que já existe, mas ainda não se abriu.',
+    r_camadas: ['corte', 'crianca', 'poder'],
+    r_sintese: 'Trabalhei o vínculo de cobrança que te liga à figura materna — um contrato antigo que te fez responsável pela felicidade dos outros desde cedo. Ao afrouxar esse laço, a criança que aprendeu a se anular pôde ser acolhida, e parte do seu poder pessoal, que ficava cedido, começou a voltar para você.',
+    r_o1: 'Quando a vontade de resolver a vida do outro aparecer, apenas observe — sem agir. Note que ela passa.',
+    r_o2: 'Se a imagem da cobrança vier com peso, respire e diga em silêncio: "isso é dela, não é meu para carregar".',
+    r_o3: 'Repare nos momentos em que você diz "sim" sem querer. Não precisa mudar ainda — só perceber.',
+    r_fechamento: 'Você deu um passo corajoso. O que parecia só cansaço era um peso antigo pedindo para ser solto. Vá com leveza — eu sigo ao seu lado.',
+    // fechamento de ciclo (esboço)
+    fc_chegada: 'Você chegou ao fim do ciclo conseguindo perceber, em tempo real, quando assume o que não é seu. Ainda acontece — mas agora há uma pausa, uma escolha onde antes só havia reação automática. O peso no peito deu lugar a uma respiração mais larga.',
+    fc_evolucaoNota: 'Seu bem-estar saiu de um 4 inicial para um 8 — não em linha reta, mas com a oscilação natural de quem está, de verdade, se transformando.',
+    fc_integracao: 'Cuidar dos outros nunca foi o problema — esquecer de si era. Você não precisa escolher entre amar e se preservar. Que você leve daqui a certeza de que também merece o cuidado que oferece com tanta generosidade.'
+  };
+
+  CAMADAS = [
+    { key:'limpeza', title:'Limpeza energética', body:'Dissolve o peso acumulado no campo.', icon:'limpeza' },
+    { key:'corte', title:'Corte de vínculos', body:'Encerra ligações que drenam a sua energia.', icon:'corte' },
+    { key:'poder', title:'Resgate do poder pessoal', body:'Recolhe a presença que ficou cedida.', icon:'poder' },
+    { key:'crianca', title:'Cura da criança interior', body:'Acolhe feridas que comandam reações de hoje.', icon:'crianca' },
+    { key:'dna', title:'Purificação ancestral', body:'Limpa heranças carregadas por gerações.', icon:'dna' },
+    { key:'eu', title:'Reconexão com o Eu Superior', body:'Fortalece a conexão com a sua essência.', icon:'eu' },
+    { key:'karma', title:'Liberação kármica', body:'Desativa repetições da sua história.', icon:'karma' },
+    { key:'protecao', title:'Proteção do campo', body:'Sela o que foi trabalhado.', icon:'protecao' }
+  ];
+  EMO = ['Ansiedade','Tristeza','Cansaço','Irritação','Medo','Confusão','Solidão','Sobrecarga','Esperança','Alegria','Gratidão','Paz'];
+  QUESTIONS = [
+    { type:'text', key:'q_chega', label:'Como você chega para começar este processo?', guide:'Não pense muito. Repare como estão o seu corpo e o seu ânimo neste exato momento, e descreva em poucas palavras.', placeholder:'Eu chego...' },
+    { type:'text', key:'q_trouxe', label:'O que te trouxe até aqui, neste momento da sua vida?', guide:'Fale com as suas palavras, como se contasse para alguém de confiança. Não precisa organizar — só ser verdadeira.', placeholder:'O que me trouxe...' },
+    { type:'text', key:'q_energia', label:'O que tem pedido mais da sua energia ultimamente?', guide:'Pessoas, situações, pensamentos. Onde você sente que se esvai sem perceber.', placeholder:'Tem pedido de mim...' },
+    { type:'text', key:'q_repete', label:'Existe algo que se repete e que você gostaria de entender?', guide:'Um padrão, uma cena que volta, uma sensação familiar. Se não souber nomear, descreva a sensação.', placeholder:'O que se repete...' },
+    { type:'text', key:'q_corpo', label:'Como tem sido a sua relação com o corpo, o sono e o descanso?', guide:'O corpo guarda o que a mente esquece. Repare sem julgar.', placeholder:'Meu corpo tem...' },
+    { type:'emo', key:'f_emocoes', label:'Quais emoções têm predominado?', guide:'Respire e sinta antes de escolher. Pode marcar quantas forem verdadeiras para você.' },
+    { type:'text', key:'q_bem_faz', label:'O que te faz bem hoje? Onde você sente um pouco de leveza?', guide:'Tão importante quanto a dor. Procure um lugar de descanso dentro de você.', placeholder:'Me faz bem...' },
+    { type:'text', key:'q_sonhos', label:'Há sonhos ou imagens que têm voltado?', guide:'Mesmo fragmentos. O que aparece quando você fecha os olhos antes de dormir.', placeholder:'Tenho sonhado...' },
+    { type:'scale', key:'f_bem', label:'Como está o seu bem-estar geral agora?', guide:'De 1 (muito difícil) a 10 (muito leve). Sinta o número, não o calcule.' },
+    { type:'text', key:'q_intencao', label:'Se algo pudesse se mover dentro de você neste ciclo, o que seria?', guide:'Esta é a sua intenção. Escreva como um pedido sincero a si mesma.', placeholder:'Eu gostaria de...' },
+    { type:'text', key:'q_palavra', label:'Uma palavra, frase ou imagem para carregar com você esta semana.', guide:'Algo curto que você possa lembrar nos momentos difíceis. Será o seu fio condutor.', placeholder:'Vou carregar...' }
+  ];
+  HIST = [4, 6, 6, 7, 8]; // evolução de bem-estar no ciclo (mock)
+  TIMELINE = [
+    { n:1, date:'29 mai', tag:'feita', st:'done' },
+    { n:2, date:'05 jun', tag:'feita', st:'done' },
+    { n:3, date:'12 jun', tag:'feita', st:'done' },
+    { n:4, date:'19 jun', tag:'em curso', st:'cur' },
+    { n:5, date:'26 jun', tag:'fechamento', st:'next' }
+  ];
+  PREV = {
+    q_energia: 'A correria do trabalho e pouco tempo para mim.',
+    q_repete: 'Me cobro demais por tudo.',
+    q_corpo: 'Dormindo mal, muito cansaço.'
+  };
+
+  componentDidMount() {
+    try {
+      const sub = JSON.parse(localStorage.getItem('sacm_submission') || 'null');
+      const rep = JSON.parse(localStorage.getItem('sacm_report') || 'null');
+      const patch = {};
+      if (sub) Object.assign(patch, sub);
+      if (rep) Object.assign(patch, rep);
+      const v = localStorage.getItem('sacm_view');
+      if (v) patch.view = v;
+      if (Object.keys(patch).length) this.setState(patch);
+    } catch (e) {}
+  }
+
+  setView = (v) => { this.setState({ view: v }); try { localStorage.setItem('sacm_view', v); } catch(e){} };
+  goForm = () => this.setView('form');
+  goPainel = () => this.setView('painel');
+  goRelatorio = () => this.setView('relatorio');
+  goFechamento = () => this.setView('fechamento');
+
+  field = (k) => (e) => { this.setState({ [k]: e.target.value }); this.autosave(); };
+  flash = (msg) => { this.setState({ toast: msg }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); };
+  autosave = () => { clearTimeout(this._as); this._as = setTimeout(() => this.saveAll(), 600); };
+  saveAll = () => {
+    const s = this.state;
+    try {
+      localStorage.setItem('sacm_submission', JSON.stringify({ f_nome:s.f_nome, q_chega:s.q_chega, q_trouxe:s.q_trouxe, q_energia:s.q_energia, q_repete:s.q_repete, q_corpo:s.q_corpo, q_bem_faz:s.q_bem_faz, q_sonhos:s.q_sonhos, q_intencao:s.q_intencao, q_palavra:s.q_palavra, f_emocoes:s.f_emocoes, f_bem:s.f_bem }));
+      localStorage.setItem('sacm_report', JSON.stringify({ r_num:s.r_num, r_data:s.r_data, r_ecos:s.r_ecos, r_camadas:s.r_camadas, r_sintese:s.r_sintese, r_o1:s.r_o1, r_o2:s.r_o2, r_o3:s.r_o3, r_fechamento:s.r_fechamento }));
+    } catch(e){}
+  };
+
+  // form flow
+  startForm = () => this.setState({ phase:'q', step:0, stepShown:true });
+  goStep = (n) => {
+    this.setState({ stepShown:false });
+    clearTimeout(this._st);
+    this._st = setTimeout(() => {
+      if (n < 0) { this.setState({ phase:'intro', stepShown:true }); return; }
+      if (n >= this.QUESTIONS.length) { this.saveAll(); this.setState({ phase:'done', stepShown:true }); return; }
+      this.setState({ step:n, stepShown:true });
+    }, 200);
+  };
+  nextStep = () => this.goStep(this.state.step + 1);
+  prevStep = () => this.goStep(this.state.step - 1);
+
+  toggleEmo = (label) => { this.setState(s => { const has = s.f_emocoes.includes(label); return { f_emocoes: has ? s.f_emocoes.filter(x => x !== label) : [...s.f_emocoes, label] }; }); this.autosave(); };
+  setBem = (n) => { this.setState({ f_bem: n }); this.autosave(); };
+  setNum = (n) => { this.setState({ r_num: n }); this.autosave(); };
+  toggleCamada = (key) => { this.setState(s => { const has = s.r_camadas.includes(key); return { r_camadas: has ? s.r_camadas.filter(x => x !== key) : [...s.r_camadas, key] }; }); this.autosave(); };
+  toggleCompare = () => this.setState(s => ({ compare: !s.compare }));
+
+  gerarRelatorio = () => { this.saveAll(); this.flash('Relatório gerado ✦'); this.setView('relatorio'); };
+  imprimir = () => window.print();
+
+  cosbaMark(size, withRays) {
+    const h = React.createElement;
+    const gold = 'var(--c-gold)', lav = 'var(--c-violet)', orchid = 'var(--c-orchid)';
+    const kids = [];
+    if (withRays) for (let i = 0; i < 40; i++) { const a = (i/40)*Math.PI*2; kids.push(h('line', { key:'ray'+i, x1:Math.cos(a)*78, y1:10+Math.sin(a)*78, x2:Math.cos(a)*96, y2:10+Math.sin(a)*96, stroke:lav, strokeWidth:1, opacity:0.3 })); }
+    kids.push(h('circle', { key:'ring', cx:0, cy:10, r:66, fill:'none', stroke:orchid, strokeWidth:2.4 }));
+    [0,45,135,180,225,315].forEach((deg,i) => { const a = deg*Math.PI/180; kids.push(h('circle', { key:'dot'+i, cx:Math.cos(a)*66, cy:10+Math.sin(a)*66, r:4.2, fill:orchid })); });
+    kids.push(h('circle', { key:'sc', cx:0, cy:10, r:27, fill:'none', stroke:lav, strokeWidth:2 }));
+    for (let i = 0; i < 6; i++) { const a = i*Math.PI/3; kids.push(h('circle', { key:'s'+i, cx:Math.cos(a)*27, cy:10+Math.sin(a)*27, r:27, fill:'none', stroke:lav, strokeWidth:2 })); }
+    kids.push(h('polygon', { key:'tu', points:'0,-96 -21,-60 21,-60', fill:'none', stroke:gold, strokeWidth:2.6 }));
+    kids.push(h('polygon', { key:'td', points:'0,-48 -21,-84 21,-84', fill:'none', stroke:gold, strokeWidth:2.6 }));
+    kids.push(h('circle', { key:'eye', cx:0, cy:-72, r:6.5, fill:'none', stroke:gold, strokeWidth:2 }));
+    kids.push(h('circle', { key:'pupil', cx:0, cy:-72, r:2.2, fill:gold }));
+    return h('svg', { width:size, height:size*(228/200), viewBox:'-100 -128 200 228', fill:'none' }, kids);
+  }
+
+  sparkline(data, w, hgt, big) {
+    const h = React.createElement;
+    const gold = 'var(--c-gold)', orchid = 'var(--c-orchid)', glow = 'var(--c-glow)';
+    const pad = 16, maxV = 10, minV = 1;
+    const innerW = w - pad*2, innerH = hgt - pad*2;
+    const pts = data.map((v, i) => {
+      const x = pad + (data.length === 1 ? innerW/2 : (i/(data.length-1))*innerW);
+      const y = pad + innerH - ((v - minV)/(maxV - minV))*innerH;
+      return [x, y];
+    });
+    const path = pts.map((p,i) => (i===0?'M':'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = path + ' L' + pts[pts.length-1][0].toFixed(1) + ' ' + (hgt-pad) + ' L' + pts[0][0].toFixed(1) + ' ' + (hgt-pad) + ' Z';
+    const gid = 'sg' + (big?'b':'s');
+    const kids = [
+      h('defs', { key:'d' }, h('linearGradient', { id:gid, x1:0, y1:0, x2:0, y2:1 }, [
+        h('stop', { key:'a', offset:'0%', stopColor:gold, stopOpacity:0.32 }),
+        h('stop', { key:'b', offset:'100%', stopColor:gold, stopOpacity:0 })
+      ])),
+      h('path', { key:'area', d:area, fill:'url(#'+gid+')' }),
+      h('path', { key:'line', d:path, fill:'none', stroke:gold, strokeWidth:big?2.4:2, strokeLinejoin:'round', strokeLinecap:'round' })
+    ];
+    pts.forEach((p,i) => {
+      const last = i === pts.length-1;
+      kids.push(h('circle', { key:'p'+i, cx:p[0], cy:p[1], r:last?(big?6:5):(big?4:3.2), fill:last?gold:'var(--c-bg0)', stroke:last?glow:orchid, strokeWidth:last?2:1.6 }));
+      if (big) kids.push(h('text', { key:'t'+i, x:p[0], y:p[1]-14, fill:'var(--c-gold-soft)', fontSize:13, fontFamily:'Chakra Petch, sans-serif', fontWeight:700, textAnchor:'middle' }, String(data[i])));
+      if (big) kids.push(h('text', { key:'s'+i, x:p[0], y:hgt-2, fill:'var(--c-dim)', fontSize:10, fontFamily:'Poppins, sans-serif', textAnchor:'middle' }, 'S'+(i+1)));
+    });
+    return h('svg', { width:'100%', height:hgt, viewBox:'0 0 '+w+' '+hgt, style:{ maxWidth: big ? '440px' : '100%', display:'block', overflow:'visible' } }, kids);
+  }
+
+  icon(kind, size) {
+    size = size || 50;
+    const g = 'var(--c-gold)', v = 'var(--c-violet)', gl = 'var(--c-glow)';
+    const h = React.createElement;
+    const c = (p,k) => h('circle', Object.assign({ key:k, fill:'none' }, p));
+    const ln = (p,k) => h('line', Object.assign({ key:k }, p));
+    const pg = (p,k) => h('polygon', Object.assign({ key:k, fill:'none' }, p));
+    const ringel = (col) => c({ cx:0, cy:0, r:46, stroke:col||g, strokeWidth:0.9, opacity:0.26 }, 'ring');
+    let kids = [];
+    switch (kind) {
+      case 'limpeza': { kids = [ringel(v), ln({x1:0,y1:-40,x2:0,y2:40,stroke:v,strokeWidth:1.1,opacity:0.6},'ax')]; [-32,-16,0,16,32].forEach((y,i)=>kids.push(c({cx:0,cy:y,r:i===2?7:5,stroke:i===2?g:v,strokeWidth:1.3},'n'+i))); kids.push(c({cx:0,cy:0,r:2.4,fill:gl},'core')); break; }
+      case 'corte': { kids = [ringel(v), c({cx:-14,cy:14,r:13,stroke:v,strokeWidth:1.3},'a'), c({cx:14,cy:-14,r:13,stroke:v,strokeWidth:1.3},'b'), ln({x1:-34,y1:34,x2:34,y2:-34,stroke:g,strokeWidth:1.7},'cut')]; break; }
+      case 'poder': { kids = [ringel(g), pg({points:'0,-32 28,16 -28,16',stroke:g,strokeWidth:1.5},'u'), pg({points:'0,32 28,-16 -28,-16',stroke:v,strokeWidth:1.5},'dn'), c({cx:0,cy:0,r:5,stroke:gl,strokeWidth:1.3},'e'), c({cx:0,cy:0,r:2,fill:g},'p')]; break; }
+      case 'crianca': { kids = [ringel(v), c({cx:0,cy:0,r:13,stroke:g,strokeWidth:1.3},'c0')]; for(let i=0;i<6;i++){const a=i*Math.PI/3;kids.push(c({cx:Math.cos(a)*13,cy:Math.sin(a)*13,r:13,stroke:v,strokeWidth:1.1,opacity:0.75},'s'+i));} kids.push(c({cx:0,cy:0,r:2.6,fill:gl},'core')); break; }
+      case 'dna': { kids = [ringel(g)]; for(let i=0;i<7;i++){const y=-36+i*12;const x=17*Math.sin(i*0.92);kids.push(c({cx:x,cy:y,r:3,fill:g},'l'+i));kids.push(c({cx:-x,cy:y,r:3,fill:v},'r'+i));if(i<6){kids.push(ln({x1:x,y1:y,x2:-17*Math.sin((i+1)*0.92),y2:-36+(i+1)*12,stroke:gl,strokeWidth:0.7,opacity:0.4},'rung'+i));}} break; }
+      case 'eu': { kids = [ringel(g), c({cx:0,cy:0,r:30,stroke:v,strokeWidth:1.2,opacity:0.55},'o1'), c({cx:0,cy:0,r:16,stroke:g,strokeWidth:1.3},'o2')]; for(let i=0;i<12;i++){const a=(i/12)*Math.PI*2;kids.push(ln({x1:Math.cos(a)*20,y1:Math.sin(a)*20,x2:Math.cos(a)*27,y2:Math.sin(a)*27,stroke:gl,strokeWidth:1,opacity:0.7},'ry'+i));} kids.push(c({cx:0,cy:0,r:4,fill:gl},'core')); break; }
+      case 'karma': { kids = [ringel(v), c({cx:-12,cy:0,r:18,stroke:g,strokeWidth:1.3},'a'), c({cx:12,cy:0,r:18,stroke:v,strokeWidth:1.3},'b'), c({cx:0,cy:0,r:3,fill:gl},'c')]; break; }
+      case 'protecao': { kids = [ringel(g)]; const hx=(r)=>{const p=[];for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;p.push((Math.cos(a)*r).toFixed(1)+','+(Math.sin(a)*r).toFixed(1));}return p.join(' ');}; kids.push(pg({points:hx(31),stroke:g,strokeWidth:1.5},'h1')); kids.push(pg({points:hx(19),stroke:v,strokeWidth:1.2,opacity:0.75},'h2')); kids.push(c({cx:0,cy:0,r:4,fill:gl},'core')); break; }
+      default: kids = [ringel(g)];
+    }
+    return h('svg', { width:size, height:size, viewBox:'-50 -50 100 100', fill:'none' }, kids);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const view = s.view;
+    const tab = (active) => 'padding:9px 15px; border-radius:999px; border:none; cursor:pointer; font-family:Poppins,sans-serif; font-size:12.5px; font-weight:500; white-space:nowrap; transition:all .3s; background:' + (active ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'transparent') + '; color:' + (active ? '#24160a' : 'var(--c-dim)') + ';';
+
+    // ---- form (meditativo) ----
+    const q = this.QUESTIONS[s.step] || this.QUESTIONS[0];
+    const progressDots = this.QUESTIONS.map((_, i) => ({ style: 'width:' + (i === s.step ? '24px' : '7px') + '; height:7px; border-radius:999px; transition:all .4s; background:' + (i < s.step ? 'var(--c-gold)' : i === s.step ? 'var(--c-gold-soft)' : 'color-mix(in oklab,var(--c-gold) 22%,transparent)') + ';' }));
+    const emocoes = this.EMO.map(label => {
+      const sel = s.f_emocoes.includes(label);
+      return { label, on:() => this.toggleEmo(label), style:'padding:9px 17px; border-radius:999px; cursor:pointer; font-family:Poppins,sans-serif; font-size:14px; font-weight:400; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-text)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+    const escala = [1,2,3,4,5,6,7,8,9,10].map(v => {
+      const sel = s.f_bem === v;
+      return { v, on:() => this.setBem(v), style:'width:46px; height:46px; border-radius:13px; cursor:pointer; font-family:"Chakra Petch",sans-serif; font-size:17px; font-weight:700; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-dim)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+    const backStyle = 'padding:14px 24px; border-radius:999px; border:1px solid var(--c-line); cursor:pointer; background:none; color:var(--c-dim); font-family:Poppins,sans-serif; font-size:14px; font-weight:500; transition:color .3s;';
+
+    // ---- painel ----
+    const timeline = this.TIMELINE.map(t => {
+      const isCur = t.st === 'cur', isDone = t.st === 'done';
+      const bg = isDone ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : isCur ? 'color-mix(in oklab,var(--c-orchid) 30%,transparent)' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)';
+      const col = isDone ? '#24160a' : isCur ? 'var(--c-text)' : 'var(--c-dim)';
+      const bd = isCur ? 'var(--c-orchid)' : 'var(--c-line)';
+      const tagCol = isDone ? 'var(--c-gold-soft)' : isCur ? 'var(--c-orchid)' : 'var(--c-dim)';
+      return { n:t.n, date:t.date, tag:t.tag,
+        dotStyle:'width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:"Chakra Petch",sans-serif; font-size:16px; font-weight:700; background:'+bg+'; color:'+col+'; border:1.5px solid '+bd+';',
+        tagStyle:'font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:'+tagCol+';' };
+    });
+    const wellbeingChart = this.sparkline(this.HIST.slice(0, 4), 320, 90, false);
+
+    const answerCards = [
+      { label:'Como chega', value:s.q_chega, prev:null },
+      { label:'O que pesa / pede energia', value:s.q_energia, prev:s.compare ? this.PREV.q_energia : null },
+      { label:'O que se repete', value:s.q_repete, prev:s.compare ? this.PREV.q_repete : null },
+      { label:'O corpo', value:s.q_corpo, prev:s.compare ? this.PREV.q_corpo : null },
+      { label:'O que faz bem', value:s.q_bem_faz, prev:null },
+      { label:'Sonhos', value:s.q_sonhos, prev:null },
+      { label:'Intenção', value:s.q_intencao, prev:null }
+    ];
+    const compareBtnStyle = 'padding:6px 13px; border-radius:999px; cursor:pointer; font-family:Poppins,sans-serif; font-size:11.5px; font-weight:500; transition:all .25s; color:' + (s.compare ? '#24160a' : 'var(--c-dim)') + '; background:' + (s.compare ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (s.compare ? 'transparent' : 'var(--c-line)') + ';';
+
+    const sessaoNums = [1,2,3,4,5].map(v => {
+      const sel = s.r_num === v;
+      return { v, on:() => this.setNum(v), style:'flex:1; padding:10px 0; border-radius:10px; cursor:pointer; font-family:"Chakra Petch",sans-serif; font-size:15px; font-weight:700; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-dim)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+    const camadaChips = this.CAMADAS.map(cm => {
+      const sel = s.r_camadas.includes(cm.key);
+      return { title:cm.title, on:() => this.toggleCamada(cm.key), style:'padding:8px 14px; border-radius:999px; cursor:pointer; font-family:Poppins,sans-serif; font-size:12.5px; font-weight:400; text-align:left; transition:all .25s; color:' + (sel ? '#24160a' : 'var(--c-text)') + '; background:' + (sel ? 'linear-gradient(120deg,var(--c-gold),var(--c-gold-soft))' : 'color-mix(in oklab,var(--c-bg1) 50%,transparent)') + '; border:1px solid ' + (sel ? 'transparent' : 'var(--c-line)') + ';' };
+    });
+
+    // ---- relatório ----
+    const numStr = String(s.r_num).padStart(2, '0');
+    const cicloDots = [1,2,3,4,5].map(i => ({ style:'width:' + (i === s.r_num ? '20px' : '6px') + '; height:6px; border-radius:999px; background:' + (i <= s.r_num ? 'var(--c-gold)' : 'color-mix(in oklab,var(--c-gold) 26%,transparent)') + '; transition:all .4s;' }));
+    const camadasTratadas = s.r_camadas.map(key => {
+      const cm = this.CAMADAS.find(x => x.key === key) || {};
+      return { title:cm.title, icon:this.icon(cm.icon, 44) };
+    });
+    const orientacoes = [s.r_o1, s.r_o2, s.r_o3].filter(x => x && x.trim()).map((text, i) => ({ n:String(i+1), text }));
+
+    // ---- fechamento ----
+    const fechamentoChart = this.sparkline(this.HIST, 440, 150, true);
+    const camadasMapa = this.CAMADAS.map(cm => {
+      const tocada = s.r_camadas.includes(cm.key);
+      return { title:cm.title, icon:this.icon(cm.icon, 38),
+        border: tocada ? 'var(--c-line)' : 'color-mix(in oklab,var(--c-line) 50%,transparent)',
+        bg: tocada ? 'linear-gradient(150deg, color-mix(in oklab,var(--c-bg2) 44%,transparent), color-mix(in oklab,var(--c-bg1) 38%,transparent))' : 'transparent',
+        color: tocada ? 'var(--c-gold-soft)' : 'var(--c-dim)',
+        opacity: tocada ? '1' : '0.4' };
+    });
+
+    // checkpoint de vida — semana a semana
+    const semanas = [
+      { n:'1', data:'Sem. 1', foco:'Abrir o terreno', camadas:['Limpeza energética','Proteção do campo'], relato:'Você chegou exausto, sentindo que carregava um peso difuso há meses, sem saber nomear de onde vinha.', shift:'A sobrecarga começou a aliviar. Você relatou dormir melhor já nos primeiros dias e uma sensação de "respiro" no peito.' },
+      { n:'2', data:'Sem. 2', foco:'Cortar o que drena', camadas:['Corte de vínculos','Resgate do poder pessoal'], relato:'Trouxe uma relação específica que te consumia — você se sentia pequeno e sem voz diante dela.', shift:'Pela primeira vez você disse não sem culpa. O movimento de impor um limite, que parecia impossível, aconteceu.' },
+      { n:'3', data:'Sem. 3', foco:'Tocar a raiz antiga', camadas:['Criança interior','DNA e ancestralidade'], relato:'Percebeu que o mesmo medo aparecia desde a infância e que ele também era da sua mãe e da sua avó.', shift:'Uma emoção antiga foi acolhida e liberada. Você descreveu uma "leveza estranha", como soltar algo que nem sabia que segurava.' },
+      { n:'4', data:'Sem. 4', foco:'Reencontrar a direção', camadas:['Reconexão com o Eu Superior','Liberação kármica'], relato:'Já mais firme, você queria clareza sobre uma decisão importante que vinha adiando.', shift:'A bússola interna voltou. Você saiu da sessão sabendo qual era o próximo passo — e disposto a dá-lo.' },
+      { n:'5', data:'Sem. 5', foco:'Selar e seguir', camadas:['Proteção e selagem','Equilíbrio energético'], relato:'Chegou diferente de quem começou: mais inteiro, mais presente, dono das próprias escolhas.', shift:'Consolidamos tudo o que foi destravado e desenhamos juntos este checkpoint — o mapa para você seguir caminhando sozinho.' }
+    ];
+    const areas = [
+      { title:'Relações', icon:this.icon('corte', 40), de:'3', ate:'8', antes:'Dificuldade de impor limites; sensação de se anular diante dos outros para evitar conflito.', agora:'Você se posiciona com mais clareza e firmeza, sem culpa. Os vínculos que drenavam perderam força.' },
+      { title:'Saúde e vitalidade', icon:this.icon('limpeza', 40), de:'4', ate:'9', antes:'Cansaço constante sem causa aparente, sono irregular e ansiedade de fundo no dia a dia.', agora:'Mais disposição e sono reparador. A mente está mais quieta e o corpo voltou a circular energia.' },
+      { title:'Prosperidade', icon:this.icon('poder', 40), de:'2', ate:'7', antes:'Bloqueio de merecimento e medos herdados travando, em silêncio, o que você se permitia buscar.', agora:'Mais abertura para receber e agir. Você já identificou uma oportunidade concreta e decidiu agarrá-la.' }
+    ];
+    const cpAgora = 'Você não é a mesma pessoa que iniciou este ciclo. O peso difuso deu lugar a mais leveza, presença e comando sobre a própria vida. As travas na raiz foram tocadas — e o que antes paralisava agora se move. Daqui pra frente, a espiritualidade já fez a parte dela; quem caminha é você.';
+    const cpMovimentos = [
+      { n:'1', text:'Sustentar o limite que você aprendeu a impor — especialmente naquela relação que te consumia. Ele vai ser testado; mantenha-o.' },
+      { n:'2', text:'Dar o passo concreto na decisão que ganhou clareza na 4ª semana. A direção já está dada; falta o movimento no plano físico.' },
+      { n:'3', text:'Agarrar a oportunidade de prosperidade que você identificou, em vez de adiar à espera do "momento perfeito".' }
+    ];
+    const cpPraticas = ['Respiração consciente ao acordar','Registrar 1 vitória por dia','Revisar os limites uma vez por semana','Momento de silêncio antes de dormir'];
+
+    return {
+      semanas, areas, cpAgora, cpMovimentos, cpPraticas,
+      goForm:this.goForm, goPainel:this.goPainel, goRelatorio:this.goRelatorio, goFechamento:this.goFechamento,
+      tabFormStyle:tab(view==='form'), tabPainelStyle:tab(view==='painel'), tabRelatorioStyle:tab(view==='relatorio'), tabFechamentoStyle:tab(view==='fechamento'),
+      isForm:view==='form', isPainel:view==='painel', isRelatorio:view==='relatorio', isFechamento:view==='fechamento',
+      toast:s.toast,
+      markGlow:this.cosbaMark(60, true), markSmall:this.cosbaMark(44, false),
+      // form
+      f_nome:s.f_nome, onNome:this.field('f_nome'),
+      phaseIntro:s.phase==='intro', phaseQ:s.phase==='q', phaseDone:s.phase==='done',
+      startForm:this.startForm, prevStep:this.prevStep, nextStep:this.nextStep, backStyle,
+      progressDots, stepCounter:'Pergunta ' + (s.step+1) + ' de ' + this.QUESTIONS.length,
+      curLabel:q.label, curGuide:q.guide, curPlaceholder:q.placeholder || '',
+      curIsText:q.type==='text', curIsEmo:q.type==='emo', curIsScale:q.type==='scale',
+      curValue:s[q.key] || '', onCur:this.field(q.key),
+      nextLabel: s.step === this.QUESTIONS.length - 1 ? 'Concluir ✦' : 'Continuar →',
+      stepOpacity: s.stepShown ? '1' : '0', stepShift: s.stepShown ? '0px' : '12px',
+      emocoes, escala, f_palavra:s.q_palavra,
+      // painel
+      f_bem:s.f_bem, timeline, wellbeingChart,
+      hasEmocoes:s.f_emocoes.length>0, emocoesSel:s.f_emocoes, answerCards,
+      toggleCompare:this.toggleCompare, compareBtnStyle, compareLabel: s.compare ? 'ocultar comparação' : 'comparar semanas',
+      r_data:s.r_data, onData:this.field('r_data'),
+      r_ecos:s.r_ecos, onEcos:this.field('r_ecos'),
+      r_sintese:s.r_sintese, onSintese:this.field('r_sintese'),
+      r_fechamento:s.r_fechamento, onFechamento:this.field('r_fechamento'),
+      r_o1:s.r_o1, onO1:this.field('r_o1'), r_o2:s.r_o2, onO2:this.field('r_o2'), r_o3:s.r_o3, onO3:this.field('r_o3'),
+      sessaoNums, camadaChips, gerarRelatorio:this.gerarRelatorio,
+      // relatório
+      r_numLabel:numStr, cicloDots, camadasTratadas, orientacoes, imprimir:this.imprimir,
+      // fechamento
+      f_intencao:s.q_intencao, fc_chegada:s.fc_chegada, fechamentoChart,
+      fc_evolucaoNota:s.fc_evolucaoNota, camadasMapa, fc_integracao:s.fc_integracao
+    };
+  }
+}
+</script>
+</body>
+</html>

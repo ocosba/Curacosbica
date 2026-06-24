@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-58 -58 116 116" width="256" height="256" fill="none">
+<circle cx="0" cy="0" r="22" fill="none" stroke="#E3BE45" stroke-width="2"></circle>
+<circle cx="22" cy="0" r="22" fill="none" stroke="#E3BE45" stroke-width="2"></circle>
+<circle cx="11" cy="19.05" r="22" fill="none" stroke="#E3BE45" stroke-width="2"></circle>
+<circle cx="-11" cy="19.05" r="22" fill="none" stroke="#E3BE45" stroke-width="2"></circle>
+<circle cx="-22" cy="0" r="22" fill="none" stroke="#E3BE45" stroke-width="2"></circle>
+<circle cx="-11" cy="-19.05" r="22" fill="none" stroke="#E3BE45" stroke-width="2"></circle>
+<circle cx="11" cy="-19.05" r="22" fill="none" stroke="#E3BE45" stroke-width="2"></circle>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-100 -128 200 228" width="224" height="255" fill="none">
+<circle cx="0" cy="10" r="66" fill="none" stroke="#B06CB0" stroke-width="2.4"></circle>
+<circle cx="66" cy="10" r="4.2" fill="#B06CB0"></circle>
+<circle cx="46.67" cy="56.67" r="4.2" fill="#B06CB0"></circle>
+<circle cx="-46.67" cy="56.67" r="4.2" fill="#B06CB0"></circle>
+<circle cx="-66" cy="10" r="4.2" fill="#B06CB0"></circle>
+<circle cx="-46.67" cy="-36.67" r="4.2" fill="#B06CB0"></circle>
+<circle cx="46.67" cy="-36.67" r="4.2" fill="#B06CB0"></circle>
+<circle cx="0" cy="10" r="27" fill="none" stroke="#C3B8EC" stroke-width="2"></circle>
+<circle cx="27" cy="10" r="27" fill="none" stroke="#C3B8EC" stroke-width="2"></circle>
+<circle cx="13.5" cy="33.38" r="27" fill="none" stroke="#C3B8EC" stroke-width="2"></circle>
+<circle cx="-13.5" cy="33.38" r="27" fill="none" stroke="#C3B8EC" stroke-width="2"></circle>
+<circle cx="-27" cy="10" r="27" fill="none" stroke="#C3B8EC" stroke-width="2"></circle>
+<circle cx="-13.5" cy="-13.38" r="27" fill="none" stroke="#C3B8EC" stroke-width="2"></circle>
+<circle cx="13.5" cy="-13.38" r="27" fill="none" stroke="#C3B8EC" stroke-width="2"></circle>
+<polygon points="0,-96 -21,-60 21,-60" fill="none" stroke="#E3BE45" stroke-width="2.6"></polygon>
+<polygon points="0,-48 -21,-84 21,-84" fill="none" stroke="#E3BE45" stroke-width="2.6"></polygon>
+<circle cx="0" cy="-72" r="6.5" fill="none" stroke="#E3BE45" stroke-width="2"></circle>
+<circle cx="0" cy="-72" r="2.2" fill="#E3BE45"></circle>
+</svg>

@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="uuid_id">
+  <metadata xmlns:opf="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
+    <dc:language>pt</dc:language>
+    <dc:creator opf:file-as="Un-named" opf:role="aut">Un-named</dc:creator>
+    <dc:contributor opf:role="bkp">calibre (8.4.0) [https://calibre-ebook.com]</dc:contributor>
+    <meta name="calibre:timestamp" content="2026-03-20T23:20:40.971718+00:00"/>
+    <dc:identifier id="uuid_id" opf:scheme="uuid">050692d6-cca6-4e4a-b34b-b0f52ca9e93e</dc:identifier>
+    <dc:title>Unknown</dc:title>
+    <meta name="cover" content="cover"/>
+  </metadata>
+  <manifest>
+    <item id="cover" href="cover_image.jpg" media-type="image/jpeg"/>
+    <item id="titlepage" href="titlepage.xhtml" media-type="application/xhtml+xml"/>
+    <item id="id2" href="index.html" media-type="application/xhtml+xml"/>
+    <item id="page_css" href="page_styles.css" media-type="text/css"/>
+    <item id="css" href="stylesheet.css" media-type="text/css"/>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="titlepage"/>
+    <itemref idref="id2"/>
+  </spine>
+  <guide>
+    <reference type="cover" href="titlepage.xhtml" title="Title page"/>
+  </guide>
+</package>
