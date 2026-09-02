@@ -1,6 +1,37 @@
+# 🔐 Variáveis de Ambiente e Chaves (Segurança Máxima)
 .env
+.env.local
+.env.*.local
+*.env
+*.pem
+scripts/telegram_config.json
+
+
+# 📦 Dependências e Outputs de Build
 node_modules/
-__pycache__/
 frontend/dist/
+frontend/dist-ssr/
+dist/
+build/
+
+# 🐍 Python (Cache e Ambientes Virtuais)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/
+ENV/
+
+# 🖥️ Arquivos do Sistema Operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 📁 Arquivos de Rascunho e Compactados
 scratch/
 *.zip
+*.rar
+*.tar.gz
+

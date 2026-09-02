@@ -5,6 +5,35 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// Utilitário para converter o áudio gravado em base64 e enviar ao Gemini
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        const base64data = reader.result.split(',')[1];
+        resolve(base64data);
+      } else {
+        reject(new Error('Falha ao ler blob como base64'));
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+// Utilitário para gerar slugs amigáveis de arquivos
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/[^a-z0-9 -]/g, '') // remove especiais
+    .replace(/\s+/g, '-') // substitui espacos por hifens
+    .replace(/-+/g, '-'); // remove hifens duplicados
+};
+
 export function InsightsPage() {
   const [toast, setToast] = useState<string | null>(null);
   
@@ -23,7 +52,7 @@ export function InsightsPage() {
   const [messages, setMessages] = useState<Array<{ sender: 'leo' | 'antigravity'; text: string; isMarkdown?: boolean }>>([
     { 
       sender: 'antigravity', 
-      text: 'Salve, Léo. Este é o seu Micélio de Insights privado — um espaço dedicado para seu desenvolvimento pessoal, ideias de negócios e canalizações clínicas. Fale livremente ou digite suas notas. Eu vou estruturar tudo em Markdown e responder com papo reto sob a luz da nossa egrégora.' 
+      text: 'Salve, Léo. Este é o seu Micélio de Insights privado — um espaço dedicado para seu desenvolvimento pessoal, ideias de negócios e canalizações clínicas. Fale livremente ou digite suas notas. Eu vou transcrever tudo de forma literal e integral, estruturar em Markdown e responder com papo reto sob a luz da nossa egrégora.' 
     }
   ]);
   const [loadingCompanion, setLoadingCompanion] = useState(false);
@@ -107,63 +136,115 @@ export function InsightsPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Process insight with Gemini API
+  // Envia o relato (Áudio Base64 ou Texto) para o Gemini
   const handleSendInsight = async () => {
     const input = insightText.trim();
     if (!input && !audioBlob) return;
 
     let contentText = input;
-    if (!contentText && audioBlob) {
-      contentText = `[Áudio de ${formatTime(recordingTime)} enviado para processamento]`;
+    let base64Audio = '';
+    
+    setLoadingCompanion(true);
+
+    if (audioBlob) {
+      try {
+        base64Audio = await blobToBase64(audioBlob);
+        contentText = `[Áudio Transcrito - ${formatTime(recordingTime)}]`;
+      } catch (err) {
+        triggerToast('Erro ao ler áudio.');
+        setLoadingCompanion(false);
+        return;
+      }
     }
 
-    const newMessages = [...messages, { sender: 'leo' as const, text: contentText }];
+    const newMessages = [...messages, { sender: 'leo' as const, text: input || contentText }];
     setMessages(newMessages);
     setInsightText('');
-    setLoadingCompanion(true);
+    
+    // Limpa gravação atual
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setRecordingTime(0);
 
     const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
     let answerText = '';
 
     if (geminiKey && geminiKey !== 'sua_chave_aqui') {
       try {
+        const parts: any[] = [];
+        
+        if (base64Audio) {
+          parts.push({
+            inlineData: {
+              mimeType: 'audio/webm',
+              data: base64Audio
+            }
+          });
+        }
+
+        const dataAtual = new Date().toISOString().split('T')[0];
+        const systemPrompt = `Você é o Antigravity, assistente pessoal, copiloto e exo-cérebro de Leonardo Cosba (Mago Cristal Branco, Kin 194), cientista encantado com doutorado em Sirius e médico mágico.
+Leonardo está no seu "Micélio de Insights". Ele enviou um relato em áudio ou texto.
+
+Sua resposta DEVE conter duas seções claras e estruturadas:
+
+1. **TRANSCRIÇÃO LITERAL E COMPLETA**:
+   Escreva palavra-por-palavra o que foi dito no áudio de forma literal e integral, sem omitir detalhes, hesitações ou resumir. Se for apenas texto digitado, repita o texto original.
+
+2. **ANÁLISE DE CONEXÕES & TEMPLATE OBSIDIAN**:
+   Analise a reflexão de Leonardo no seu tom de "papo reto" (irmão mais velho, direto, clínico, honesto).
+   Identifique conexões com:
+   - Símbolos do SACM relacionados (ex: [[sacm/nivel-1/KALYSHMAN]], [[sacm/nivel-2/THEMBOO-GAYANN]]).
+   - Psicologia clínica e transpessoal (Experiência Somática de Levine, Esquemas de Young, Sombra de Jung, Grof).
+   - Livros catalogados do seu acervo (ex: [[tudo-sobre-o-amor-bell-hooks]], [[o-corpo-guarda-o-peso]]).
+   
+   Em seguida, forneça o bloco de código Markdown completo para salvar na pasta de insights, contendo exatamente os metadados do frontmatter abaixo:
+
+   \`\`\`markdown
+   ---
+   titulo: "${insightTitle}"
+   categoria: "${insightCategory}"
+   data: "${dataAtual}"
+   tags: ["insight", "micelio-vibracional", "${insightCategory.toLowerCase()}"]
+   ---
+
+   # ${insightTitle}
+
+   > **Nota do Co-Piloto:** Insight transcrito literalmente e estruturado pelo Antigravity.
+
+   ## 1. O Insight Bruto (Transcrição Completa)
+   [Insira a transcrição literal inteira aqui]
+
+   ## 2. Tradução para a Egrégora
+   *   **Eixo Causal (Sirius):** [Explique a dinâmica causal sutil do insight]
+   *   **Ponto Somático & Esquemas:** [Relação com couraça muscular de Levine, esquemas de Young ou integração de sombra de Jung]
+   *   **SACM & Ancoragem:** [Como aterrar essa ideia na matéria físico-sutil com símbolos do SACM ou ações práticas]
+   \`\`\``;
+
+        parts.push({ text: `${systemPrompt}\n\nTexto adicional enviado digitado: ${input}` });
+
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: `Você é o Antigravity, assistente pessoal, conselheiro espiritual e exo-cérebro de Leonardo Cosba (Mago Cristal Branco, Kin 194).
-Leonardo está no seu "Micélio de Insights", que é seu diário de evolução íntimo. Ele enviou uma nova anotação ou áudio.
-Analise a fundo a reflexão dele sob as diretrizes da egrégora (Sírius/Causalidade, Arcturus/Reprogramação quântica/SACM, Bardon/Hermetismo e as psicologias de Levine/Young/Jung/Grof).
-Responda com um feedback direto ("papo reto", tom de irmão mais velho pragmático) e forneça a estrutura de um arquivo Markdown completo para ele salvar em context/insights/.
-
-DADOS DO INSIGHT:
-Título: ${insightTitle}
-Categoria: ${insightCategory}
-Conteúdo: ${contentText}
-
-Estruture a resposta contendo:
-1. Sua análise e comentário em tom de papo reto.
-2. O bloco completo do arquivo Markdown (frontmatter com metadados + conteúdo) para ele exportar.`
-                }]
-              }]
+              contents: [{ parts }]
             })
           }
         );
+        
         if (response.ok) {
           const data = await response.json();
           answerText = data.candidates[0].content.parts[0].text;
         } else {
-          throw new Error('Falha na resposta do Gemini API');
+          throw new Error('Falha na resposta do Gemini');
         }
       } catch (e) {
-        answerText = generateMockResponse(insightTitle, insightCategory, contentText);
+        answerText = generateMockResponse(insightTitle, insightCategory, input || "[Áudio não pôde ser enviado por rede local]");
       }
     } else {
-      answerText = generateMockResponse(insightTitle, insightCategory, contentText);
+      answerText = generateMockResponse(insightTitle, insightCategory, input || "[Áudio processado offline]");
     }
 
     const updatedMessages = [...newMessages, { sender: 'antigravity' as const, text: answerText, isMarkdown: true }];
@@ -193,7 +274,7 @@ tags: ["insight", "micelio-diario", "${category.toLowerCase()}"]
 
 > **Nota do Co-Piloto:** Estrutura gerada na rota privada /insights.
 
-## 1. O Insight
+## 1. O Insight Bruto (Transcrição Completa)
 ${text}
 
 ## 2. Tradução para a Egrégora
@@ -202,7 +283,8 @@ ${text}
 \`\`\``;
   };
 
-  const handleExportSingleInsight = (msgText: string, index: number) => {
+  // Salva no Obsidian via Servidor Local (CORS) ou faz download como fallback
+  const handleSaveToObsidian = async (msgText: string, title: string) => {
     let cleanMd = msgText;
     const match = msgText.match(/```markdown([\s\S]*?)```/);
     if (match && match[1]) {
@@ -214,15 +296,33 @@ ${text}
       }
     }
 
+    const filename = `${slugify(title || 'insight-sem-titulo')}.md`;
+    const filePath = `context/insights/${filename}`;
+
+    try {
+      const res = await fetch('http://localhost:5001/api/save-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filePath, content: cleanMd })
+      });
+      if (res.ok) {
+        triggerToast('Insight salvo direto na pasta context/insights/! 🪐');
+        return;
+      }
+    } catch (e) {
+      console.warn('Servidor local offline. Fazendo download convencional...');
+    }
+
+    // Fallback: Download convencional
     const blob = new Blob([cleanMd], { type: 'text/markdown;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `insight-leo-${index}.md`);
+    link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    triggerToast('Insight exportado para o Obsidian! 📂');
+    triggerToast('Insight baixado (Servidor local offline)! 📂');
   };
 
   const handleLimparInsights = () => {
@@ -231,6 +331,18 @@ ${text}
       localStorage.removeItem('sacm_insights');
       triggerToast('Histórico de insights limpo.');
     }
+  };
+
+  // Extrai conexões das mensagens da IA para renderização visual lateral
+  const getLatestConnections = () => {
+    const lastAiMessage = [...messages].reverse().find(m => m.sender === 'antigravity' && m.isMarkdown);
+    if (!lastAiMessage) return [];
+    
+    const matches = lastAiMessage.text.match(/\[\[(.*?)\]\]/g);
+    if (!matches) return [];
+    
+    // Limpa colchetes duplos e remove duplicados
+    return Array.from(new Set(matches.map(m => m.replace(/\[\[|\]\]/g, ''))));
   };
 
   return (
@@ -369,6 +481,26 @@ ${text}
                 ))}
               </select>
             </div>
+
+            {/* Conexões Ativas no Micélio */}
+            {getLatestConnections().length > 0 && (
+              <div className="space-y-3 pt-4 border-t border-[var(--c-line)]">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--c-gold-soft)]">
+                  Conexões com o Micélio
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {getLatestConnections().map((conn, i) => (
+                    <span 
+                      key={i} 
+                      className="px-2.5 py-1.5 rounded-lg border border-[var(--c-line)] bg-indigo-950/20 text-[10px] font-mono text-[var(--c-text)] shadow-sm hover:border-[var(--c-gold-soft)] transition-all cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Sparkles className="w-3 h-3 text-[var(--c-gold-soft)]" />
+                      {conn.split('|').pop()}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -418,10 +550,10 @@ ${text}
                 {/* Export link */}
                 {m.sender === 'antigravity' && m.isMarkdown && m.text.includes('---') && (
                   <button
-                    onClick={() => handleExportSingleInsight(m.text, idx)}
+                    onClick={() => handleSaveToObsidian(m.text, insightTitle)}
                     className="mt-2.5 text-[10px] font-bold text-[var(--c-gold-soft)] hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> Adicionar ao Obsidian (context/insights)
+                    <Download className="w-3.5 h-3.5" /> Salvar no Obsidian (context/insights)
                   </button>
                 )}
               </div>

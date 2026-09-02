@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: sincronario-cosbico-bot
+    env: python
+    buildCommand: ""
+    startCommand: "python -u scripts/bot_server.py"
+    plan: free
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_SUBSCRIBERS
+        sync: false
+      - key: DISPATCH_HOUR
+        value: "6"
+      - key: DISPATCH_MINUTE
+        value: "0"

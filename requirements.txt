@@ -1,0 +1,2 @@
+# Sincronario Cosbico — Telegram Bot 24/7
+# Python Standard Library only (zero external pip dependencies)

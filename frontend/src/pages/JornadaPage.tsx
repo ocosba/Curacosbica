@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Wind, ArrowLeft, ArrowRight, Sparkles, 
-  ChevronDown, ChevronUp, AlertCircle
+  ChevronDown, ChevronUp, AlertCircle, Mic, Square, Trash2
 } from 'lucide-react';
 import { MarkSmall, MarkGlow } from '../components/SacredGeometry';
 
@@ -111,8 +111,25 @@ const CAMADAS_INFO = {
   }
 };
 
+// Helper para converter áudio para base64
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        const base64data = reader.result.split(',')[1];
+        resolve(base64data);
+      } else {
+        reject(new Error('Falha ao converter blob para base64'));
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
 export function JornadaPage() {
-  const [view, setView] = useState('form'); // form | relatorio | fechamento
+  const [view, setView] = useState('diario'); // diario | form | relatorio | fechamento
   const [phase, setPhase] = useState('intro'); // intro | breathwork | q | done
   const [step, setStep] = useState(0);
   const [breathCycle, setBreathCycle] = useState(0);
@@ -146,6 +163,24 @@ export function JornadaPage() {
     q_intencao: '',
     q_palavra: ''
   });
+
+  // Client Audio Recording States e Refs
+  const [clientRecording, setClientRecording] = useState(false);
+  const [clientRecordingTime, setClientRecordingTime] = useState(0);
+  const [clientAudioBlob, setClientAudioBlob] = useState<Blob | null>(null);
+  const [loadingTranscription, setLoadingTranscription] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const clientMediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const clientAudioChunksRef = useRef<Blob[]>([]);
+  const clientTimerRef = useRef<any>(null);
+
+  // Daily Check-in States
+  const [dailyText, setDailyText] = useState('');
+  const [dailySomatic, setDailySomatic] = useState('Aperto no peito');
+  const [dailyTrigger, setDailyTrigger] = useState('Dizer não / cobrança materna');
+  const [dailyTimeline, setDailyTimeline] = useState<any[]>([]);
+
 
   // Report state from therapist (persisted mock or localStorage)
   const [r_num, setNum] = useState(2);
@@ -248,6 +283,202 @@ export function JornadaPage() {
         ...newAnswers 
       }));
     } catch (e) {}
+  };
+
+  const triggerToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  const startClientRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      clientAudioChunksRef.current = [];
+      const mediaRecorder = new MediaRecorder(stream);
+      clientMediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          clientAudioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(clientAudioChunksRef.current, { type: 'audio/webm' });
+        setClientAudioBlob(audioBlob);
+        await handleTranscribeClientAudio(audioBlob);
+      };
+
+      mediaRecorder.start();
+      setClientRecording(true);
+      setClientRecordingTime(0);
+
+      clientTimerRef.current = setInterval(() => {
+        setClientRecordingTime((prev) => prev + 1);
+      }, 1000);
+
+    } catch (e) {
+      triggerToast('Microfone indisponível ou acesso negado.');
+    }
+  };
+
+  const stopClientRecording = () => {
+    if (clientMediaRecorderRef.current && clientRecording) {
+      clientMediaRecorderRef.current.stop();
+      clientMediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+      setClientRecording(false);
+      if (clientTimerRef.current) {
+        clearInterval(clientTimerRef.current);
+        clientTimerRef.current = null;
+      }
+    }
+  };
+
+  const handleTranscribeClientAudio = async (blob: Blob) => {
+    setLoadingTranscription(true);
+    const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!geminiKey || geminiKey === 'sua_chave_aqui') {
+      setTimeout(() => {
+        const mockText = "Relato em áudio do cliente processado localmente: Senti uma leve tensão no peito hoje à tarde após uma conversa sobre limites.";
+        if (view === 'diario') {
+          setDailyText(mockText);
+        } else {
+          handleTextChange(QUESTIONS[step].key, mockText);
+        }
+        setLoadingTranscription(false);
+        triggerToast('Áudio transcrito (Mock)! 🎙️');
+      }, 1500);
+      return;
+    }
+
+    try {
+      const base64Audio = await blobToBase64(blob);
+      const systemPrompt = `Você é o Antigravity, copiloto do terapeuta Leonardo. 
+Transcreva o seguinte áudio de forma integral e palavra-por-palavra em português. 
+Retorne APENAS o texto transcrito cru, sem nenhuma introdução, explicação ou formatação.`;
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { inlineData: { mimeType: 'audio/webm', data: base64Audio } },
+                { text: systemPrompt }
+              ]
+            }]
+          })
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.candidates[0].content.parts[0].text.trim();
+        if (view === 'diario') {
+          setDailyText(text);
+        } else {
+          handleTextChange(QUESTIONS[step].key, text);
+        }
+        triggerToast('Áudio transcrito com sucesso! 🎙️');
+      } else {
+        throw new Error('Falha no Gemini');
+      }
+    } catch (e) {
+      triggerToast('Erro na transcrição automática.');
+    } finally {
+      setLoadingTranscription(false);
+    }
+  };
+
+  const handleSubmitDaily = async () => {
+    if (!dailyText.trim()) return;
+
+    setLoadingTranscription(true);
+    const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    let summary = {
+      humor_sutil: 'Oscilante / Cansado',
+      sintoma_fisico: dailySomatic,
+      resumo_essencial: dailyText.substring(0, 80) + '...'
+    };
+
+    if (geminiKey && geminiKey !== 'sua_chave_aqui') {
+      try {
+        const prompt = `Analise o relato diário de ${f_nome}: "${dailyText}".
+Seu ponto somático alvo é "${dailySomatic}" e seu gatilho emocional alvo é "${dailyTrigger}".
+Retorne um objeto JSON contendo exatamente as chaves:
+{
+  "humor_sutil": "resumo de humor (ex: Sobrecarga, Centrado, Ansioso)",
+  "sintoma_fisico": "como está a somatização alvo (ex: Aperto no peito persistente, Acomodado)",
+  "resumo_essencial": "uma frase curta resumindo a dinâmica de hoje para o terapeuta"
+}
+Retorne apenas o JSON.`;
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }]
+            })
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          let jsonText = data.candidates[0].content.parts[0].text.trim();
+          if (jsonText.startsWith('```json')) jsonText = jsonText.substring(7);
+          if (jsonText.endsWith('```')) jsonText = jsonText.substring(0, jsonText.length - 3);
+          summary = JSON.parse(jsonText.trim());
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const newEntry = {
+      data: new Date().toISOString().split('T')[0],
+      transcricao: dailyText,
+      ...summary
+    };
+
+    try {
+      let db: any = {};
+      try {
+        const res = await fetch('http://localhost:5001/api/load-db');
+        if (res.ok) db = await res.json();
+      } catch (err) {}
+
+      const clientKey = f_nome.toLowerCase() || 'mariana';
+      if (!db[clientKey]) {
+        db[clientKey] = {
+          nome: f_nome || 'Mariana',
+          ponto_somatizacao: dailySomatic,
+          tema_gatilho: dailyTrigger,
+          diario: []
+        };
+      }
+      
+      const updatedDiario = [...(db[clientKey].diario || []), newEntry];
+      db[clientKey].diario = updatedDiario;
+      setDailyTimeline(updatedDiario);
+
+      await fetch('http://localhost:5001/api/save-db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(db)
+      });
+
+      localStorage.setItem('sacm_client_diario', JSON.stringify(updatedDiario));
+      triggerToast('Relato diário sintonizado com sucesso! 🪐');
+      setDailyText('');
+    } catch (e) {
+      triggerToast('Erro ao salvar relato.');
+    } finally {
+      setLoadingTranscription(false);
+    }
   };
 
   // Breathwork loop
@@ -355,12 +586,20 @@ export function JornadaPage() {
         </div>
         <div className="flex bg-slate-950/60 p-1 rounded-full border border-[var(--c-line)] gap-1">
           <button 
+            onClick={() => changeView('diario')}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${
+              view === 'diario' ? 'bg-gradient-to-r from-[var(--c-gold)] to-[var(--c-gold-soft)] text-[#24160a]' : 'text-[var(--c-dim)] hover:text-[var(--c-text)]'
+            }`}
+          >
+            0. Pulsar Diário
+          </button>
+          <button 
             onClick={() => changeView('form')}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${
               view === 'form' ? 'bg-gradient-to-r from-[var(--c-gold)] to-[var(--c-gold-soft)] text-[#24160a]' : 'text-[var(--c-dim)] hover:text-[var(--c-text)]'
             }`}
           >
-            1. Relato
+            1. Relato Semanal
           </button>
           <button 
             onClick={() => changeView('relatorio')}
@@ -380,6 +619,119 @@ export function JornadaPage() {
           </button>
         </div>
       </header>
+
+      {/* TELA 0 — PULSAR DIÁRIO (DESABAFO DE FLOW) */}
+      {view === 'diario' && (
+        <div className="max-w-xl mx-auto px-6 pt-12 flex flex-col justify-center min-h-[calc(100vh-140px)]">
+          <div className="border border-[var(--c-line)] rounded-3xl overflow-hidden bg-gradient-to-b from-[var(--c-bg2)]/30 to-[var(--c-bg0)]/60 shadow-2xl relative p-8">
+            <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-yellow-500/5 to-transparent pointer-events-none" />
+            
+            {/* Toast Notification Interno */}
+            {toast && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-gradient-to-r from-[var(--c-gold)] to-[var(--c-gold-soft)] text-[#24160a] text-[10px] font-bold uppercase rounded-full shadow-lg z-50">
+                {toast}
+              </div>
+            )}
+
+            <div className="text-center pb-6 border-b border-[var(--c-line)]">
+              <div className="flex justify-center mb-4">
+                <MarkGlow />
+              </div>
+              <p className="text-[var(--c-gold)] text-[10px] uppercase font-bold tracking-widest mb-1 flex items-center justify-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Pulsar Diário
+              </p>
+              <h1 className="font-serif text-3xl font-light text-[var(--c-text)] mb-2">Desabafo de Flow</h1>
+              <p className="text-xs text-[var(--c-dim)] font-light max-w-sm mx-auto">
+                Sintonize-se com a sua egrégora de cura. Fale ou digite como você está hoje na somática e nas emoções.
+              </p>
+            </div>
+
+            <div className="py-6 space-y-6">
+              {/* Dynamic prompts based on diagnosis */}
+              <div className="p-4 rounded-2xl border border-[var(--c-line)] bg-slate-900/20 space-y-3 text-left">
+                <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--c-gold-soft)] block">Suas âncoras de atenção diária:</span>
+                <div className="space-y-2 text-xs font-light leading-relaxed">
+                  <p className="flex items-start gap-2 text-[var(--c-text)]">
+                    <span className="text-[var(--c-gold)]">•</span>
+                    Como você sentiu seu corpo hoje, em especial o **{dailySomatic}**?
+                  </p>
+                  <p className="flex items-start gap-2 text-[var(--c-text)]">
+                    <span className="text-[var(--c-gold)]">•</span>
+                    Como foi sua postura física e emocional diante do gatilho de **{dailyTrigger}**?
+                  </p>
+                </div>
+              </div>
+
+              {/* Input Area */}
+              <div className="space-y-3 text-left">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--c-gold-soft)]">
+                  Seu relato do dia (Áudio ou Texto)
+                </label>
+                
+                <textarea 
+                  value={dailyText}
+                  onChange={(e) => setDailyText(e.target.value)}
+                  placeholder="Fale livremente ou digite sobre sua somática, limites ou sincronicidades hoje..."
+                  rows={4}
+                  className="w-full p-4 rounded-xl border border-[var(--c-line)] bg-slate-950/40 text-xs leading-relaxed text-[var(--c-text)] focus:border-[var(--c-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--c-gold)] transition-all resize-none font-light"
+                />
+
+                <div className="flex items-center justify-between gap-3 pt-1">
+                  {/* Calibração de foco apenas para testes */}
+                  <div className="flex gap-2 text-[8px] text-[var(--c-dim)]">
+                    <span className="cursor-pointer hover:text-[var(--c-gold-soft)]" onClick={() => {
+                      const som = window.prompt("Mudar foco de somatização:", dailySomatic);
+                      if (som) setDailySomatic(som);
+                    }}> Somática ⚙️</span>
+                    <span className="cursor-pointer hover:text-[var(--c-gold-soft)]" onClick={() => {
+                      const gat = window.prompt("Mudar foco de gatilho:", dailyTrigger);
+                      if (gat) setDailyTrigger(gat);
+                    }}> Gatilho ⚙️</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {loadingTranscription && (
+                      <span className="text-[10px] text-[var(--c-dim)] animate-pulse flex items-center gap-1.5">
+                        <Brain className="w-3 h-3 animate-spin text-[var(--c-gold-soft)]" />
+                        Sintonizando...
+                      </span>
+                    )}
+
+                    {clientRecording ? (
+                      <button
+                        onClick={stopClientRecording}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-[9px] font-bold uppercase rounded-full flex items-center gap-1 cursor-pointer animate-pulse"
+                      >
+                        <Square className="w-3 h-3" /> Parar ({formatTime(clientRecordingTime)})
+                      </button>
+                    ) : (
+                      <button
+                        onClick={startClientRecording}
+                        className="px-4 py-2 border border-[var(--c-line)] hover:border-[var(--c-gold-soft)] bg-yellow-500/5 text-[9px] font-bold text-[var(--c-gold-soft)] uppercase rounded-full flex items-center gap-1 cursor-pointer"
+                      >
+                        <Mic className="w-3 h-3" /> Gravar Voz
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit button */}
+              <button
+                onClick={handleSubmitDaily}
+                disabled={!dailyText.trim() || loadingTranscription}
+                className={`w-full py-3.5 rounded-full font-bold text-xs uppercase tracking-wider transition-all shadow-md ${
+                  dailyText.trim() && !loadingTranscription
+                    ? 'bg-gradient-to-r from-[var(--c-gold)] to-[var(--c-gold-soft)] text-[#24160a] hover:scale-[1.01] cursor-pointer'
+                    : 'bg-slate-900 border border-[var(--c-line)] text-[var(--c-dim)] cursor-not-allowed'
+                }`}
+              >
+                Enviar Relato Diário
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* TELA 1 — FORMULÁRIO MEDITATIVO */}
       {view === 'form' && (
@@ -617,13 +969,38 @@ export function JornadaPage() {
                 {/* Question Inputs */}
                 <div className="mb-8">
                   {curQ.type === 'text' && (
-                    <textarea 
-                      value={answers[curQ.key] || ''}
-                      onChange={(e) => handleTextChange(curQ.key, e.target.value)}
-                      placeholder={curQ.placeholder}
-                      rows={5}
-                      className="w-full p-4 rounded-2xl border border-[var(--c-line)] bg-slate-950/40 text-sm leading-relaxed text-[var(--c-text)] focus:border-[var(--c-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--c-gold)] transition-all resize-none font-light"
-                    />
+                    <div className="space-y-3">
+                      <textarea 
+                        value={answers[curQ.key] || ''}
+                        onChange={(e) => handleTextChange(curQ.key, e.target.value)}
+                        placeholder={curQ.placeholder}
+                        rows={5}
+                        className="w-full p-4 rounded-2xl border border-[var(--c-line)] bg-slate-950/40 text-sm leading-relaxed text-[var(--c-text)] focus:border-[var(--c-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--c-gold)] transition-all resize-none font-light"
+                      />
+                      <div className="flex items-center gap-3 justify-end">
+                        {loadingTranscription && (
+                          <span className="text-[10px] text-[var(--c-dim)] animate-pulse flex items-center gap-1.5">
+                            <Brain className="w-3.5 h-3.5 animate-spin text-[var(--c-gold-soft)]" />
+                            Transcrevendo fala...
+                          </span>
+                        )}
+                        {clientRecording ? (
+                          <button
+                            onClick={stopClientRecording}
+                            className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-[10px] font-bold uppercase rounded-full flex items-center gap-1.5 cursor-pointer shadow-lg shadow-red-500/10 animate-pulse"
+                          >
+                            <Square className="w-3.5 h-3.5" /> Parar Gravador ({formatTime(clientRecordingTime)})
+                          </button>
+                        ) : (
+                          <button
+                            onClick={startClientRecording}
+                            className="px-4 py-2 border border-[var(--c-line)] hover:border-[var(--c-gold-soft)] bg-yellow-500/5 hover:bg-yellow-500/10 text-[10px] font-bold text-[var(--c-gold-soft)] uppercase rounded-full flex items-center gap-1.5 cursor-pointer transition-all"
+                          >
+                            <Mic className="w-3.5 h-3.5" /> Responder por Áudio
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   )}
 
                   {curQ.type === 'emo' && (
