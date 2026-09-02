@@ -38,6 +38,7 @@ from telegram_kin_bot import (
     generate_personal_map_summary,
     generate_birthday_transit_analysis,
     get_annual_transit_data,
+    generate_synastry_analysis,
     generate_weekly_forecast,
     generate_wave_lesson,
     generate_castle_lesson,
@@ -115,6 +116,41 @@ def parse_date_and_name(args_text):
             return None, None
     return None, None
 
+def parse_two_dates_and_names(text):
+    pattern = r'(\d{1,2})[/\-\.](\d{1,2})[/\-\.](\d{4})'
+    matches = list(re.finditer(pattern, text))
+    if len(matches) >= 2:
+        m1, m2 = matches[0], matches[1]
+        try:
+            dt1 = datetime.date(int(m1.group(3)), int(m1.group(2)), int(m1.group(1)))
+            dt2 = datetime.date(int(m2.group(3)), int(m2.group(2)), int(m2.group(1)))
+        except ValueError:
+            return None, None, None, None
+
+        middle = text[m1.end():m2.start()].strip(' e&/-,')
+        after = text[m2.end():].strip(' e&/-,')
+        before = text[:m1.start()].strip(' e&/-,')
+
+        if middle and after:
+            name1, name2 = middle, after
+        elif after:
+            names = re.split(r'\s+(?:e|&|\+)\s+|\s*,\s*', after)
+            if len(names) >= 2:
+                name1, name2 = names[0].strip(), names[1].strip()
+            else:
+                parts = after.split()
+                if len(parts) >= 2:
+                    name1, name2 = parts[0], parts[1]
+                else:
+                    name1, name2 = after, 'Parceiro(a)'
+        elif before and middle:
+            name1, name2 = before, middle
+        else:
+            name1, name2 = 'Pessoa 1', 'Pessoa 2'
+
+        return dt1, name1, dt2, name2
+    return None, None, None, None
+
 def broadcast_daily_kin(token, subscribers, force_date=None):
     today = force_date or get_brt_now().date()
     kin_num = calculate_kin(today)
@@ -174,6 +210,7 @@ Comandos rápidos:
 • `/decreto` ──► 🧘 Decreto sagrado de ativação
 • `/calcular DD/MM/AAAA [Nome]` ──► 🏛️ Mapa Galáctico completo + Trânsito
 • `/aniversario DD/MM/AAAA [Nome]` ──► 🎂 Trânsito do Ano & Revolução Galáctica
+• `/sinastria DD/MM/AAAA [N1] DD/MM/AAAA [N2]` ──► 🔮 Sinastria & Kin Composto
 • `/kin [Número 1-260]` ──► 📜 Ficha do Kin
 • `/desinscrever` ──► Cancelar recebimento automático matinal
 
@@ -357,6 +394,15 @@ Enviando agora o briefing de hoje... 👇"""
         else:
             send_telegram_message(token, chat_id, "⚠️ *Formato incorreto!*\nUse: `/aniversario DD/MM/AAAA [Nome]`\nExemplo: `/aniversario 04/02/2004 Simon`")
 
+    elif cmd in ['/sinastria', 'sinastria', '/alianca', 'alianca', '/compatibilidade']:
+        dt1, name1, dt2, name2 = parse_two_dates_and_names(args_str)
+        if dt1 and dt2:
+            send_telegram_message(token, chat_id, f"🔮 *Calculando Sinastria Galáctica entre {name1} e {name2}...*")
+            time.sleep(1)
+            send_telegram_message(token, chat_id, generate_synastry_analysis(dt1, name1, dt2, name2))
+        else:
+            send_telegram_message(token, chat_id, "⚠️ *Formato:* `/sinastria DD/MM/AAAA [Nome1] DD/MM/AAAA [Nome2]`\nExemplo: `/sinastria 04/09/2003 Leo 27/09/1985 Steph`")
+
     elif cmd in ['/ajuda', '/help', 'ajuda']:
         help_msg = """📖 *SINCRONÁRIO GALÁCTICO DA LEI DO TEMPO:*
 
@@ -376,9 +422,10 @@ Enviando agora o briefing de hoje... 👇"""
 • `/semana` — Dossiê completo dos próximos 7 dias
 • `/decreto` — Poema sagrado de ativação do Kin
 
-👤 *MAPAS PESSOAIS & ANIVERSÁRIO:*
+👤 *MAPAS PESSOAIS, ANIVERSÁRIO & SINASTRIA:*
 • `/aniversario DD/MM/AAAA [Nome]` — 🎂 Trânsito do Ano, Idade & Revolução Galáctica
 • `/calcular DD/MM/AAAA [Nome]` — 🏛️ Mapa Galáctico Completo + Trânsito
+• `/sinastria DD/MM/AAAA [N1] DD/MM/AAAA [N2]` — 🔮 Sinastria & Kin Composto da Aliança
 • `/resumo DD/MM/AAAA [Nome]` — ⚡ Raio-X Rápido
 • `/kin [1-260]` — 📜 Ficha completa de qualquer Kin
 

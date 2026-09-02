@@ -1735,6 +1735,94 @@ Em {next_bday.strftime('%d/%m/%Y')}, sua consciência mudará de frequência par
     return msg
 
 
+def generate_synastry_analysis(date1: datetime.date, name1: str, date2: datetime.date, name2: str) -> str:
+    k1 = calculate_kin(date1)
+    kd1 = get_kin_data(k1)
+    s1, t1 = kd1['seal'], kd1['tone']
+
+    k2 = calculate_kin(date2)
+    kd2 = get_kin_data(k2)
+    s2, t2 = kd2['seal'], kd2['tone']
+
+    k_comp = ((k1 + k2 - 1) % 260) + 1
+    kd_comp = get_kin_data(k_comp)
+    s_comp, t_comp = kd_comp['seal'], kd_comp['tone']
+    oracle_comp = get_oracle(k_comp)
+
+    seal_sum = kd1['seal_num'] + kd2['seal_num']
+    is_oculto = (seal_sum == 21)
+    is_antipoda = (abs(kd1['seal_num'] - kd2['seal_num']) == 10)
+    is_analogo = (seal_sum == 19 or (kd1['seal_num'] in (19, 20) and kd2['seal_num'] in (19, 20)))
+    is_same_seal = (kd1['seal_num'] == kd2['seal_num'])
+
+    pulsar1 = kd1['pulsar'][0]
+    pulsar2 = kd2['pulsar'][0]
+    same_pulsar = (pulsar1 == pulsar2)
+
+    conexoes = []
+    if is_oculto:
+        conexoes.append("💎 *PAR OCULTO SAGRADO (Soma 21):* A conexão mais profunda da alma! Um é o tesouro secreto e inconsciente do outro.")
+    elif is_antipoda:
+        conexoes.append("⚡ *PAR ANTÍPODA (Desafio & Crescimento):* Força de polaridade magnética. Atrai pelo contraste e exige maturidade para não entrar em atrito.")
+    elif is_analogo:
+        conexoes.append("🤝 *PAR ANÁLOGO (Apoio Cósmico):* Afinidade natural, facilidade de convivência e parceria confortável.")
+    elif is_same_seal:
+        conexoes.append("🪞 *MESMO SELO SOLAR (Espelho Puro):* Compartilham o mesmo arquétipo e desafios kármicos.")
+
+    if same_pulsar:
+        conexoes.append(f"⚡ *MESMO PULSAR DIMENSIONAL ({pulsar1}):* Operam na mesma frequência prática de realização.")
+
+    if not conexoes:
+        conexoes.append("✨ *ALIANÇA DE COOPERAÇÃO:* Uma união livre de dependências cármicas pesadas, desenhada para construir pelo livre-arbítrio.")
+
+    conexoes_str = "\n".join(f"• {c}" for c in conexoes)
+
+    msg = f"""🔮 *SINASTRIA GALÁCTICA & LIVRO DA ALIANÇA*
+💑 *{name1.upper()} & {name2.upper()}*
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*✦ 1. AS ASSINATURAS INDIVIDUAIS*
+• 👤 *{name1} ({date1.strftime('%d/%m/%Y')}):* Kin {kd1['kin']:03d} — {kd1['name'].upper()}
+  Arquétipo: {s1['arquetipo']} | {kd1['pulsar'][0]} | Onda da {kd1['wave'][1]}
+• 👤 *{name2} ({date2.strftime('%d/%m/%Y')}):* Kin {kd2['kin']:03d} — {kd2['name'].upper()}
+  Arquétipo: {s2['arquetipo']} | {kd2['pulsar'][0]} | Onda da {kd2['wave'][1]}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*✦ 2. O KIN COMPOSTO (A EGRÉGORA DA RELAÇÃO)*
+🏛️ *KIN {kd_comp['kin']:03d} — {kd_comp['name'].upper()}*
+🌀 *PAG:* {'SIM' if kd_comp['is_pag'] else 'Não'} | 🦉 *Totem da Relação:* {kd_comp['totem'][0]}
+🏰 *{kd_comp['castle']['nome']}* | 🌊 *Onda da {kd_comp['wave'][1]}*
+⚡ *{kd_comp['pulsar'][0]}:* {kd_comp['pulsar'][1]}
+
+> _"{s_comp['chave']}"_
+
+• 🎯 *A Missão da Relação no Mundo:*
+Quando {name1} e {name2} se unem, nasce um terceiro ser energético: o Kin {kd_comp['kin']:03d}. O propósito conjunto é manifestar {s_comp['essencia'].lower()} através de {t_comp[2].lower()} a força de {s_comp['poder'].lower()}.
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*✦ 3. A GEOMETRIA DO ENCONTRO*
+{conexoes_str}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*✦ 4. ALQUIMIA PRÁTICA NA MATÉRIA*
+• 🟢 *Onde a Relação Floresce (Poder da União):*
+{s_comp['luz']}
+• 🔴 *O Ponto Cego a Vigiar (Sombra Compartilhada):*
+{s_comp['sombra']}
+• 💼 *Diretriz para Projetos ou Vida a Dois:*
+{s_comp['dir_trabalho']}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*✦ 5. O DECRETO SAGRADO DA ALIANÇA*
+{format_quote_lines(build_decree(kd_comp, oracle_comp))} ✨🚀"""
+    return msg
+
+
 # ==========================================
 # 5. MAPA PESSOAL COMPLETO (PADRÃO LILLI / SIMON / COSMOS)
 # ==========================================
