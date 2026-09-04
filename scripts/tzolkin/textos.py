@@ -397,7 +397,10 @@ CHAKRA_CORPO = {
 # ASSINATURA E CHAMADA
 # ==========================================================
 
-ASSINATURA = 'Leonardo Cosba — terapia e leitura de campo'
+# Duas linhas: o nome carrega o peso, a segunda diz o que é feito. Aparece
+# igual no Kin do dia e no mapa — é o que a pessoa guarda quando encaminha
+# a mensagem pra outra.
+ASSINATURA = '*Leonardo Cosba*\n_Terapeuta multidimensional_'
 CHAMADA = 'Quer saber o seu? Me manda sua data de nascimento.'
 
 # Fronteira honesta: usada no fim de toda leitura pessoal.

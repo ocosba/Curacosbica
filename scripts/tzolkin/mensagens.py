@@ -161,8 +161,8 @@ def kin_do_dia(data: datetime.date = None, rotulo: str = 'KIN DO DIA') -> str:
 
 *{ac['frase']}*
 {bloco_marcos}
-*A ENERGIA DE HOJE*
-☀️ *{core.SELO_NOME_COMPLETO[s_num]}* ({kd['selo']['maia']})
+☀️ *A ENERGIA DE HOJE*
+*{core.SELO_NOME_COMPLETO[s_num]}* ({kd['selo']['maia']})
 _{O.ONDA_NARRATIVA[s_num][0]}_
 {PROFUNDO[s_num]['descricao']} — o poder de {kd['selo']['acao']}, a essência de {kd['selo']['essencia']}. É a força que rege o dia inteiro.
 
@@ -173,22 +173,23 @@ Na prática: o dia que {T.TOM_FRASE[t_num]}. {T.TONS_ACESSIVEL[t_num]['ritmo']}{
 🟢 *Flui:* {ac['flui']}
 🔴 *Trava — {M.ARMADILHA[s_num][0]}:* {ac['trava']}
 
-*A BÚSSOLA DE HOJE*
+🗺️ *A BÚSSOLA DE HOJE*
 {_bussola(kd['kin'])}
 
-*A ONDA — DIA {degrau} DE 13*
-🌊 Onda {onda['artigo']} {onda['nome']}
+🌊 *A ONDA — DIA {degrau} DE 13*
+Onda {onda['artigo']} {onda['nome']}
 _{O.ONDA_NARRATIVA[core.seal_of(onda['inicio'])][0]}_
 Hoje é o degrau {degrau}: *{T.DEGRAUS[degrau][0]}*. {T.DEGRAUS[degrau][1]}
 
-*O CORPO HOJE*
+🫀 *O CORPO HOJE*
 {_corpo(kd)}
 
 👉 *A AÇÃO DE HOJE:* {_mai(ac['acao'])}.
 🪞 *Para se perguntar:* _{kd['tom'][5]}_
 
-✨ *{T.ASSINATURA}*
-Se bateu com o seu momento, me conta. E se quiser o seu mapa, manda a sua data de nascimento. 📩"""
+📩 Se bateu com o seu momento, me conta. E se quiser o seu mapa, manda a sua data de nascimento.
+
+✨ {T.ASSINATURA}"""
     return _limpa(msg)
 
 
@@ -342,13 +343,13 @@ Mapeei a sua Assinatura Galáctica a partir da sua data ({nascimento:%d/%m/%Y}) 
 {bloco_marcos}
 _"{M.MANIFESTO[s_num]}"_
 
-*1. O SEU SELO: {core.SELO_NOME_COMPLETO[s_num].upper()}* ({kd['selo']['maia']})
+☀️ *1. O SEU SELO: {core.SELO_NOME_COMPLETO[s_num].upper()}* ({kd['selo']['maia']})
 _{O.ONDA_NARRATIVA[s_num][0]} O poder de {kd['selo']['acao']}, a essência de {kd['selo']['essencia']}._
 {PROFUNDO[s_num]['descricao']} — esse campo é o mesmo para todo mundo que nasce sob esse selo. O que muda é o que você faz com ele.
 
 No mapa dos 21 arquétipos, ele aparece como *{arq['nome']}*, na {arq['rotulo']}. {M.ARQUETIPO_PRATICA[s_num]}
 
-*2. O SEU SUPERPODER: {nome_super.upper()}*
+💎 *2. O SEU SUPERPODER: {nome_super.upper()}*
 {texto_super}
 
 *⚠️ A SUA ARMADILHA: {nome_arm.upper()}*
@@ -357,7 +358,7 @@ No mapa dos 21 arquétipos, ele aparece como *{arq['nome']}*, na {arq['rotulo']}
 *🔑 A CHAVE DE OURO*
 {M.CHAVE[s_num]}
 
-*3. O SEU RITMO: TOM {t_num}, {core.nome_do_tom(t_num, s_num).upper()}*
+⚡ *3. O SEU RITMO: TOM {t_num}, {core.nome_do_tom(t_num, s_num).upper()}*
 _{TONS_PROFUNDO[t_num]}_
 Dos 13 tons, é o {t_num}º — a velocidade em que a sua energia trabalha melhor.
 
@@ -371,8 +372,8 @@ A pergunta que guia a sua vida: _"{kd['tom'][5]}"_
 O seu selo te dá {nome_super_min}. O seu tom pede que você exerça isso {M.TOM_MODO[t_num]}.
 É esse cruzamento — e não o selo sozinho — que faz o seu Kin ser o {kin:03d} e não outro. Selo e tom se combinam de 260 jeitos: esse é o seu.
 
-*4. O ENREDO DA SUA VIDA*
-🌊 Você nasceu no degrau *{degrau} de 13* da Onda {onda['artigo']} {onda['nome']}.
+🌊 *4. O ENREDO DA SUA VIDA*
+Você nasceu no degrau *{degrau} de 13* da Onda {onda['artigo']} {onda['nome']}.
 
 _{o_representa} {o_tensao}_
 
@@ -387,28 +388,24 @@ Esse é o retrato de quem você é. Na sequência, a sua rota: as forças que te
 
     parte2 = f"""*{nome.upper()} — A SUA ROTA* 🧭
 
-*5. A SUA BÚSSOLA DE 5 FORÇAS*
+🗺️ *5. A SUA BÚSSOLA DE 5 FORÇAS*
 {_bussola(kin, natal=True)}
 {bloco_pag}
-*6. O ANO QUE VOCÊ ESTÁ VIVENDO*
+🗓️ *6. O ANO QUE VOCÊ ESTÁ VIVENDO*
 
 {bloco_do_ano(nascimento, hoje)}
 
-*7. TRÊS DIRETRIZES*
+🎯 *7. TRÊS DIRETRIZES*
 *Carreira e dinheiro:* {d_carreira}
 *Relações:* {d_relacoes}
 *Autocuidado:* {d_cuidado}
 
-*8. O SEU CORPO E O PONTO DE ALERTA*
+🫀 *8. O SEU CORPO E O PONTO DE ALERTA*
 {_corpo(kd, natal=True)}
 
 🪞 *A pergunta que você carrega:* _{PROFUNDO[s_num]['auto_investigacao']}_
 
-Lê com calma e me conta: o que mais ressoou? Se algum ponto do corpo bateu, me diz qual — é sempre por aí que a conversa fica boa. 📩
-
-Isso aqui é o que a sua data conta. O mapa de verdade a gente monta junto, com a sua história dentro. ✨
-
-*{T.ASSINATURA}*"""
+✨ {T.ASSINATURA}"""
     return [_limpa(parte1), _limpa(parte2)]
 
 
