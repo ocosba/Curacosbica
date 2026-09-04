@@ -138,29 +138,136 @@ def eh_admin(chat_id) -> bool:
     return bool(a) and str(chat_id).strip() == a
 
 
-def carrega_inscritos() -> list:
-    inscritos = []
-    do_ambiente = os.environ.get('TELEGRAM_SUBSCRIBERS', '').strip()
-    if do_ambiente:
-        inscritos = [s.strip() for s in do_ambiente.split(',') if s.strip()]
+# ==========================================================
+# A BASE — quem é cada pessoa, não só quem recebe
+# ==========================================================
+# Até 04/09/2026 o bot guardava uma lista de chat_id e nada mais. Toda pessoa
+# que chegava pelo funil entregava o dado mais valioso que existe aqui — a
+# DATA DE NASCIMENTO — o bot montava o mapa, mandava, e descartava a data.
+#
+# Sem a data não existe leitura personalizada, e sem leitura personalizada não
+# existe assinatura: o diário coletivo é igual para todo mundo e por isso não
+# se cobra por ele. Com a data, o mesmo dia rende 260 leituras diferentes.
+#
+# Formato do registro:
+#   {'nome', 'nascimento' (ISO ou None), 'kin' (ou None), 'desde',
+#    'ativo' (recebe o disparo), 'plano' ('livre' | 'assinante')}
+#
+# ATENÇÃO AO DISCO EFÊMERO: na Render o CONFIG_FILE some a cada deploy. O que
+# sobrevive é a variável TELEGRAM_SUBSCRIBERS, que por isso passou a aceitar o
+# registro inteiro. Use /exportar para gerar a linha e cole no painel.
+#
+# O arquivo tem data de nascimento de terceiros: está no .gitignore e nunca
+# pode entrar em commit.
+
+def _hoje_iso() -> str:
+    return agora_brt().date().isoformat()
+
+
+def _registro(nome='', nascimento=None, desde=None, ativo=True, plano='livre') -> dict:
+    kin = None
+    if nascimento:
+        try:
+            kin = core.calculate_kin(datetime.date.fromisoformat(nascimento))
+        except Exception:
+            nascimento = None
+    return {'nome': nome or '', 'nascimento': nascimento, 'kin': kin,
+            'desde': desde or _hoje_iso(), 'ativo': ativo, 'plano': plano}
+
+
+def _do_ambiente() -> dict:
+    """Lê TELEGRAM_SUBSCRIBERS. Aceita `id`, `id:AAAA-MM-DD` e `id:AAAA-MM-DD:Nome`.
+
+    O formato antigo (só ids separados por vírgula) continua valendo — é o que
+    está no painel hoje e não pode quebrar num deploy.
+    """
+    base = {}
+    for item in os.environ.get('TELEGRAM_SUBSCRIBERS', '').split(','):
+        item = item.strip()
+        if not item:
+            continue
+        campos = [c.strip() for c in item.split(':')]
+        cid = campos[0]
+        if not cid:
+            continue
+        nasc = campos[1] if len(campos) > 1 and campos[1] else None
+        nome = campos[2] if len(campos) > 2 else ''
+        # 4º campo: o status. Sem ele, ativo — que é o caso da maioria e o
+        # formato antigo. Com 'off', a pessoa pediu /parar: ela não pode voltar
+        # a receber só porque houve um deploy.
+        ativo = not (len(campos) > 3 and campos[3].lower() in ('off', 'inativo', '0'))
+        plano = campos[4] if len(campos) > 4 and campos[4] else 'livre'
+        base[cid] = _registro(nome=nome, nascimento=nasc, ativo=ativo, plano=plano)
+    return base
+
+
+def carrega_base() -> dict:
+    """{chat_id: registro}. Migra sozinho do formato antigo."""
+    base = _do_ambiente()
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-                for s in json.load(f).get('subscribers', []):
-                    s = str(s).strip()
-                    if s and s not in inscritos:
-                        inscritos.append(s)
+                dados = json.load(f)
+            if 'pessoas' in dados:
+                for cid, reg in dados['pessoas'].items():
+                    cid = str(cid).strip()
+                    completo = _registro()
+                    completo.update({k: v for k, v in reg.items() if k in completo})
+                    # O arquivo é mais recente que o ambiente: ele manda.
+                    base[cid] = completo
+            else:
+                # Formato 1: {'subscribers': [ids]}. Vira registro vazio.
+                for s in dados.get('subscribers', []):
+                    cid = str(s).strip()
+                    if cid and cid not in base:
+                        base[cid] = _registro()
         except Exception as e:
             print(f'[AVISO] não consegui ler {CONFIG_FILE}: {e}', flush=True)
-    return inscritos
+    return base
 
 
-def salva_inscritos(inscritos: list):
+def salva_base(base: dict):
     try:
         with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-            json.dump({'subscribers': inscritos}, f, indent=2, ensure_ascii=False)
+            json.dump({'versao': 2, 'pessoas': base}, f, indent=2, ensure_ascii=False)
     except Exception as e:
-        print(f'[AVISO] não consegui salvar inscritos: {e}', flush=True)
+        print(f'[AVISO] não consegui salvar a base: {e}', flush=True)
+
+
+def registra(chat_id: str, nome: str = '', nascimento: datetime.date = None) -> dict:
+    """Cria ou atualiza uma pessoa. Devolve o registro. Nunca apaga o que já sabe."""
+    chat_id = str(chat_id).strip()
+    base = carrega_base()
+    reg = base.get(chat_id) or _registro()
+    if nome and not reg['nome']:
+        reg['nome'] = nome
+    if nascimento:
+        reg['nascimento'] = nascimento.isoformat()
+        reg['kin'] = core.calculate_kin(nascimento)
+    base[chat_id] = reg
+    salva_base(base)
+    return reg
+
+
+def carrega_inscritos() -> list:
+    """Só quem recebe o disparo. Mantido com este nome porque o resto do bot usa."""
+    return [cid for cid, reg in carrega_base().items() if reg.get('ativo', True)]
+
+
+def linha_de_ambiente(base: dict = None) -> str:
+    """A base inteira numa linha, pronta para colar em TELEGRAM_SUBSCRIBERS."""
+    base = base if base is not None else carrega_base()
+    partes = []
+    for cid, reg in base.items():
+        campos = [cid,
+                  reg.get('nascimento') or '',
+                  (reg.get('nome') or '').replace(':', ' ').replace(',', ' '),
+                  '' if reg.get('ativo', True) else 'off',
+                  reg.get('plano', 'livre') if reg.get('plano') != 'livre' else '']
+        while campos and not campos[-1]:      # não escreve campo vazio no fim
+            campos.pop()
+        partes.append(':'.join(campos))
+    return ','.join(partes)
 
 
 # ==========================================================
@@ -298,6 +405,11 @@ Com nome, se quiser que eu chame você por ele:
 
 O mapa chega em duas partes: *quem você é* e *a sua rota* — o ano que você está vivendo, o corpo e por onde ir.
 
+*QUEM VOCÊ É PRA MIM*
+*/eusou* _04/09/2003_ — guarda a sua data aqui.
+
+Vale a pena: sabendo o seu Kin, eu leio o dia *em cima do seu mapa* em vez de mandar a mesma coisa pra todo mundo. O mesmo dia é apoio pra um e treino pra outro.
+
 *O RESTO*
 */parar* — cancela o envio das manhãs
 */ajuda* — esta mensagem
@@ -306,9 +418,8 @@ O mapa chega em duas partes: *quem você é* e *a sua rota* — o ano que você 
 
 Uma coisa que costuma estranhar: as leituras chegam com os asteriscos à mostra, de propósito. É assim que você copia daqui e cola no WhatsApp já com o negrito certo.
 
-✨ *Leonardo Cosba*
+✨ *Leonardo @o.cosba*
 _Terapeuta multidimensional_
-📲 @o.cosba · instagram.com/o.cosba
 
 Se alguma leitura bater com o seu momento, me conta.
 
@@ -361,11 +472,11 @@ def processa(token: str, chat_id: str, texto: str, nome_usuario: str = ''):
     args = ' '.join(partes[1:])
     chat_id = str(chat_id).strip()
 
-    inscritos = carrega_inscritos()
-    if chat_id not in inscritos:
-        inscritos.append(chat_id)
-        salva_inscritos(inscritos)
+    base = carrega_base()
+    if chat_id not in base:
+        registra(chat_id, nome_usuario)
         print(f'Novo inscrito: {chat_id} ({nome_usuario})', flush=True)
+    inscritos = [c for c, r in base.items() if r.get('ativo', True)]
 
     if cmd in ('/start', '/inicio'):
         envia(token, chat_id, BOAS_VINDAS, formatado=True)
@@ -383,6 +494,9 @@ def processa(token: str, chat_id: str, texto: str, nome_usuario: str = ''):
             hoje + datetime.timedelta(days=1), rotulo='KIN DE AMANHÃ'))
 
     elif cmd in ('/kin', '/mapa', '/calcular'):
+        # /kin NÃO grava a data: quem usa o comando com nome junto quase sempre
+        # está consultando o mapa de outra pessoa. Gravar aqui encheria a base
+        # de datas erradas. Para a própria data existe /eusou.
         d, nome = le_data_e_nome(args)
         if d:
             envia(token, chat_id, mensagens.mapa_pessoal(d, nome, hoje))
@@ -393,12 +507,65 @@ def processa(token: str, chat_id: str, texto: str, nome_usuario: str = ''):
                   'Ou só a data, sem comando nenhum: _04/09/2003_', formatado=True)
 
     elif cmd in ('/parar', '/desinscrever', '/cancelar'):
-        if chat_id in inscritos:
-            inscritos.remove(chat_id)
-            salva_inscritos(inscritos)
+        # Desativa em vez de apagar: se a pessoa voltar, o mapa dela ainda está
+        # aqui e ela não precisa mandar a data de novo.
+        base = carrega_base()
+        if chat_id in base:
+            base[chat_id]['ativo'] = False
+            salva_base(base)
         envia(token, chat_id,
               '🔕 Envio automático cancelado. Você ainda pode pedir */hoje* quando quiser, '
               'e mandar uma data de nascimento a hora que for.', formatado=True)
+
+    elif cmd in ('/eusou', '/souokin', '/minhadata'):
+        d, nome = le_data_e_nome(args)
+        if not d:
+            envia(token, chat_id,
+                  'Me manda assim: */eusou 04/09/2003*\n\n'
+                  'É a sua data de nascimento. Guardo ela pra saber ler o dia '
+                  'em cima do seu mapa, e não uma leitura genérica.', formatado=True)
+            return
+        reg = registra(chat_id, nome or nome_usuario, nascimento=d)
+        envia(token, chat_id,
+              f"✅ Guardado: *{d:%d/%m/%Y}* — Kin {reg['kin']:03d}, "
+              f"{core.nome_do_kin(reg['kin'])}.\n\n"
+              'A partir de agora eu sei quem você é no Sincronário.', formatado=True)
+        envia(token, chat_id, mensagens.mapa_pessoal(d, reg['nome'], hoje))
+
+    elif cmd in ('/base', '/quemtem'):
+        if not eh_admin(chat_id):
+            envia(token, chat_id, 'Esse comando é privado. Digite */ajuda* para ver o que tem.',
+                  formatado=True)
+            return
+        b = carrega_base()
+        com_data = [r for r in b.values() if r.get('nascimento')]
+        ativos = [r for r in b.values() if r.get('ativo', True)]
+        assin = [r for r in b.values() if r.get('plano') == 'assinante']
+        linhas = [f"👥 *A BASE* — {versao()}", '',
+                  f'Pessoas: *{len(b)}*',
+                  f'Recebendo o diário: *{len(ativos)}*',
+                  f'Com data de nascimento: *{len(com_data)}*'
+                  f' ({100 * len(com_data) // max(len(b), 1)}%)',
+                  f'Assinantes: *{len(assin)}*']
+        if com_data:
+            linhas += ['', '*Mapas conhecidos:*']
+            for cid, r in sorted(b.items(), key=lambda x: x[1].get('kin') or 999):
+                if r.get('nascimento'):
+                    linhas.append(f"• Kin {r['kin']:03d} {core.nome_do_kin(r['kin'])} — "
+                                  f"{r['nome'] or cid}")
+        envia(token, chat_id, '\n'.join(linhas), formatado=True)
+
+    elif cmd in ('/exportar', '/backup'):
+        if not eh_admin(chat_id):
+            envia(token, chat_id, 'Esse comando é privado. Digite */ajuda* para ver o que tem.',
+                  formatado=True)
+            return
+        # O disco da nuvem é efêmero: o arquivo some no próximo deploy. Esta
+        # linha é a base inteira em formato que sobrevive na variável de ambiente.
+        envia(token, chat_id,
+              '💾 *Cole isto em TELEGRAM_SUBSCRIBERS no painel.*\n'
+              'O disco some a cada deploy; a variável não.', formatado=True)
+        envia(token, chat_id, linha_de_ambiente())
 
     elif cmd in ('/estudo', '/aula'):
         if not eh_admin(chat_id):
@@ -426,6 +593,15 @@ def processa(token: str, chat_id: str, texto: str, nome_usuario: str = ''):
         # de quem chegou pelo grupo e mandou a data de nascimento.
         d, nome = le_data_e_nome(texto)
         if d:
+            # E é aqui que a base ganha a data. Só grava se a pessoa ainda não
+            # tem uma: assim quem manda várias datas seguidas (o Leo testando,
+            # ou alguém consultando amigos) não sobrescreve a própria. Corrigir
+            # é papel do /eusou.
+            reg = base.get(chat_id) or {}
+            if not reg.get('nascimento'):
+                registra(chat_id, nome or nome_usuario, nascimento=d)
+                print(f'   ↳ data guardada: {chat_id} = {d} (Kin {core.calculate_kin(d):03d})',
+                      flush=True)
             envia(token, chat_id, mensagens.mapa_pessoal(d, nome, hoje))
         else:
             envia(token, chat_id,
