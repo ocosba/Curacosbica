@@ -189,6 +189,7 @@ Na prática: o dia que {T.TOM_FRASE[t_num]}. {T.TONS_ACESSIVEL[t_num]['ritmo']}{
 🔴 *Trava — {M.ARMADILHA[s_num][0]}:* {ac['trava']}
 
 🗺️ *AS 5 FORÇAS DE HOJE*
+
 {_bussola(kd['kin'])}
 
 🌊 *A ONDA — DIA {degrau} DE 13*
@@ -275,12 +276,15 @@ def bloco_do_ano(nascimento: datetime.date, hoje: datetime.date = None) -> str:
     seg = c['anos'][1]
     s_seg = seg['dados']['selo_num']
     marca_seg = f" — {ROTULO_CURTO[seg['relacao']]}" if ROTULO_CURTO.get(seg['relacao']) else ''
+    # O arquétipo em prática fica só no item 1 e no ano corrente. Aqui ele era
+    # a terceira aparição da mesma forma de frase dentro de uma leitura só —
+    # o que mais fazia o mapa soar gerado quando se lia dois seguidos.
     bloco_seguinte = (f"*O PRÓXIMO — {seg['idade']} anos, a partir de {seg['inicio']:%d/%m/%Y}*\n"
                       f"🏛️ *Kin {seg['kin']:03d} — {seg['dados']['nome']}*{marca_seg}\n"
-                      f"_{O.ONDA_NARRATIVA[s_seg][0]}_\n"
-                      f"{M.ARQUETIPO_PRATICA[s_seg]}\n\n"
+                      f"_{O.ONDA_NARRATIVA[s_seg][0]}_\n\n"
                       f"🟢 *A luz:* {T.ACESSIVEL[s_seg]['flui']}\n"
-                      f"🔴 *A armadilha — {M.ARMADILHA[s_seg][0]}:* {T.ACESSIVEL[s_seg]['trava']}")
+                      f"🔴 *A armadilha — {M.ARMADILHA[s_seg][0]}:* {T.ACESSIVEL[s_seg]['trava']}\n"
+                      f"🔑 {M.CHAVE[s_seg]}")
 
     # Entrar ou sair de um castelo de 13 anos é a informação mais acionável do
     # bloco, e antes o leitor tinha que descobrir sozinho comparando a idade
@@ -391,7 +395,6 @@ Nos 21 arquétipos ele é *{arq['nome']}*, na {arq['rotulo']}. {M.ARQUETIPO_PRAT
 
 ⚡ *3. O SEU RITMO: TOM {t_num}, {core.nome_do_tom(t_num, s_num).upper()}*
 _{TONS_PROFUNDO[t_num]}_
-Dos 13 tons, é o {t_num}º — a velocidade em que a sua energia trabalha melhor.
 
 Na sua vida: você é quem {T.TOM_FRASE[t_num]}, e forçar outro andamento te desgasta.
 A pergunta que guia a sua vida: _"{kd['tom'][5]}"_
@@ -420,6 +423,7 @@ Esse é o retrato de quem você é. Na sequência, a sua rota: as forças que te
     parte2 = f"""*{nome.upper()} — A SUA ROTA* 🧭
 
 🗺️ *5. AS SUAS 5 FORÇAS*
+
 {_bussola(kin, natal=True)}
 {bloco_pag}
 🗓️ *6. O ANO QUE VOCÊ ESTÁ VIVENDO*
@@ -428,7 +432,9 @@ Esse é o retrato de quem você é. Na sequência, a sua rota: as forças que te
 
 🎯 *7. TRÊS DIRETRIZES*
 *Carreira e dinheiro:* {d_carreira}
+
 *Relações:* {d_relacoes}
+
 *Autocuidado:* {d_cuidado}
 
 🫀 *8. O SEU CORPO E O PONTO DE ALERTA*
