@@ -37,6 +37,8 @@ import socketserver
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from tzolkin import mensagens, core
+from tzolkin import textos as TEXTOS
+from tzolkin import textos_mapa as TX_MAPA
 
 if sys.platform == 'win32':
     try:
@@ -226,12 +228,43 @@ def carrega_base() -> dict:
     return base
 
 
+def _le_arquivo() -> dict:
+    try:
+        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
 def salva_base(base: dict):
     try:
+        dados = _le_arquivo()
+        dados.update({'versao': 2, 'pessoas': base})
         with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-            json.dump({'versao': 2, 'pessoas': base}, f, indent=2, ensure_ascii=False)
+            json.dump(dados, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f'[AVISO] não consegui salvar a base: {e}', flush=True)
+
+
+def ultimo_disparo() -> str:
+    """A data do último disparo, em disco.
+
+    Ficava só na memória do processo. Como todo deploy sobe um processo novo, a
+    lógica de recuperação do agendador — "passou da hora e ainda não disparei
+    hoje" — via um `ultimo` vazio e disparava DE NOVO. Um deploy às 10h mandava
+    o diário do dia pela segunda vez para a lista inteira.
+    """
+    return str(_le_arquivo().get('ultimo_disparo') or '')
+
+
+def marca_disparo(dia: datetime.date):
+    try:
+        dados = _le_arquivo()
+        dados['ultimo_disparo'] = dia.isoformat()
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(dados, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f'[AVISO] não consegui marcar o disparo: {e}', flush=True)
 
 
 def registra(chat_id: str, nome: str = '', nascimento: datetime.date = None) -> dict:
@@ -447,10 +480,30 @@ def le_data_e_nome(texto: str):
     return d, nome
 
 
+def recebe_pessoal(reg: dict) -> bool:
+    """Quem ganha a segunda mensagem, a que é lida em cima do mapa da pessoa.
+
+    Hoje a regra é ter data na base: quem me disse quem é, eu leio o dia dela.
+    Quando o plano pago existir, troque o corpo desta função por
+        return reg.get('plano') == 'assinante'
+    e nada mais precisa mudar no disparo.
+    """
+    return bool(reg.get('nascimento'))
+
+
 def dispara_diario(token: str, inscritos: list, dia: datetime.date):
-    print(f'\n📢 Disparo do Kin {core.calculate_kin(dia):03d} '
-          f'({dia:%d/%m/%Y}) para {len(inscritos)} inscritos', flush=True)
+    """O coletivo para todo mundo; o pessoal para quem tem mapa na base.
+
+    São duas mensagens de propósito, não uma. A coletiva é a mesma para todos e
+    é o que se dá; a pessoal é curta, só fala do mapa de quem recebe, e nunca
+    repete a primeira — foi medido: 25% de sobreposição, e são o arquétipo (que
+    é vocabulário) e a assinatura.
+    """
+    base = carrega_base()
     texto = mensagens.kin_do_dia(dia)
+    com_mapa = [c for c in inscritos if recebe_pessoal(base.get(c, {}))]
+    print(f'\n📢 Disparo do Kin {core.calculate_kin(dia):03d} ({dia:%d/%m/%Y}) — '
+          f'{len(inscritos)} inscritos, {len(com_mapa)} com leitura pessoal', flush=True)
     entregues = 0
     for chat_id in inscritos:
         try:
@@ -458,6 +511,18 @@ def dispara_diario(token: str, inscritos: list, dia: datetime.date):
             entregues += 1
         except Exception as e:
             print(f'   ✗ {chat_id}: {e}', flush=True)
+            continue
+        time.sleep(0.6)
+        reg = base.get(chat_id, {})
+        if not recebe_pessoal(reg):
+            continue
+        try:
+            nasc = datetime.date.fromisoformat(reg['nascimento'])
+            envia(token, chat_id, mensagens.dia_pessoal(nasc, reg.get('nome', ''), dia))
+            print(f'   ↳ pessoal: {chat_id} (Kin {reg.get("kin")})', flush=True)
+        except Exception as e:
+            # Falha na pessoal não pode derrubar o disparo: a coletiva já foi.
+            print(f'   ✗ pessoal {chat_id}: {e}', flush=True)
         time.sleep(0.6)
     print(f'📢 Entregues {entregues}/{len(inscritos)}\n', flush=True)
     return entregues
@@ -530,6 +595,20 @@ def processa(token: str, chat_id: str, texto: str, nome_usuario: str = ''):
               f"✅ Guardado: *{d:%d/%m/%Y}* — Kin {reg['kin']:03d}, "
               f"{core.nome_do_kin(reg['kin'])}.\n\n"
               'A partir de agora eu sei quem você é no Sincronário.', formatado=True)
+        # A mensagem de entrada carrega o que foi tirado do diário justamente
+        # para não repetir todo dia: o tom, o centro e a régua dos dias grandes.
+        s_nat = core.seal_of(reg['kin'])
+        superpoder = TX_MAPA.SUPERPODER[s_nat][0]
+        for artigo in ('O ', 'A ', 'Os ', 'As '):
+            if superpoder.startswith(artigo):
+                superpoder = superpoder[len(artigo):]
+                break
+        envia(token, chat_id, TEXTOS.BOAS_VINDAS_ASSINANTE.format(
+            nome=(reg['nome'] or 'Olá').split()[0],
+            kin=reg['kin'], nome_kin=core.nome_do_kin(reg['kin']),
+            tom=core.tone_of(reg['kin']),
+            modo=TX_MAPA.TOM_MODO[core.tone_of(reg['kin'])],
+            centro=core.kin_do_dia(d)['familia']['chakra']), formatado=True)
         envia(token, chat_id, mensagens.mapa_pessoal(d, reg['nome'], hoje))
 
     elif cmd in ('/base', '/quemtem'):
@@ -616,21 +695,23 @@ def processa(token: str, chat_id: str, texto: str, nome_usuario: str = ''):
 # ==========================================================
 
 def agendador(token: str):
-    ultimo = None
-    print(f'⏰ Agendador ativo para {HORA_DISPARO:02d}:{MINUTO_DISPARO:02d} BRT', flush=True)
+    print(f'⏰ Agendador ativo para {HORA_DISPARO:02d}:{MINUTO_DISPARO:02d} BRT '
+          f'(último disparo: {ultimo_disparo() or "nenhum"})', flush=True)
     while True:
         try:
             agora = agora_brt()
             hoje = agora.date()
             # Recuperação: se o processo subiu depois da hora e ainda não disparou
             # hoje, dispara assim mesmo. Antes, um restart às 07:05 pulava o dia.
+            # A marca vai para o disco, não para a memória: senão cada deploy
+            # depois das 6h reenviava o diário do dia para a lista inteira.
             passou_da_hora = (agora.hour > HORA_DISPARO or
                               (agora.hour == HORA_DISPARO and agora.minute >= MINUTO_DISPARO))
-            if passou_da_hora and ultimo != hoje:
+            if passou_da_hora and ultimo_disparo() != hoje.isoformat():
                 inscritos = carrega_inscritos()
                 if inscritos:
                     dispara_diario(token, inscritos, hoje)
-                ultimo = hoje
+                marca_disparo(hoje)
             time.sleep(30)
         except Exception as e:
             print(f'[AVISO] agendador: {e}', flush=True)
