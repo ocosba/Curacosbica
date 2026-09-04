@@ -397,10 +397,16 @@ CHAKRA_CORPO = {
 # ASSINATURA E CHAMADA
 # ==========================================================
 
-# Duas linhas: o nome carrega o peso, a segunda diz o que é feito. Aparece
-# igual no Kin do dia e no mapa — é o que a pessoa guarda quando encaminha
-# a mensagem pra outra.
-ASSINATURA = '*Leonardo Cosba*\n_Terapeuta multidimensional_'
+# Três linhas: o nome carrega o peso, a segunda diz o que é feito, a terceira
+# leva pro Instagram. Aparece igual no Kin do dia e no mapa — é o que a pessoa
+# guarda quando encaminha a mensagem pra outra, e é por onde chega gente nova.
+#
+# O @ vem com o endereço do lado de propósito. "@o.cosba" sozinho é texto morto
+# nos dois lugares: o WhatsApp não linka arroba nenhuma, e no Telegram o ponto
+# invalida o nome de usuário. O endereço é o que vira toque.
+ASSINATURA = ('*Leonardo Cosba*\n'
+              '_Terapeuta multidimensional_\n'
+              '📲 @o.cosba · instagram.com/o.cosba')
 CHAMADA = 'Quer saber o seu? Me manda sua data de nascimento.'
 
 # Fronteira honesta: usada no fim de toda leitura pessoal.

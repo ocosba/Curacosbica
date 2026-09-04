@@ -52,6 +52,43 @@ KIN_NATAL_LEO = int(os.environ.get('KIN_NATAL', '194'))
 
 RE_DATA = re.compile(r'(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})')
 
+# ==========================================================
+# VERSÃO — para saber qual código está no ar sem ter que adivinhar
+# ==========================================================
+# Em 04/09/2026 o disparo das 6h chegou no formato antigo enquanto o GitHub já
+# tinha o novo há cinco commits, e a única forma de descobrir isso foi comparar
+# o texto da mensagem com o histórico do git. Não de novo.
+#
+# VERSAO_TEXTO sobe à mão quando a FORMA da leitura muda. O commit vem sozinho.
+# Os dois aparecem no /ajuda, no health check e no log de boot.
+VERSAO_TEXTO = '2.1'
+
+
+def commit_no_ar() -> str:
+    """Hash curto do commit que está rodando, ou de onde der para descobrir."""
+    c = (os.environ.get('RENDER_GIT_COMMIT')
+         or os.environ.get('SOURCE_COMMIT')
+         or os.environ.get('HEROKU_SLUG_COMMIT')
+         or '').strip()
+    if not c:
+        # Local: lê direto do .git, sem depender do git estar no PATH.
+        try:
+            raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            with open(os.path.join(raiz, '.git', 'HEAD'), encoding='utf-8') as f:
+                head = f.read().strip()
+            if head.startswith('ref: '):
+                with open(os.path.join(raiz, '.git', head[5:]), encoding='utf-8') as f:
+                    c = f.read().strip()
+            else:
+                c = head
+        except Exception:
+            return 'desconhecido'
+    return c[:7]
+
+
+def versao() -> str:
+    return f'v{VERSAO_TEXTO} · {commit_no_ar()}'
+
 
 def agora_brt():
     return datetime.datetime.now(BRT)
@@ -269,8 +306,13 @@ O mapa chega em duas partes: *quem você é* e *a sua rota* — o ano que você 
 
 Uma coisa que costuma estranhar: as leituras chegam com os asteriscos à mostra, de propósito. É assim que você copia daqui e cola no WhatsApp já com o negrito certo.
 
-✨ *Leonardo Cosba — terapia e leitura de campo*
-Se alguma leitura bater com o seu momento, me conta."""
+✨ *Leonardo Cosba*
+_Terapeuta multidimensional_
+📲 @o.cosba · instagram.com/o.cosba
+
+Se alguma leitura bater com o seu momento, me conta.
+
+_{versao()}_"""
 
 BOAS_VINDAS = """✨ *Bem-vindo ao Sincronário Galáctico!*
 
@@ -425,6 +467,10 @@ class Saude(http.server.BaseHTTPRequestHandler):
         corpo = json.dumps({
             'status': 'online',
             'servico': 'Sincronario Cosba',
+            # Estes dois dizem QUAL codigo esta no ar. Basta abrir a URL do
+            # servico no navegador para saber, sem esperar o disparo das 6h.
+            'versao_texto': VERSAO_TEXTO,
+            'commit': commit_no_ar(),
             'hoje': hoje.strftime('%d/%m/%Y'),
             'kin': core.calculate_kin(hoje),
             'disparo': f'{HORA_DISPARO:02d}:{MINUTO_DISPARO:02d} BRT',
@@ -461,6 +507,7 @@ def main():
 
     print('=' * 56, flush=True)
     print('🌀 SINCRONÁRIO CÓSBICO', flush=True)
+    print(f'   Versão: {versao()}', flush=True)
     print(f'   Inscritos: {len(inscritos)}', flush=True)
     print(f'   Admin: {"configurado" if admin_id() else "NÃO CONFIGURADO — /estudo e /disparo bloqueados"}',
           flush=True)
