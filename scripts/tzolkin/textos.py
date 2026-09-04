@@ -284,6 +284,15 @@ RELACAO = {
     'quinta': 'Hoje o dia soma com tudo o que você é. Dia de síntese.',
     'mesmo_selo': 'Hoje carrega o mesmo arquétipo do seu nascimento, em outro ritmo. Familiar.',
     'mesmo_tom': 'Hoje pulsa no mesmo ritmo do seu nascimento. O andamento do dia é o seu.',
+    # As cinco de baixo entraram em 04/09/2026. Em 03/09 o relacao_com passou a
+    # reconhecer também o SELO de cada força, não só o Kin exato — e a aula, que
+    # lê esta tabela direto, quebrava com KeyError em 60 dos 260 dias do ciclo.
+    # Kin exato bate 1 vez em 260; o selo da força bate 13 vezes.
+    'selo_guia': 'Hoje o arquétipo que guia o seu mapa está regendo o dia. Bom dia para decidir e para virar chave.',
+    'selo_analogo': 'Hoje o dia cai no arquétipo que te apoia. O custo de mover é menor: empurre o que estava travado.',
+    'selo_antipoda': 'Hoje o dia cai no arquétipo que mais te tira do sério. Dia de treino — repare no que te irritar.',
+    'selo_oculto': 'Hoje o arquétipo do seu dom escondido está no ar. Capacidade que você não usa sempre fica à mão.',
+    'selo_quinta': 'Hoje o dia cai na soma das suas cinco forças. Ponta solta tende a se encaixar.',
 }
 
 # A frase de identidade de cada selo — usada no mapa pessoal, onde não se fala
