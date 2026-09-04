@@ -150,11 +150,25 @@ def _bussola(kin: int, natal: bool = False) -> str:
 
 
 def _corpo(kd: dict, natal: bool = False) -> str:
+    """No mapa o corpo é retrato de vida inteira; no dia é bilhete.
+
+    Medido em 04/09/2026, em 60 dias seguidos: o bloco do diário tinha só 5
+    textos distintos, porque CORPO_FAMILIA é indexada pela família terrestre —
+    (selo - 1) % 5 — e o selo anda de 1 em 1 por dia. Voltava idêntico a cada
+    5 dias, 73 vezes por ano, ocupando 17% da mensagem. Pior: os sintomas são
+    escritos como padrão de vida ("o cansaço que o sono não resolve"), que é
+    registro de mapa, não de dia — o bloco do mapa tinha sido reaproveitado.
+
+    No diário sobram duas linhas: a região, que é fato do dia e repete com
+    razão, e uma prática regida pelo TOM. Região gira em 5, tom em 13: o bloco
+    só se repete inteiro a cada 65 dias.
+    """
     regiao, orgaos, sintomas, higiene = M.CORPO_FAMILIA[kd['familia']['nome']]
-    abre = ('A sua energia ancora no' if natal else 'A energia de hoje pega no')
-    aviso = ('Quando você segura o que precisa sair, é aqui que aperta:'
-             if natal else 'Se o dia apertar, é aqui que você sente:')
-    return (f"{abre} *{regiao}* — {orgaos}.\n\n{aviso}\n"
+    if not natal:
+        return (f"Hoje a energia pega no *{regiao}* — {orgaos}.\n"
+                f"🧘 {T.CORPO_DO_TOM[kd['tom_num']]}")
+    return (f"A sua energia ancora no *{regiao}* — {orgaos}.\n\n"
+            'Quando você segura o que precisa sair, é aqui que aperta:\n'
             + '\n'.join(f'• {s}' for s in sintomas)
             + f"\n\n🧘 {higiene}")
 

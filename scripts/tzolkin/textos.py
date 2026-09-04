@@ -397,16 +397,14 @@ CHAKRA_CORPO = {
 # ASSINATURA E CHAMADA
 # ==========================================================
 
-# Três linhas: o nome carrega o peso, a segunda diz o que é feito, a terceira
-# leva pro Instagram. Aparece igual no Kin do dia e no mapa — é o que a pessoa
-# guarda quando encaminha a mensagem pra outra, e é por onde chega gente nova.
+# Duas linhas: nome com o @ junto, e o que é feito. Aparece igual no Kin do dia
+# e no mapa — é o que a pessoa guarda quando encaminha a mensagem pra outra, e
+# é por onde chega gente nova pro Instagram.
 #
-# O @ vem com o endereço do lado de propósito. "@o.cosba" sozinho é texto morto
-# nos dois lugares: o WhatsApp não linka arroba nenhuma, e no Telegram o ponto
-# invalida o nome de usuário. O endereço é o que vira toque.
-ASSINATURA = ('*Leonardo Cosba*\n'
-              '_Terapeuta multidimensional_\n'
-              '📲 @o.cosba · instagram.com/o.cosba')
+# O @ vai puro, por decisão do Leo em 04/09/2026, ciente de que arroba não vira
+# link clicável nem no WhatsApp nem no Telegram (o ponto invalida o nome de
+# usuário). Vale mais a assinatura curta do que o toque de dedo.
+ASSINATURA = '*Leonardo @o.cosba*\n_Terapeuta multidimensional_'
 CHAMADA = 'Quer saber o seu? Me manda sua data de nascimento.'
 
 # Fronteira honesta: usada no fim de toda leitura pessoal.
@@ -437,4 +435,36 @@ PULSAR_DIA = {
         'serve para conectar, escutar e soltar. Não é dia de fechar contrato.'),
     4: ('Dia de forma',
         'estruturar, medir, alinhar conduta e dividir com os outros. O que se faz hoje ganha contorno.'),
+}
+
+
+# ==========================================================
+# O CORPO NO DIA — a prática regida pelo TOM
+# ==========================================================
+# Medido em 04/09/2026, em 60 dias seguidos de leitura: o bloco do corpo do
+# diário tinha só 5 textos distintos, porque CORPO_FAMILIA é indexada pela
+# família terrestre — (selo - 1) % 5 — e o selo anda de 1 em 1 por dia. O bloco
+# voltava IGUAL a cada 5 dias, 73 vezes por ano, ocupando 17% da mensagem. Era
+# o texto mais previsível do diário.
+#
+# A família define a REGIÃO, e isso é cânone: não muda. O que passou a variar é
+# a prática. Como o tom gira em 13 e a região em 5, o bloco só se repete
+# inteiro a cada 65 dias.
+#
+# Uma frase por tom. Concreta, para fazer hoje, sem jargão — a regra do arquivo.
+
+CORPO_DO_TOM = {
+    1:  'Comece o dia pelo corpo, antes do celular: de pé, respirando, sentindo o peso nos pés. O resto se organiza a partir daí.',
+    2:  'Alongue os dois lados e repare em qual deles trava mais. O lado duro está segurando o que a sua cabeça ainda não decidiu.',
+    3:  'Não se exercite sozinho hoje. Chame alguém, entre num grupo, vá até onde tem gente — o corpo responde melhor acompanhado.',
+    4:  'Repare na postura três vezes ao longo do dia e corrija. Pé no chão, coluna longa, mandíbula solta — a forma organiza o resto.',
+    5:  'Ocupe espaço com o corpo: ombros abertos, peito livre, queixo no lugar. Encolher hoje custa mais caro do que nos outros dias.',
+    6:  'Repita hoje, no mesmo horário, o cuidado que você costuma pular: a água, o intervalo, a hora de deitar. Constância vale mais que intensidade.',
+    7:  'Reserve cinco minutos em silêncio, sem tela, só escutando a respiração. O corpo tem um recado hoje, e ele fala baixo.',
+    8:  'Confira se o corpo está fazendo o que a boca prometeu. Onde tem incoerência tem tensão — e ela aparece antes de você admitir.',
+    9:  'Coloque o corpo em ação de verdade: suor, esforço, movimento que cansa. Hoje a intenção só desce se passar pela musculatura.',
+    10: 'Dê ao corpo alguma coisa visível para produzir: lave, guarde, conserte, cozinhe. O cansaço bom vem de ver resultado, não de esforço solto.',
+    11: 'Sacuda o corpo por um minuto, de pé, sem coreografia. Tremer solto descarrega o que a conversa não resolveu.',
+    12: 'Procure contato: abraço, mão no ombro, andar lado a lado. O corpo regula melhor perto de outro corpo do que sozinho.',
+    13: 'Fique parado cinco minutos sem fazer nada, sentado, respirando. Não é preguiça: hoje a presença é o exercício.',
 }
