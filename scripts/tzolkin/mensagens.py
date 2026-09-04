@@ -474,20 +474,49 @@ Esse é o retrato de quem você é. Na sequência, a sua rota: as forças que te
 # ==========================================================
 
 def aula_diaria(data: datetime.date = None, kin_natal: int = 194) -> str:
+    """O estudo do dia — e a matéria-prima do conteúdo do dia.
+
+    Reescrita em 04/09/2026. A versão anterior tinha ficado parada no dia em
+    que foi escrita: de 13 tabelas de texto do sistema, usava UMA. Faltava o
+    decreto (que estava no mapa e não na leitura mais profunda — invertido),
+    o TOM_NA_FORCA, o CORPO_DO_TOM, a gramática de dois níveis, o pulsar. E
+    ainda usava as barras ━━━ que saíram de todo o resto.
+
+    Mas o problema maior não era o que faltava: era o formato. Despejar sete
+    seções todo dia é dicionário, não estudo. Duas mudanças estruturais:
+
+    1. A ORDEM VIRA CAMINHO. Quem é o dia (selo e tom) → o que ele pede do
+       corpo → como ele conversa com as outras forças → onde ele está no tempo
+       maior → o que fazer. Cada seção monta em cima da anterior.
+
+    2. A AULA TERMINA EM CONTEÚDO. É o Princípio das Duas Saídas do método:
+       profundidade para o Leo, destilada para o vídeo. As quatro últimas
+       linhas são o roteiro do dia, montado do material acessível que já
+       existe. Estudar deixa de competir com produzir.
+    """
     from .textos_profundos import TONS_PROFUNDO
     kd = core.kin_do_dia(data or datetime.date.today())
     d = kd['data']
     s_num, t_num = kd['selo_num'], kd['tom_num']
     p = PROFUNDO[s_num]
+    ac = T.ACESSIVEL[s_num]
     arq, onda, castelo, celula = kd['arquetipo'], kd['onda'], kd['castelo'], kd['celula']
-    lua = kd['lua']
+    lua, fam, pulsar = kd['lua'], kd['familia'], kd['pulsar']
     o = core.oracle(kd['kin'])
     totem = TOTENS[t_num]
-    fam = kd['familia']
+    degrau = onda['degrau']
+    # Itálico linha a linha: no Telegram o _ não atravessa quebra de linha.
+    decreto_fmt = chr(10).join(f'_{linha}_' for linha in core.decreto(kd['kin']).splitlines())
+    rotulo_pulsar, texto_pulsar = T.PULSAR_DIA[pulsar['num']]
+    # Dia comum não tem marco nenhum: sem isto sobra linha em branco no topo.
+    marcos = _marcos(kd)
+    marcos = marcos + chr(10) if marcos else ''
 
     rel = core.relacao_com(kin_natal, kd['kin'])
     linha_natal = T.RELACAO[rel] if rel else 'Dia neutro em relação ao seu Kin natal.'
 
+    # As 5 forças em três camadas: o arquétipo (igual para todos), o que a
+    # posição faz numa vida, e o tom daquele kin. É a mesma gramática do mapa.
     forcas = []
     for rotulo, chave, campo in [
         ('Guia', 'guia', 'guia_msg'), ('Análogo', 'analogo', 'analogo_msg'),
@@ -495,74 +524,79 @@ def aula_diaria(data: datetime.date = None, kin_natal: int = 194) -> str:
         ('Quinta Força', 'quinta', 'quinta_msg'),
     ]:
         k = o[chave]
+        s_f, t_f = core.seal_of(k), core.tone_of(k)
         pag = ' 🌀' if k in core.PAGS else ''
         forcas.append(f"*{rotulo}* — Kin {k:03d}, {core.nome_do_kin(k)}{pag}\n"
-                      f"{PROFUNDO[core.seal_of(k)][campo]}")
-
-    marcos = _marcos(kd)
+                      f"_{O.ONDA_NARRATIVA[s_f][0]}_\n"
+                      f"{PROFUNDO[s_f][campo]}\n"
+                      f"⚡ {O.TOM_NA_FORCA[chave][t_f]}")
 
     return _limpa(f"""📚 *AULA DO TZOLKIN — {d:%d/%m/%Y}*
 *KIN {kd['kin']:03d} — {kd['nome'].upper()}*
-Harmônica {kd['harmonica']} | Célula {celula['num']} ({celula['nome']}) | {kd['pulsar']['nome']}, {kd['pulsar']['dimensao']}
+🏛️ {arq['nome']}, {arq['rotulo']} | Harmônica {kd['harmonica']} | Célula {celula['num']}, {celula['nome']}
+⚡ *{pulsar['nome']}* ({pulsar['dimensao']}) — *{rotulo_pulsar}:* {texto_pulsar}
 {marcos}
-
-*PARA VOCÊ HOJE (Kin natal {kin_natal:03d})*
+🎯 *PARA VOCÊ HOJE* — Kin natal {kin_natal:03d}, {core.nome_do_kin(kin_natal)}
 {linha_natal}
 
-{LINHA}
-
-*1. SELO E TOM*
-☀️ *{core.SELO_NOME_COMPLETO[s_num]}* ({kd['selo']['maia']}) — {arq['nome']}, {arq['rotulo']}
+☀️ *1. O SELO — quem é o dia*
+*{core.SELO_NOME_COMPLETO[s_num]}* ({kd['selo']['maia']})
+_{O.ONDA_NARRATIVA[s_num][0]}_
 {p['descricao']}.
 {p['corpo']}
 
-⚡ *Tom {t_num}, {core.nome_do_tom(t_num, s_num)}*
+⚡ *2. O TOM — em que velocidade*
+*Tom {t_num}, {core.nome_do_tom(t_num, s_num)}*
 {TONS_PROFUNDO[t_num]}
 
-🐆 *{totem[0]}* — {totem[1]}
+🐆 *Totem {totem[0]}* — {totem[1]}
 {totem[2]}
 
-{LINHA}
+🔮 *A alquimia dos dois*
+O selo dá {M.SUPERPODER[s_num][0].lower()}. O tom pede que isso seja exercido {M.TOM_MODO[t_num]}.
 
-*2. LUZ, SOMBRA E CHAVE*
-🟢 {p['luz']}
-🔴 {p['sombra']}
-🔑 _{p['chave']}_
-🏷️ Armadilha: *{M.ARMADILHA[s_num][0]}*
-
-{LINHA}
-
-*3. LEITURA SOMÁTICA*
+🫀 *3. O CORPO — onde o dia aterrissa*
 Família *{fam['nome']}* → centro *{fam['chakra']}* → {fam['holon']}
 🔻 *Contração:* {p['somat_contracao']}
 🔺 *Expansão:* {p['somat_expansao']}
-🧘 *Higiene:* {p['somat_higiene']}
+🧘 *Higiene do selo:* {p['somat_higiene']}
+🧘 *Prática do tom:* {T.CORPO_DO_TOM[t_num]}
 
-{LINHA}
+🌗 *4. LUZ, SOMBRA E CHAVE*
+🟢 {p['luz']}
+🔴 {p['sombra']}
+🏷️ Armadilha: *{M.ARMADILHA[s_num][0]}*
+🔑 _{p['chave']}_
 
-*4. O ORÁCULO DAS 5 FORÇAS*
+🗺️ *5. O ORÁCULO DAS 5 FORÇAS*
 
 """ + '\n\n'.join(forcas) + f"""
 
-{LINHA}
-
-*5. ONDA E CASTELO*
-🌊 Onda {onda['artigo']} *{onda['nome']}* — degrau {onda['degrau']}/13: {T.DEGRAUS[onda['degrau']][0]}
-{T.DEGRAUS[onda['degrau']][1]}
+🌊 *6. O DIA NO TEMPO MAIOR*
+Onda {onda['artigo']} *{onda['nome']}* — degrau {degrau}/13
+_{O.ONDA_NARRATIVA[core.seal_of(onda['inicio'])][0]}_
+*{T.DEGRAUS[degrau][0]}*. {T.DEGRAUS[degrau][1]}
 
 🏰 *{castelo['nome']}* — Corte {castelo['corte']}, dia {castelo['dia']}/52
 {castelo['missao']}
 🔲 Célula {celula['num']}, *{celula['nome']}*: {celula['funcao'].lower()}.
 
-{LINHA}
-
-*6. 13 LUAS E PLASMA*
-🌙 {lua['lua']} — {lua['acao'].lower()} | dia {lua['dia_da_lua']}/28, heptada {lua['heptada']}/52
+🌙 *7. AS 13 LUAS E O PLASMA*
+{lua['lua']} — {lua['acao'].lower()} | dia {lua['dia_da_lua']}/28, heptada {lua['heptada']}/52
 Plasma *{lua['plasma'][0]}* no centro {lua['plasma'][1]}: {lua['plasma'][2].lower()}. Respire 4-4-4.
 
-{LINHA}
+✨ *8. O DECRETO DO DIA*
+{decreto_fmt}
 
-*7. APLICAÇÃO*
+🎯 *9. APLICAÇÃO*
 💼 {p['dir_trabalho']}
 💬 {p['dir_relacoes']}
-🪞 _{p['auto_investigacao']}_""")
+🪞 _{p['auto_investigacao']}_
+
+📣 *DESTILADA — o roteiro de hoje*
+_As quatro linhas abaixo já estão no tom de vídeo. É só falar._
+
+{ac['frase']}
+Flui: {ac['flui']}. Trava: {ac['trava']}.
+{_mai(ac['acao'])}.
+A pergunta do dia: {kd['tom'][5].lower()}""")
