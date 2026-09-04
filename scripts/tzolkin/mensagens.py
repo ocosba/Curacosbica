@@ -38,9 +38,25 @@ ROTULO_CURTO = {
     'antipoda': '🛡️ ano de desafio',
     'oculto': '💎 ano do dom escondido',
     'quinta': '👑 ano de síntese',
+    'selo_guia': '🧭 no selo da sua bússola',
+    'selo_analogo': '🤝 no selo do seu aliado',
+    'selo_antipoda': '🛡️ no selo do seu treino',
+    'selo_oculto': '💎 no selo do seu dom escondido',
+    'selo_quinta': '👑 no selo da sua síntese',
     'mesmo_selo': '🔁 seu arquétipo volta',
     'mesmo_tom': '🎵 seu ritmo volta',
     None: None,
+}
+
+# Quando o ano cai numa das forças do mapa, o oráculo já descreveu esse
+# arquétipo alguns parágrafos acima. Em vez de repetir a armadilha como se
+# fosse notícia, o texto nomeia o encontro — que é o que torna o ano especial.
+FORCA_DO_ANO = {
+    'guia': 'da sua *Bússola de Decisão*', 'selo_guia': 'da sua *Bússola de Decisão*',
+    'analogo': 'do seu *Aliado Natural*', 'selo_analogo': 'do seu *Aliado Natural*',
+    'antipoda': 'do seu *Mestre de Atrito*', 'selo_antipoda': 'do seu *Mestre de Atrito*',
+    'oculto': 'do seu *Tesouro Secreto*', 'selo_oculto': 'do seu *Tesouro Secreto*',
+    'quinta': 'do seu *Vórtice Integrador*', 'selo_quinta': 'do seu *Vórtice Integrador*',
 }
 
 
@@ -120,8 +136,7 @@ def _bussola(kin: int, natal: bool = False) -> str:
     fundo_q = f"\n↳ {_atemporal(PROFUNDO[s_q]['quinta_msg'])}" if natal else ''
     linhas.append(f"👑 *O Vórtice Integrador* — {core.nome_do_kin(k)}\n"
                   f"{arquetipo}"
-                  f"A soma das cinco forças ativa {M.SUPERPODER[s_q][0].lower()}: "
-                  f"{T.ACESSIVEL[s_q]['flui']}.{fundo_q}")
+                  f"A soma das cinco forças ativa {M.SUPERPODER[s_q][0].lower()}.{fundo_q}")
     return '\n\n'.join(linhas)
 
 
@@ -173,7 +188,7 @@ Na prática: o dia que {T.TOM_FRASE[t_num]}. {T.TONS_ACESSIVEL[t_num]['ritmo']}{
 🟢 *Flui:* {ac['flui']}
 🔴 *Trava — {M.ARMADILHA[s_num][0]}:* {ac['trava']}
 
-🗺️ *A BÚSSOLA DE HOJE*
+🗺️ *AS 5 FORÇAS DE HOJE*
 {_bussola(kd['kin'])}
 
 🌊 *A ONDA — DIA {degrau} DE 13*
@@ -225,8 +240,15 @@ def bloco_do_ano(nascimento: datetime.date, hoje: datetime.date = None) -> str:
     # ano funciona: o mesmo arquétipo num tom 2 e num tom 10 pede coisas
     # opostas. Sem isso o bloco do ano ficava só com metade da informação.
     t_ano = kd['tom_num']
+    # O ano quase sempre cai sobre uma das 5 forças do mapa. Nomear o encontro
+    # transforma o que seria repetição — o oráculo já descreveu esse arquétipo
+    # — na informação mais valiosa do bloco.
+    forca = FORCA_DO_ANO.get(atual['relacao'])
+    linha_forca = (f"🔗 É o selo {forca} — o ano inteiro dentro de uma força "
+                   f"que já é sua.\n\n" if forca else '')
     corpo_do_ano = (f"_{O.ONDA_NARRATIVA[s_num][0]}_\n"
                     f"{M.ARQUETIPO_PRATICA[s_num]}\n\n"
+                    f"{linha_forca}"
                     f"⚡ *O ritmo do ano — Tom {t_ano}, "
                     f"{core.nome_do_tom(t_ano, s_num)}*\n"
                     f"_{TONS_PROFUNDO[t_ano]}_\n"
@@ -260,6 +282,17 @@ def bloco_do_ano(nascimento: datetime.date, hoje: datetime.date = None) -> str:
                       f"🟢 *A luz:* {T.ACESSIVEL[s_seg]['flui']}\n"
                       f"🔴 *A armadilha — {M.ARMADILHA[s_seg][0]}:* {T.ACESSIVEL[s_seg]['trava']}")
 
+    # Entrar ou sair de um castelo de 13 anos é a informação mais acionável do
+    # bloco, e antes o leitor tinha que descobrir sozinho comparando a idade
+    # com o intervalo impresso ao lado.
+    if atual['idade'] == quad_fim:
+        borda_castelo = (' *É o seu último ano nele* — o que não for lapidado agora '
+                         'atravessa para o próximo castelo.')
+    elif atual['idade'] == quad_ini:
+        borda_castelo = ' *Você acabou de entrar nele* — os 13 anos começam agora.'
+    else:
+        borda_castelo = ''
+
     ter = c['anos'][2]
     frase_ter = T.ACESSIVEL[ter['dados']['selo_num']]['frase'].replace('Dia de', 'ano de')
     marca_ter = f" — {ROTULO_CURTO[ter['relacao']]}" if ROTULO_CURTO.get(ter['relacao']) else ''
@@ -280,7 +313,7 @@ def bloco_do_ano(nascimento: datetime.date, hoje: datetime.date = None) -> str:
 
 _{mod_ano.REGRA_DO_CICLO}_
 
-🏰 *{quad_nome}* — dos {quad_ini} aos {quad_fim} anos. Você está no ano *{atual['idade']} de 52* dessa volta.
+🏰 *{quad_nome}* — dos {quad_ini} aos {quad_fim} anos. Você está no ano *{atual['idade']} de 52* dessa volta.{borda_castelo}
 👑 Aos *{c['idade_retorno']} anos*, em {c['data_retorno']:%d/%m/%Y}, você volta ao Kin {c['natal']:03d} do seu nascimento. Faltam {c['faltam_para_retorno']} anos."""
 
 
@@ -324,9 +357,9 @@ def mapa_pessoal(nascimento: datetime.date, nome: str = 'Você',
     if pags:
         nomes = ', '.join(core.nome_do_kin(k) for k in pags)
         qtd = f'{len(pags)} Portais' if len(pags) > 1 else '1 Portal'
-        bloco_pag = (f"\n⚡ *Alta voltagem:* {qtd} de Ativação Galáctica dentro do seu oráculo "
-                     f"({nomes}). Isso deixa o seu mapa mais sensível a ambiente e a timing — "
-                     f"silêncio e natureza não são luxo pra você, são higiene.\n")
+        bloco_pag = (f"\n🌀 *Alta voltagem:* {qtd} de Ativação Galáctica dentro do seu oráculo "
+                     f"({nomes}). Ambiente e timing pesam mais no seu caso — "
+                     f"silêncio e natureza não são luxo, são higiene.\n")
 
     # A onda como narrativa, não como lista
     selo_onda = core.seal_of(onda['inicio'])
@@ -339,17 +372,15 @@ Mapeei a sua Assinatura Galáctica a partir da sua data ({nascimento:%d/%m/%Y}) 
 
 🏛️ *SEU KIN: {kin:03d} — {kd['nome'].upper()}*
 🎨 Clã {kd['cla']} — você é do time que {kd['cla_info'][3]}
-🏛️ Arquétipo: *{arq['nome']}*
 {bloco_marcos}
 _"{M.MANIFESTO[s_num]}"_
 
 ☀️ *1. O SEU SELO: {core.SELO_NOME_COMPLETO[s_num].upper()}* ({kd['selo']['maia']})
 _{O.ONDA_NARRATIVA[s_num][0]} O poder de {kd['selo']['acao']}, a essência de {kd['selo']['essencia']}._
-{PROFUNDO[s_num]['descricao']} — esse campo é o mesmo para todo mundo que nasce sob esse selo. O que muda é o que você faz com ele.
 
-No mapa dos 21 arquétipos, ele aparece como *{arq['nome']}*, na {arq['rotulo']}. {M.ARQUETIPO_PRATICA[s_num]}
+Nos 21 arquétipos ele é *{arq['nome']}*, na {arq['rotulo']}. {M.ARQUETIPO_PRATICA[s_num]}
 
-💎 *2. O SEU SUPERPODER: {nome_super.upper()}*
+⭐ *2. O SEU SUPERPODER: {nome_super.upper()}*
 {texto_super}
 
 *⚠️ A SUA ARMADILHA: {nome_arm.upper()}*
@@ -370,10 +401,10 @@ A pergunta que guia a sua vida: _"{kd['tom'][5]}"_
 
 *🔮 A ALQUIMIA DOS DOIS*
 O seu selo te dá {nome_super_min}. O seu tom pede que você exerça isso {M.TOM_MODO[t_num]}.
-É esse cruzamento — e não o selo sozinho — que faz o seu Kin ser o {kin:03d} e não outro. Selo e tom se combinam de 260 jeitos: esse é o seu.
+Selo e tom se cruzam de 260 jeitos. O {kin:03d} é o seu.
 
 🌊 *4. O ENREDO DA SUA VIDA*
-Você nasceu no degrau *{degrau} de 13* da Onda {onda['artigo']} {onda['nome']}.
+Você nasceu no degrau *{degrau} de 13* da Onda {onda['artigo']} {onda['nome']} — e é daí que vem o seu Tom {t_num}: na onda, o degrau e o tom são o mesmo número.
 
 _{o_representa} {o_tensao}_
 
@@ -388,7 +419,7 @@ Esse é o retrato de quem você é. Na sequência, a sua rota: as forças que te
 
     parte2 = f"""*{nome.upper()} — A SUA ROTA* 🧭
 
-🗺️ *5. A SUA BÚSSOLA DE 5 FORÇAS*
+🗺️ *5. AS SUAS 5 FORÇAS*
 {_bussola(kin, natal=True)}
 {bloco_pag}
 🗓️ *6. O ANO QUE VOCÊ ESTÁ VIVENDO*

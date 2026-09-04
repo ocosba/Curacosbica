@@ -122,6 +122,34 @@ LEITURA_DA_RELACAO = {
         'ANO DE SÍNTESE',
         'O ano soma todas as suas forças. As pontas soltas dos últimos anos tendem a se encaixar.'
     ),
+    # Kin exato é raro; o selo da força é 13 vezes mais provável. Estas cinco
+    # entradas existem para o ano nunca mais ser chamado de "território novo"
+    # quando ele cai justamente sobre uma das forças do mapa da pessoa.
+    'selo_guia': (
+        'ANO NA DIREÇÃO DA SUA BÚSSOLA',
+        'O ano é regido pelo mesmo arquétipo que guia o seu mapa. A direção que você já conhece '
+        'fica ativa o ciclo inteiro: é o melhor ano para decidir e para virar a chave.'
+    ),
+    'selo_analogo': (
+        'ANO NO SEU ALIADO',
+        'O ano cai sobre o arquétipo que te apoia. Você vai passar 365 dias dentro de uma força '
+        'que já trabalha a seu favor — o custo de mover é menor agora do que costuma ser.'
+    ),
+    'selo_antipoda': (
+        'ANO NO SEU TREINO',
+        'O ano é regido pelo arquétipo que mais te tira do sério. Não é azar: é o ciclo em que '
+        'a lição que você vem adiando fica em cima da mesa todo dia. Quem atravessa, sai maior.'
+    ),
+    'selo_oculto': (
+        'ANO DO DOM QUE DORME',
+        'O ano ativa o arquétipo do seu dom escondido, aquele que só aparece quando você solta '
+        'o controle. Capacidades que você nem sabia que tinha ficam à mão.'
+    ),
+    'selo_quinta': (
+        'ANO DE SÍNTESE',
+        'O ano cai sobre a soma das suas cinco forças. As pontas soltas dos últimos ciclos '
+        'tendem a se encaixar.'
+    ),
     'mesmo_selo': (
         'ANO DO SEU PRÓPRIO ARQUÉTIPO',
         'O mesmo arquétipo do seu nascimento volta, num ritmo mais maduro. Acontece a cada quatro '

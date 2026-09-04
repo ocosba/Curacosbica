@@ -350,6 +350,14 @@ def relacao_com(kin_referencia: int, kin_alvo: int):
             return chave
     if seal_of(kin_referencia) == seal_of(kin_alvo):
         return 'mesmo_selo'
+    # Kin exato é raro: só 1 dos 260 bate com cada força. O SELO da força bate
+    # 13 vezes. Sem este passo o bloco do ano dizia "energia que não está no
+    # seu mapa" para um ano regido pelo selo do próprio aliado da pessoa —
+    # contradizendo o oráculo impresso na mesma mensagem.
+    s_alvo = seal_of(kin_alvo)
+    for chave in ('guia', 'analogo', 'antipoda', 'oculto', 'quinta'):
+        if seal_of(o[chave]) == s_alvo:
+            return 'selo_' + chave
     if tone_of(kin_referencia) == tone_of(kin_alvo):
         return 'mesmo_tom'
     return None
