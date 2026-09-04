@@ -571,14 +571,32 @@ DIA_PESSOAL = {
 
 # Manchete dos 168 dias sem relação: o contraste entre o ritmo do dia e o seu.
 # Sempre verdadeiro, sempre específico, e ensina os 13 tons pelo uso.
-# Em duas linhas, não numa frase só: os textos de TOM_MODO são longos e alguns
-# têm dois-pontos dentro. Emendados na mesma frase, saía truncado.
-RITMO_CONTRASTE = (
-    'Hoje o campo pede uma coisa, e o seu passo natural pede outra.\n'
-    '• *O dia:* {modo_dia}\n'
-    '• *Você:* {modo_seu}\n'
-    'Não é conflito. É saber de manhã onde vai precisar de tradução.'
-)
+# O contraste de ritmo NÃO é bloco diário. Roast de 04/09/2026, medindo 60 dias
+# seguidos de assinatura: o bloco aparecia 39 vezes, e três das suas quatro
+# linhas eram byte a byte idênticas — inclusive "• Você:", que nunca muda
+# porque o tom natal nunca muda. Sozinho, respondia por 156 das 908 linhas que
+# a pessoa lia no bimestre. Num diário, moldura fixa não se paga.
+#
+# O que sobrou é uma linha só, e só nos dias em que o ritmo é notícia.
+RITMO_CONTRASTE = 'Hoje o campo pede que se aja {modo_dia} — e o seu passo é outro.'
+
+# Rótulo curto do dia, para o aviso de véspera. É o que cria continuidade numa
+# assinatura: sem ele, cada manhã é um evento solto e nada puxa a próxima.
+DIA_CURTO = {
+    'destino': 'o seu Retorno de Kin',
+    'guia': 'o dia da sua Bússola',
+    'analogo': 'o seu dia de apoio',
+    'antipoda': 'o seu dia de treino',
+    'oculto': 'o dia do seu dom escondido',
+    'quinta': 'o seu dia de síntese',
+    'selo_guia': 'um dia na sua direção',
+    'selo_analogo': 'um dia de apoio',
+    'selo_antipoda': 'um dia de treino',
+    'selo_oculto': 'um dia do seu dom escondido',
+    'selo_quinta': 'um dia de encaixe',
+    'mesmo_selo': 'o seu arquétipo de volta',
+    'mesmo_tom': 'um dia no seu próprio ritmo',
+}
 
 # O dia em que o ciclo anual vira. É o dia mais importante do calendário
 # pessoal e a primeira versão passava batido por ele — o aviso de 30 dias
@@ -592,13 +610,23 @@ ANIVERSARIO_GALACTICO = (
 
 # O corpo: o centro do dia contra o centro natal. Único eixo que é 100% método
 # Cosba e não existe em nenhum app de Dreamspell.
-CORPO_DOBRADO = (
-    'Hoje o dia bate no *mesmo centro* que o seu — *{centro}*. '
-    'Dose dupla: o que você já costuma sentir aí fica mais alto hoje. '
-    'Trate como aviso, não como sintoma.'
-)
-CORPO_CRUZADO = (
-    'O dia pega no *{centro_dia}*. O seu ancora no *{centro_seu}*. '
-    'Quando os dois não coincidem, o corpo costuma avisar primeiro pelo seu — '
-    'é ali que a tensão do dia se acumula sem você perceber.'
-)
+# Mesma lição do roast: a explicação de por que os centros coincidem ou não é
+# sempre a mesma frase. Ela vale uma vez, no primeiro dia da assinatura (ver
+# BOAS_VINDAS_ASSINANTE), e depois vira ruído. No dia a dia fica só o fato.
+CORPO_DOBRADO = 'Hoje o dia bate no *seu* centro — *{centro}*. Dose dupla.'
+CORPO_CRUZADO = 'Hoje o dia pega no *{centro_dia}*; o seu ancora no *{centro_seu}*.'
+
+# A explicação que saiu do diário mora aqui e é enviada uma vez, na entrada.
+BOAS_VINDAS_ASSINANTE = """✨ *O SEU DIÁRIO COMEÇA AMANHÃ*
+
+{nome}, a partir de agora a leitura da manhã é lida em cima do seu mapa — Kin *{kin:03d}, {nome_kin}* — e não é a mesma que vai para o grupo.
+
+*Três coisas que não vou repetir todo dia, então guarde esta mensagem:*
+
+⚡ *O seu ritmo é o tom {tom}.* Você opera {modo}. O ritmo do dia muda todo dia; o seu não. Quando os dois baterem, eu aviso.
+
+🫀 *O seu centro é o {centro}.* É onde a sua energia ancora. Quando o dia pega em outro centro, a tensão costuma se acumular no seu mesmo assim — é ali que o corpo avisa primeiro.
+
+🗓️ *Dos 260 dias do ciclo, 103 tocam o seu mapa.* Nesses dias a leitura vem inteira e diz por quê. Nos outros vem curta, de propósito: se toda manhã grita, nenhuma é ouvida.
+
+Amanhã tem a primeira."""

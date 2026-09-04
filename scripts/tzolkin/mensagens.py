@@ -636,12 +636,9 @@ def dia_pessoal(nascimento: datetime.date, nome: str = '',
 
     # --- manchete -------------------------------------------------------
     rel = core.relacao_com(natal, kd['kin'])
+    titulo = corpo_manchete = None
     if rel and rel in T.DIA_PESSOAL:
         titulo, corpo_manchete = T.DIA_PESSOAL[rel]
-    else:
-        titulo = 'O RITMO DE HOJE E O SEU'
-        corpo_manchete = T.RITMO_CONTRASTE.format(
-            modo_dia=M.TOM_MODO[t_dia], modo_seu=M.TOM_MODO[t_nat])
 
     # --- corpo ----------------------------------------------------------
     centro_dia = kd['familia']['chakra']
@@ -650,6 +647,19 @@ def dia_pessoal(nascimento: datetime.date, nome: str = '',
         corpo = T.CORPO_DOBRADO.format(centro=centro_dia)
     else:
         corpo = T.CORPO_CRUZADO.format(centro_dia=centro_dia, centro_seu=centro_nat)
+
+    # --- o chamado do dia -----------------------------------------------
+    # Aqui ficava CORPO_DO_TOM, que é exatamente a mesma linha do diário aberto:
+    # o assinante recebia a mesma instrução duas vezes na mesma manhã. No lugar,
+    # o superpoder DELE cruzado com o modo de HOJE — a fórmula da alquimia do
+    # mapa aplicada ao dia. Muda a cada 13 dias e nenhum não-assinante vê.
+    superpoder = M.SUPERPODER[s_nat][0]
+    for artigo in ('O ', 'A ', 'Os ', 'As '):
+        if superpoder.startswith(artigo):
+            superpoder = superpoder[len(artigo):]
+            break
+    chamado = f"Hoje o seu *{superpoder}* opera {M.TOM_MODO[t_dia]}"
+    chamado = chamado.rstrip('.') + '.'
 
     # --- o ano ----------------------------------------------------------
     # Este bloco é o coração do produto pago, e na primeira versão era UMA
@@ -663,17 +673,23 @@ def dia_pessoal(nascimento: datetime.date, nome: str = '',
     dia_do_ano = (hoje - atual['inicio']).days + 1
     quad_nome, quad_corte, quad_ini, quad_fim, quad_missao = c['quadrante']
 
-    ano_linhas = [f"Ano {atual['idade']} → {atual['idade'] + 1}, dia *{dia_do_ano}* de 365.",
-                  f"Regido por *{core.nome_do_kin(atual['kin'])}*"
-                  + (f" — {ROTULO_CURTO[atual['relacao']]}." if ROTULO_CURTO.get(atual['relacao'])
-                     else '.')]
+    ano_linhas = [f"Ano {atual['idade']} → {atual['idade'] + 1}, dia *{dia_do_ano}* de 365."]
+    # O Kin regente do ano é o mesmo por 365 dias. Repetido toda manhã vira
+    # ruído — apareceu 22 vezes em 60 dias no roast. Entra na primeira semana
+    # do ciclo, e depois só quando carrega rótulo (aí ele diz algo).
+    if dia_do_ano <= 7 or ROTULO_CURTO.get(atual['relacao']):
+        ano_linhas.append(f"Regido por *{core.nome_do_kin(atual['kin'])}*"
+                          + (f" — {ROTULO_CURTO[atual['relacao']]}."
+                             if ROTULO_CURTO.get(atual['relacao']) else '.'))
     forca = FORCA_DO_ANO.get(atual['relacao'])
     if forca:
         ano_linhas.append(f"O ano inteiro está rodando dentro {forca}.")
     # O castelo de vida é fato de 13 anos: repetido todo dia vira ruído. Só
     # entra no dia da virada do ano e na primeira semana de cada ciclo anual,
     # que é quando ele diz alguma coisa.
-    if dia_do_ano <= 7:
+    if dia_do_ano == 1:
+        # Uma vez por ano, no dia da virada. Com "<= 7" ele saía três vezes na
+        # mesma semana, idêntico — pior do que sair uma vez só.
         ano_linhas.append(f"🏰 *{quad_nome}*, {quad_corte} ({quad_ini}–{quad_fim} anos): "
                           f"{quad_missao}")
     if c['faltam_para_retorno'] <= 3:
@@ -706,37 +722,48 @@ def dia_pessoal(nascimento: datetime.date, nome: str = '',
               f"Hoje o campo é *Kin {kd['kin']:03d} — {kd['nome']}*"
               f"{' 🌀' if kd['is_pag'] else ''}")
 
+    # A VÉSPERA. O que faltava para isto ser assinatura e não uma sequência de
+    # bilhetes soltos: cada manhã aponta para a próxima que importa. Puro
+    # cálculo, nenhum texto novo — e é o que faz a pessoa continuar amanhã.
+    aviso = ''
+    for salto in range(1, 22):
+        futuro = hoje + datetime.timedelta(days=salto)
+        r_fut = core.relacao_com(natal, core.calculate_kin(futuro))
+        if r_fut in T.DIA_CURTO:
+            quando = 'Amanhã' if salto == 1 else f'Daqui a *{salto} dias*'
+            aviso = f"\n⏭️ {quando}: {T.DIA_CURTO[r_fut]}."
+            break
+
     if not grande:
+        # Dia comum: quatro linhas. Sem manchete, sem moldura, sem explicação
+        # repetida. O contraste de ritmo só entra quando é notícia de verdade.
         return _limpa(f"""{cabeca}
 _{O.ONDA_NARRATIVA[s_dia][0]}_
 
-🎯 *{titulo}*
-{corpo_manchete}
-
 🫀 {corpo}
-🧘 {T.CORPO_DO_TOM[t_dia]}
-
-🗓️ Ano {atual['idade']} → {atual['idade'] + 1}, dia *{dia_do_ano}* de 365.
-🪞 _{kd['tom'][5]}_
+👉 {chamado}
+🗓️ Dia *{dia_do_ano}* dos 365 do seu ano.{aviso}
 
 ✨ {T.ASSINATURA}""")
 
     # O arquétipo do dia, o flui/trava e a ação NÃO entram aqui: são idênticos
     # ao diário aberto. Quem assina recebe o que é dela, não o mesmo texto duas
     # vezes.
+    # Dia grande. A manchete existe só aqui — nos dias comuns não há o que
+    # anunciar, e anunciar assim mesmo é o que gastava a atenção da pessoa.
+    manchete = f"\n🎯 *{titulo}*\n{corpo_manchete}\n" if titulo else ''
+    # O ritmo só aparece quando é notícia: no dia em que o tom do dia é o seu,
+    # o próprio DIA_PESSOAL já diz. Aqui entra o contraste, em UMA linha, e só
+    # quando o dia grande veio da virada do ano (senão a manchete já basta).
+    ritmo = ('\n⚡ ' + T.RITMO_CONTRASTE.format(modo_dia=M.TOM_MODO[t_dia]) + '\n'
+             if not titulo else '')
     return _limpa(f"""{cabeca}
 _{O.ONDA_NARRATIVA[s_dia][0]}_
-
-🎯 *{titulo}*
-{corpo_manchete}
-
-🫀 *O SEU CORPO HOJE*
-{corpo}
-🧘 {T.CORPO_DO_TOM[t_dia]}
+{manchete}{ritmo}
+🫀 {corpo}
+👉 {chamado}
 
 🗓️ *O SEU ANO*
-""" + '\n'.join(ano_linhas) + f"""
-
-🪞 *A sua pergunta hoje:* _{kd['tom'][5]}_
+""" + '\n'.join(ano_linhas) + f"""{aviso}
 
 ✨ {T.ASSINATURA}""")
