@@ -69,6 +69,53 @@ selo que já apareceu, entra direto na leitura.
 
 ---
 
+## O terceiro nível: o tom dentro de cada força (04/09/2026)
+
+**O problema que gerou esta regra.** Rodada de roast com 8 mapas reais lado a
+lado: Simon (Mão tom 9), Stephanie (Mão tom 4) e Dani (Mão tom 5) tinham de
+**46% a 58% das linhas idênticas**. Motivo: quase tudo no mapa deriva do SELO,
+e duas pessoas do mesmo selo têm exatamente o mesmo oráculo de selos. Quem
+comparasse dois mapas leria "genérico" antes de ler "mesmo arquétipo".
+
+**A saída, sem reescrever 260 textos.** O tom de cada força é diferente mesmo
+quando o selo é igual:
+
+| força | tom que ela carrega |
+|---|---|
+| guia, análogo, antípoda | o tom natal |
+| oculto | o tom espelho (`14 - t`) |
+| quinta | tom próprio |
+
+Então cada força ganhou uma quarta linha, marcada com ⚡, calibrada pelo tom
+**daquele** kin. São 5 forças × 13 tons = **65 frases** em `TOM_NA_FORCA`
+(`textos_oraculo.py`), e elas mudam nas cinco posições de uma vez.
+
+```
+🧭 *A Bússola de Decisão* — Noite Solar Azul
+_A Noite é o sonho e a abundância...        ← o arquétipo (igual para todos)
+A sua melhor decisão nunca vem na correria… ← o selo nesta posição
+↳ O Farol Guia direciona você a buscar…     ← a camada de vida inteira
+⚡ Você não decide pensando, decide fazendo… ← o TOM nesta posição
+```
+
+**⚡ quer dizer ritmo em toda a leitura.** Título da seção 3, ritmo do ano,
+pulsar do dia e agora as forças. O leitor não precisa de parágrafo explicando:
+o símbolo ensina sozinho que aquela linha fala da velocidade dele.
+
+**Só no mapa.** No kin do dia a bússola continua com 3 linhas — o diário é
+peça curta e o oráculo dele já muda todo dia.
+
+### Regras de escrita das 65
+
+1. Nenhuma frase repete a abertura de outra dentro do mesmo bloco de 13.
+2. Nenhuma usa **"O treino é"** — a construção já vive nos textos de selo da
+   posição antípoda e apareceria duas vezes seguidas.
+3. Nenhuma pode ecoar a linha de selo nem a linha profunda que ficam logo
+   acima. Verificado por script: zero pares com 3+ palavras de conteúdo em
+   comum, nas 260 × 5 combinações.
+
+---
+
 ## O que voltou do texto de 2025
 
 O texto de referência gerado pela IA anterior errava o português em série
@@ -238,6 +285,7 @@ Retorno Galáctico.
 | Matemática e tabelas | `scripts/tzolkin/core.py` |
 | Manifesto, superpoder, armadilha, chave, corpo, diretrizes | `scripts/tzolkin/textos_mapa.py` |
 | As 4 forças com peso e a narrativa das ondas | `scripts/tzolkin/textos_oraculo.py` |
+| O tom dentro de cada força (`TOM_NA_FORCA`, 65 frases) | `scripts/tzolkin/textos_oraculo.py` |
 | Frase do dia, glossário, degraus, tons | `scripts/tzolkin/textos.py` |
 | A alquimia Selo + Tom (`TOM_MODO`) | `scripts/tzolkin/textos_mapa.py` |
 | Material profundo (só a aula) | `scripts/tzolkin/textos_profundos.py` |

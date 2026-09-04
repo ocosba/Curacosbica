@@ -209,3 +209,102 @@ PAPEL_DO_DEGRAU = {
     12: 'é quem divide com os outros e transforma o aprendizado em coisa coletiva',
     13: 'é quem fecha o ciclo, colhe o sentido e prepara o voo para a próxima jornada',
 }
+
+
+# ==========================================================
+# O TOM DENTRO DE CADA FORÇA
+# ==========================================================
+# Achado da rodada 4 (03/09/2026): três Mãos com tons diferentes — Simon (9),
+# Stephanie (4) e Dani (5) — tinham de 46% a 58% das linhas do mapa IDÊNTICAS.
+# Motivo: quase tudo no oráculo deriva do SELO, e o selo das cinco forças é o
+# mesmo para quem nasce sob o mesmo selo, independente do tom.
+#
+# Mas o TOM de cada força muda: guia, análogo e antípoda carregam o tom natal;
+# o oculto carrega o tom espelho (14 - t); a quinta tem tom próprio. Ou seja,
+# as cinco forças divergem no tom mesmo quando o selo é igual.
+#
+# Esta tabela usa exatamente isso. Cada força ganha uma linha final calibrada
+# pelo tom DAQUELE kin — o que faz duas pessoas do mesmo selo lerem cinco
+# parágrafos diferentes onde antes liam cinco iguais.
+#
+# Regra de escrita: nenhuma frase repete a abertura de outra dentro do mesmo
+# bloco, e nenhuma usa "O treino é" — construção que já vive nos textos de selo
+# da posição antípoda, e que apareceria duas vezes seguidas.
+
+TOM_NA_FORCA = {
+    'guia': {
+        1:  'A direção chega como atração, não como plano: você percebe para onde ir pelo que te puxa. Se nada te puxa, ainda não é hora.',
+        2:  'Você só enxerga o caminho depois de bater no obstáculo. Não é falha de método — é o seu jeito: o "não" te mostra o "sim".',
+        3:  'A sua clareza aparece falando com alguém. Sozinho na cabeça você roda em círculo; em voz alta, o caminho aparece na primeira conversa.',
+        4:  'Direção, para você, é decisão escrita. Enquanto a escolha não tiver prazo, tamanho e primeiro passo, ela ainda não foi tomada.',
+        5:  'Você decide bem quando assume o comando e para de consultar. Não é arrogância: a sua bússola trava quando você terceiriza a escolha.',
+        6:  'Nenhum insight vai te dar a resposta — a repetição vai. Volte à mesma pergunta em dias diferentes e ela se firma sozinha.',
+        7:  'A sua bússola é o corpo antes da lógica. Se a ideia é boa mas o peito fecha, confie no peito: ele lê o que você ainda não formulou.',
+        8:  'Uma escolha só é certa se você conseguiria explicá-la sem se envergonhar. Coerência é o seu instrumento de navegação.',
+        9:  'Você não decide pensando, decide fazendo. Dê um passo pequeno e irreversível e a direção inteira se revela no movimento.',
+        10: 'Escolha olhando o resultado final: o que você quer ter pronto daqui a um ano. Depois caminhe de trás para frente até hoje.',
+        11: 'O caminho se ilumina quando você tira da mesa a opção que já estava morta. Descartar, para você, é decidir.',
+        12: 'A escolha que serve só a você costuma ser a errada, e você sente isso rápido. Decida pensando em quem vai ser afetado.',
+        13: 'O seu norte se confirma no prazo longo. Não force resposta hoje: sustente a pergunta e veja o que continua verdadeiro em três meses.',
+    },
+    'analogo': {
+        1:  'O apoio chega por atração, não por pedido. Diga em voz alta o que você está construindo e as pessoas certas aparecem sozinhas.',
+        2:  'Você se fortalece no par. Uma pessoa só, que te encara de igual para igual, vale mais que uma rede inteira de contatos mornos.',
+        3:  'A sua força volta quando você se mexe e junta gente. Isolamento te apaga rápido — não é frescura, é fisiologia.',
+        4:  'O que te sustenta é ter estrutura. Uma agenda clara e um lugar organizado te devolvem mais energia que qualquer conversa motivacional.',
+        5:  'A sua energia se reúne quando você ocupa o centro. Sendo ponto de referência de um grupo, mesmo pequeno, você se abastece.',
+        6:  'O seu aliado é a rotina. Sono, comida e horário fazem por você o que nenhum esforço extraordinário faz.',
+        7:  'Você se recupera no silêncio e na escuta. Música, natureza, água, mato: é ali que o seu tanque enche de novo.',
+        8:  'Coerência te abastece. Qualquer desalinho entre o que você vive e o que você acredita drena mais do que trabalho pesado.',
+        9:  'Ver a coisa acontecendo é o que te dá gás. Uma entrega real por semana te recarrega mais do que uma semana inteira de descanso.',
+        10: 'Terminar te abastece. Um ciclo fechado, por menor que seja, te devolve mais do que dez começados ao mesmo tempo.',
+        11: 'Soltar é o que te reabastece. Cada vez que você abre mão de algo pesado, volta uma energia que você achava perdida.',
+        12: 'O que é feito junto rende mais e cansa menos. Rede não é muleta para você — é combustível, e você funciona pior sem ela.',
+        13: 'A sua base é o tempo. Você não é de arranque: é de constância longa, e a sua força aparece na segunda metade da caminhada.',
+    },
+    'antipoda': {
+        1:  'O atrito vem de quem disputa o mesmo lugar que você. Você não precisa vencer ninguém para existir — sair da disputa já é a vitória.',
+        2:  'A discussão é a sua armadilha. Você entra para provar o ponto e sai esvaziado; sair antes de ganhar vale mais do que ter razão.',
+        3:  'Lentidão alheia te irrita mais do que você admite. Esperar o outro no tempo dele é a sua lição mais difícil, e a mais necessária.',
+        4:  'O que não tem contorno te desmonta: reunião sem pauta, combinado sem prazo, conversa que não fecha. Peça a definição em vez de adivinhar.',
+        5:  'Você perde a linha quando te desautorizam na frente de alguém. Quem tem lugar não precisa defendê-lo — e lembrar disso te poupa metade dos atritos.',
+        6:  'O imprevisto que atropela a sua rotina é o que mais te desregula. Deixe folga na agenda: o inesperado precisa caber, porque ele vem.',
+        7:  'Você absorve o estado de quem está por perto, inclusive o mau humor que não é seu. Distinguir o que é seu do que é da sala te poupa metade dos desgastes.',
+        8:  'A incoerência dos outros é o que mais te ferve por dentro. Escolha onde cobrar: nem toda hipocrisia do mundo é sua para corrigir.',
+        9:  'A sua paciência acaba com quem fala muito e faz pouco. Parar de puxar quem não quer andar não é abandono, por mais que pareça.',
+        10: 'O pendente dos outros vira peso seu e te consome por dentro. Deixe apodrecer o que não é sua tarefa — ninguém morre disso.',
+        11: 'Você trava com quem tenta te controlar, mesmo com a melhor das intenções. Dizer não na hora custa menos do que sumir depois.',
+        12: 'Ficar de fora te machuca mais do que você mostra. Peça o seu lugar em voz alta em vez de esperar que alguém perceba.',
+        13: 'Cobrança de resposta imediata te desmonta. "Eu te respondo amanhã" é uma frase inteira: você não fica devendo nada dizendo isso.',
+    },
+    'oculto': {
+        1:  'Esse dom te transforma em ponto de encontro: as pessoas certas se juntam em volta de você sem que você chame ninguém.',
+        2:  'Sob oscilação você fica estranhamente estável. É uma firmeza que você nem reivindica, porque não percebe que está usando ela.',
+        3:  'Você se mexe primeiro, sem discutir, e o seu movimento tira o grupo inteiro do lugar. Arrancar é o seu dom guardado.',
+        4:  'A sua cabeça fica cirúrgica: enxerga a estrutura do problema num instante e desenha a saída em três passos claros.',
+        5:  'Sem cargo e sem convite, as pessoas passam a olhar para você — e você dá conta. A autoridade aparece pronta, do nada.',
+        6:  'A lista, a divisão das tarefas, o horário: você organiza sem pensar, e a ordem que você cria acalma o ambiente inteiro.',
+        7:  'A resposta chega inteira no instante em que você para de forçar. É o seu recurso mais estranho e o mais confiável que você tem.',
+        8:  'Você diz a frase exata que ninguém teve coragem de dizer, e o problema muda de tamanho na mesma hora.',
+        9:  'A energia que faltava chega toda de uma vez, e você faz num dia o que vinha arrastando por meses.',
+        10: 'Por mais travado que você estivesse, o trabalho sai pronto e bem feito. Entregar é o seu talento escondido.',
+        11: 'Você abre mão do que estava segurando com unha e dente — e é exatamente aí que a vida se reorganiza sozinha.',
+        12: 'Você pede ajuda e ela vem. É o dom que você mais subestima: as pessoas aparecem por você mais do que você imagina.',
+        13: 'Você não resolve, não conserta e não foge: você fica. E esse ficar cura mais do que qualquer solução que alguém traga.',
+    },
+    'quinta': {
+        1:  'Tudo se alinha quando existe uma intenção só, clara, à frente de tudo. Duas metas grandes ao mesmo tempo e o seu eixo se perde.',
+        2:  'Você fica inteiro quando aceita a tensão entre dois lados seus. Não precisa escolher um: precisa parar de fingir que só existe um.',
+        3:  'As peças se encaixam quando você está em movimento e com gente junto. Parado e sozinho, elas se soltam de novo.',
+        4:  'Forma é o seu eixo. Quando a sua vida ganha rotina, contorno e limite claro, o resto para de sangrar energia.',
+        5:  'A sua vida se estabiliza no dia em que você assume o próprio comando. Não é liderar os outros: é parar de esperar permissão.',
+        6:  'Nada te centra mais do que fazer as mesmas poucas coisas nos mesmos horários. O ritmo é o seu chão.',
+        7:  'Você fica em pé quando reserva um tempo diário sem produzir nada — e é justamente o primeiro tempo que você corta.',
+        8:  'A coerência é o que te sustenta. No dia em que a agenda bate com os valores, o cansaço some sem você mudar mais nada.',
+        9:  'Realizar te estabiliza. Não é hiperatividade: a sua vida só faz sentido quando a intenção vira coisa existente no mundo.',
+        10: 'Terminar e mostrar o resultado, mesmo pequeno, te recoloca no lugar mais rápido do que qualquer descanso.',
+        11: 'Esvaziar é o que te organiza: menos compromisso, menos objeto, menos vínculo morto. É assim que você respira.',
+        12: 'Você se encontra quando o que é seu passa a servir mais gente — e se perde quando fica só seu.',
+        13: 'A sua paz é feita de tempo. Nada seu amadurece rápido, e você fica em paz no dia em que para de exigir que amadureça.',
+    },
+}

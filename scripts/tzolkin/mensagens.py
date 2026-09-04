@@ -112,6 +112,13 @@ def _bussola(kin: int, natal: bool = False) -> str:
 
     Um selo só é apresentado uma vez por bússola: se a Quinta Força repete um
     selo que já apareceu, ela entra direto na leitura.
+
+    No mapa (natal=True) cada força fecha com o ⚡: a mesma posição calibrada
+    pelo TOM daquele kin. É o que separa dois mapas do mesmo selo — o selo das
+    cinco forças é idêntico para todo mundo que nasce sob ele, mas o tom não:
+    guia, análogo e antípoda carregam o tom natal, o oculto carrega 14 - t e a
+    quinta tem tom próprio. Sem esta linha, duas pessoas do mesmo selo leem
+    cinco parágrafos iguais.
     """
     o = core.oracle(kin)
     linhas, ja_vistos = [], set()
@@ -127,16 +134,18 @@ def _bussola(kin: int, natal: bool = False) -> str:
         # No mapa a força é permanente, não a energia de um dia: entra também a
         # camada profunda, que diz o que o arquétipo faz na vida inteira.
         fundo = f"\n↳ {_atemporal(PROFUNDO[s][msg])}" if natal else ''
+        tom = f"\n⚡ {O.TOM_NA_FORCA[chave][core.tone_of(k)]}" if natal else ''
         linhas.append(f"{emoji} *{nome}* — {core.nome_do_kin(k)}{pag}\n"
                       f"_{O.ONDA_NARRATIVA[s][0]}_\n"
-                      f"{O.ORACULO[s][campo]}{fundo}")
+                      f"{O.ORACULO[s][campo]}{fundo}{tom}")
     k = o['quinta']
     s_q = core.seal_of(k)
     arquetipo = '' if s_q in ja_vistos else f"_{O.ONDA_NARRATIVA[s_q][0]}_\n"
     fundo_q = f"\n↳ {_atemporal(PROFUNDO[s_q]['quinta_msg'])}" if natal else ''
+    tom_q = f"\n⚡ {O.TOM_NA_FORCA['quinta'][core.tone_of(k)]}" if natal else ''
     linhas.append(f"👑 *O Vórtice Integrador* — {core.nome_do_kin(k)}\n"
                   f"{arquetipo}"
-                  f"A soma das cinco forças ativa {M.SUPERPODER[s_q][0].lower()}.{fundo_q}")
+                  f"A soma das cinco forças ativa {M.SUPERPODER[s_q][0].lower()}.{fundo_q}{tom_q}")
     return '\n\n'.join(linhas)
 
 
