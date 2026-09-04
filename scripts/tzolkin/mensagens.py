@@ -600,3 +600,143 @@ _As quatro linhas abaixo já estão no tom de vídeo. É só falar._
 Flui: {ac['flui']}. Trava: {ac['trava']}.
 {_mai(ac['acao'])}.
 A pergunta do dia: {kd['tom'][5].lower()}""")
+
+
+# ==========================================================
+# ESTRUTURA D — O DIA PESSOAL (produto de assinatura)
+# ==========================================================
+
+def dia_pessoal(nascimento: datetime.date, nome: str = '',
+                data: datetime.date = None) -> str:
+    """O Kin do dia lido contra o mapa de quem recebe.
+
+    A diferença entre isto e o kin_do_dia é a diferença entre o que se dá e o
+    que se cobra. O diário coletivo é igual para todo mundo; este cruza os 260
+    dias do ciclo com os 260 Kins natais possíveis — 67.600 leituras, nenhuma
+    repetida no ano.
+
+    Quatro eixos, três deles falando todo dia (ver a nota em textos.py sobre
+    os 168 dias sem relação):
+
+        relação  → a manchete, quando existe
+        ritmo    → a manchete, quando não existe
+        corpo    → sempre: o centro do dia contra o centro natal
+        ano      → sempre: onde a pessoa está no próprio ciclo
+
+    Curto de propósito. O valor aqui é precisão, não volume: quem assina quer
+    saber o que fazer com o dia antes do café, não ler uma apostila.
+    """
+    hoje = data or datetime.date.today()
+    natal = core.calculate_kin(nascimento)
+    kd = core.kin_do_dia(hoje)
+    s_dia, t_dia = kd['selo_num'], kd['tom_num']
+    s_nat, t_nat = core.seal_of(natal), core.tone_of(natal)
+    fam_dia = kd['familia']['nome']
+    fam_nat = core.kin_do_dia(nascimento)['familia']['nome']
+
+    # --- manchete -------------------------------------------------------
+    rel = core.relacao_com(natal, kd['kin'])
+    if rel and rel in T.DIA_PESSOAL:
+        titulo, corpo_manchete = T.DIA_PESSOAL[rel]
+    else:
+        titulo = 'O RITMO DE HOJE E O SEU'
+        corpo_manchete = T.RITMO_CONTRASTE.format(
+            modo_dia=M.TOM_MODO[t_dia], modo_seu=M.TOM_MODO[t_nat])
+
+    # --- corpo ----------------------------------------------------------
+    centro_dia = kd['familia']['chakra']
+    centro_nat = core.kin_do_dia(nascimento)['familia']['chakra']
+    if fam_dia == fam_nat:
+        corpo = T.CORPO_DOBRADO.format(centro=centro_dia)
+    else:
+        corpo = T.CORPO_CRUZADO.format(centro_dia=centro_dia, centro_seu=centro_nat)
+
+    # --- o ano ----------------------------------------------------------
+    # Este bloco é o coração do produto pago, e na primeira versão era UMA
+    # linha. Medido: nos 168 dias sem relação, só 4 das 21 linhas eram da
+    # pessoa — o resto duplicava o diário grátis que ela já recebe. O ciclo
+    # anual é o oposto disso: muda com a idade E com o Kin natal, então dois
+    # assinantes nunca leem a mesma coisa aqui.
+    c = mod_ano.ciclo_anual(nascimento, hoje, adiante=1)
+    atual, prox = c['anos'][0], c['anos'][1]
+    dias_virar = (prox['inicio'] - hoje).days
+    dia_do_ano = (hoje - atual['inicio']).days + 1
+    quad_nome, quad_corte, quad_ini, quad_fim, quad_missao = c['quadrante']
+
+    ano_linhas = [f"Ano {atual['idade']} → {atual['idade'] + 1}, dia *{dia_do_ano}* de 365.",
+                  f"Regido por *{core.nome_do_kin(atual['kin'])}*"
+                  + (f" — {ROTULO_CURTO[atual['relacao']]}." if ROTULO_CURTO.get(atual['relacao'])
+                     else '.')]
+    forca = FORCA_DO_ANO.get(atual['relacao'])
+    if forca:
+        ano_linhas.append(f"O ano inteiro está rodando dentro {forca}.")
+    # O castelo de vida é fato de 13 anos: repetido todo dia vira ruído. Só
+    # entra no dia da virada do ano e na primeira semana de cada ciclo anual,
+    # que é quando ele diz alguma coisa.
+    if dia_do_ano <= 7:
+        ano_linhas.append(f"🏰 *{quad_nome}*, {quad_corte} ({quad_ini}–{quad_fim} anos): "
+                          f"{quad_missao}")
+    if c['faltam_para_retorno'] <= 3:
+        ano_linhas.append(f"👑 Faltam *{c['faltam_para_retorno']} anos* para o seu Retorno "
+                          f"Galáctico, aos {c['idade_retorno']}.")
+    if hoje == atual['inicio']:
+        # O dia da virada. A checagem antiga só olhava o ano SEGUINTE, então no
+        # próprio aniversário galáctico dias_virar dava 365 e a leitura não
+        # dizia nada — justamente no dia mais importante do ciclo pessoal.
+        ano_linhas.insert(0, T.ANIVERSARIO_GALACTICO + '\n')
+    elif dias_virar <= 30:
+        ano_linhas.append(f"🎂 Faltam *{dias_virar} dias* para o seu aniversário galáctico — "
+                          f"o ano vira em {prox['inicio']:%d/%m}, sob "
+                          f"*{core.nome_do_kin(prox['kin'])}*.")
+
+    tratamento = f"{nome.split()[0]}, " if nome else ''
+
+    # DIA GRANDE OU DIA COMUM.
+    # Dos 260 dias do ciclo, ~92 tocam o mapa da pessoa de alguma forma. Nos
+    # outros 168 não há o que anunciar, e insistir seria inventar. Se toda
+    # manhã grita, nenhuma manhã é ouvida — então o dia comum vem curto e o dia
+    # grande vem inteiro. Quem assina aprende a confiar no volume da mensagem.
+    # PAG de fora de propósito: portal é evento COLETIVO, já anunciado no diário
+    # aberto, e são 52 por ciclo. Incluí-lo levava os dias grandes a 51% — metade
+    # do ano "especial" não é especial. Sem ele fica em ~35%, um dia em cada três.
+    grande = bool(rel) or hoje == atual['inicio'] or dias_virar <= 30
+
+    cabeca = (f"☀️ *O SEU DIA — {hoje:%d/%m/%Y}*\n"
+              f"{tratamento}Kin natal *{natal:03d} — {core.nome_do_kin(natal)}*\n"
+              f"Hoje o campo é *Kin {kd['kin']:03d} — {kd['nome']}*"
+              f"{' 🌀' if kd['is_pag'] else ''}")
+
+    if not grande:
+        return _limpa(f"""{cabeca}
+_{O.ONDA_NARRATIVA[s_dia][0]}_
+
+🎯 *{titulo}*
+{corpo_manchete}
+
+🫀 {corpo}
+🧘 {T.CORPO_DO_TOM[t_dia]}
+
+🗓️ Ano {atual['idade']} → {atual['idade'] + 1}, dia *{dia_do_ano}* de 365.
+🪞 _{kd['tom'][5]}_
+
+✨ {T.ASSINATURA}""")
+
+    # O arquétipo do dia, o flui/trava e a ação NÃO entram aqui: são idênticos
+    # ao diário aberto. Quem assina recebe o que é dela, não o mesmo texto duas
+    # vezes.
+    return _limpa(f"""{cabeca}
+_{O.ONDA_NARRATIVA[s_dia][0]}_
+
+🎯 *{titulo}*
+{corpo_manchete}
+
+🫀 *O SEU CORPO HOJE*
+{corpo}
+🧘 {T.CORPO_DO_TOM[t_dia]}
+
+🗓️ *O SEU ANO*
+""" + '\n'.join(ano_linhas) + f"""
+
+🪞 *A sua pergunta hoje:* _{kd['tom'][5]}_
+
+✨ {T.ASSINATURA}""")

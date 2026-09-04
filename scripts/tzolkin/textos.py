@@ -477,3 +477,128 @@ CORPO_DO_TOM = {
     12: 'Procure contato: abraço, mão no ombro, andar lado a lado. O corpo regula melhor perto de outro corpo do que sozinho.',
     13: 'Fique parado cinco minutos sem fazer nada, sentado, respirando. Não é preguiça: hoje a presença é o exercício.',
 }
+
+
+# ==========================================================
+# O DIÁRIO PESSOAL — o dia lido contra o mapa de quem recebe
+# ==========================================================
+# Medido em 04/09/2026 sobre o Kin 194: das 260 posições do ciclo, só 92 (35%)
+# têm relação com o Kin natal. Nos outros 168 dias o relacao_com devolve None.
+# Um diário pessoal apoiado só nessa relação diria "dia neutro" dois dias em
+# cada três — não se cobra por isso.
+#
+# Por isso a leitura tem QUATRO eixos, e três deles falam todo dia:
+#   relação   — 92/260 dias. O mais forte quando existe: vira a manchete.
+#   ritmo     — sempre. O tom do dia contra o tom natal.
+#   corpo     — sempre. O centro do dia contra o centro natal. 52/260 coincidem.
+#   ano       — sempre. Onde a pessoa está no próprio ciclo anual.
+#
+# Nos 168 dias sem relação, a manchete passa a ser o ritmo, que é sempre
+# específico. Nenhum dia cai em "hoje não tem nada pra você".
+
+DIA_PESSOAL = {
+    'destino': (
+        'O SEU DIA',
+        'Hoje o calendário volta exatamente ao Kin com que você nasceu — acontece uma vez a '
+        'cada 260 dias. Não é dia de aprender nada novo: é dia de ser, com maestria, aquilo '
+        'que você já é. Anote o que acontecer hoje. Costuma vir informação.'
+    ),
+    'guia': (
+        'O DIA JOGA A SEU FAVOR',
+        'Hoje o dia é exatamente a sua Bússola de Decisão. A direção que você normalmente '
+        'precisa ir procurar está no ar desde cedo. É o melhor dia do ciclo para decidir '
+        'aquilo que você vem adiando.'
+    ),
+    'analogo': (
+        'DIA DE APOIO',
+        'Hoje o dia é regido pelo seu Aliado Natural. O que costuma custar esforço vai render '
+        'com menos atrito. Use para empurrar o que está travado — não para descansar.'
+    ),
+    'antipoda': (
+        'DIA DE TREINO',
+        'Hoje o dia é regido exatamente pelo que mais te tira do sério. Não é dia ruim: é dia '
+        'de treino. Repare no que te irritar, porque a irritação de hoje mostra onde ainda '
+        'tem trabalho a fazer.'
+    ),
+    'oculto': (
+        'O DIA DO SEU DOM ESCONDIDO',
+        'Hoje sobe aquilo que em você só aparece quando aperta, ou quando você solta o '
+        'controle. Capacidade que não está sempre à mão fica disponível. Tente hoje o que '
+        'você acha que não sabe fazer.'
+    ),
+    'quinta': (
+        'DIA DE SÍNTESE',
+        'Hoje o dia soma as suas cinco forças ao mesmo tempo. Ponta solta tende a se encaixar '
+        'sozinha. Bom dia para olhar o conjunto, em vez de resolver detalhe.'
+    ),
+    'selo_guia': (
+        'A SUA DIREÇÃO ESTÁ NO AR',
+        'Hoje não é o Kin exato da sua Bússola, mas é o mesmo arquétipo, em outro ritmo. '
+        'A direção que você já conhece fica disponível o dia inteiro. Dia bom para decidir.'
+    ),
+    'selo_analogo': (
+        'O DIA TRABALHA COM VOCÊ',
+        'Hoje carrega o mesmo arquétipo do seu Aliado Natural, em outro ritmo. O custo de '
+        'mover é menor hoje do que costuma ser. Aproveite para destravar.'
+    ),
+    'selo_antipoda': (
+        'O SEU TREINO ESTÁ NO AMBIENTE',
+        'Hoje carrega o mesmo arquétipo do seu Mestre de Atrito. O que te desregula está no '
+        'ar. Saber disso de manhã é o que te faz atravessar em vez de reagir.'
+    ),
+    'selo_oculto': (
+        'O QUE DORME EM VOCÊ ACORDA',
+        'Hoje carrega o arquétipo do seu dom escondido. Não force: repare. Ele costuma '
+        'aparecer sozinho, justamente quando você para de controlar.'
+    ),
+    'selo_quinta': (
+        'DIA DE ENCAIXE',
+        'Hoje carrega o arquétipo que soma as suas cinco forças. É dia de as coisas se '
+        'encaixarem sem você empurrar. Repare no que se resolve sozinho.'
+    ),
+    'mesmo_selo': (
+        'O SEU ARQUÉTIPO, EM OUTRO RITMO',
+        'Hoje é o mesmo arquétipo com que você nasceu, num tom diferente. Acontece 13 vezes '
+        'por ciclo. Você se sente em casa — e é exatamente por isso que dá para ir mais '
+        'fundo hoje do que num dia comum.'
+    ),
+    'mesmo_tom': (
+        'O DIA PULSA NO SEU RITMO',
+        'O arquétipo é outro, mas a cadência é a sua. Tende a ser um dia em que você se sente '
+        'no próprio tempo, sem precisar forçar o andamento para acompanhar nada.'
+    ),
+}
+
+# Manchete dos 168 dias sem relação: o contraste entre o ritmo do dia e o seu.
+# Sempre verdadeiro, sempre específico, e ensina os 13 tons pelo uso.
+# Em duas linhas, não numa frase só: os textos de TOM_MODO são longos e alguns
+# têm dois-pontos dentro. Emendados na mesma frase, saía truncado.
+RITMO_CONTRASTE = (
+    'Hoje o campo pede uma coisa, e o seu passo natural pede outra.\n'
+    '• *O dia:* {modo_dia}\n'
+    '• *Você:* {modo_seu}\n'
+    'Não é conflito. É saber de manhã onde vai precisar de tradução.'
+)
+
+# O dia em que o ciclo anual vira. É o dia mais importante do calendário
+# pessoal e a primeira versão passava batido por ele — o aviso de 30 dias
+# olhava só para o ano seguinte, então no próprio aniversário não dizia nada.
+ANIVERSARIO_GALACTICO = (
+    '🎂 *HOJE O SEU ANO VIRA.*\n'
+    'O seu ciclo de 365 dias fecha e começa outro agora, com o Kin de hoje '
+    'regendo os próximos doze meses. Não é metáfora: é a data em que o seu '
+    'contador galáctico avança. O que você semear hoje pega o ano inteiro.'
+)
+
+# O corpo: o centro do dia contra o centro natal. Único eixo que é 100% método
+# Cosba e não existe em nenhum app de Dreamspell.
+CORPO_DOBRADO = (
+    'Hoje o dia bate no *mesmo centro* que o seu — *{centro}*. '
+    'Dose dupla: o que você já costuma sentir aí fica mais alto hoje. '
+    'Trate como aviso, não como sintoma.'
+)
+CORPO_CRUZADO = (
+    'O dia pega no *{centro_dia}*. O seu ancora no *{centro_seu}*. '
+    'Quando os dois não coincidem, o corpo costuma avisar primeiro pelo seu — '
+    'é ali que a tensão do dia se acumula sem você perceber.'
+)
