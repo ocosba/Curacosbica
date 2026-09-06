@@ -630,3 +630,87 @@ BOAS_VINDAS_ASSINANTE = """✨ *O SEU DIÁRIO COMEÇA AMANHÃ*
 🗓️ *Dos 260 dias do ciclo, 103 tocam o seu mapa.* Nesses dias a leitura vem inteira e diz por quê. Nos outros vem curta, de propósito: se toda manhã grita, nenhuma é ouvida.
 
 Amanhã tem a primeira."""
+
+
+# ==========================================================
+# A ONDA COMO ARCO — as estações pessoais de 13 dias
+# ==========================================================
+# Descoberta em 04/09/2026: toda onda encantada começa no tom 1, então a
+# relação da onda com o mapa de alguém é sempre por SELO. Resultado limpo e
+# universal: das 20 ondas do ciclo, exatamente SEIS tocam o mapa de qualquer
+# pessoa — uma para cada força do oráculo dela. São 78 dos 260 dias vivendo
+# dentro de uma estação que é sua.
+#
+# Por que isso importa mais do que parece: até aqui a leitura entregava dias
+# soltos. Dia é clima; onda é história. Um arco de 13 dias com abertura, meio
+# e fechamento é o que produz sensação de progresso — e é o que faz a pessoa
+# lembrar do que viveu, que é a condição da devolutiva funcionar.
+#
+# O texto do DEGRAU não entra aqui: ele já vai no diário aberto. Esta camada é
+# só o que é da pessoa — qual estação é esta, e onde no arco ela está.
+
+FASE_ONDA = {
+    'abertura': 'Abertura do arco: o tema é nomeado e o obstáculo aparece. Não é hora de resolver, é hora de ver o que veio.',
+    'construcao': 'Meio do arco: aqui se dá forma, se reúne recurso e se acerta a rota. O trabalho bruto acontece nesta faixa.',
+    'realizacao': 'Onde o arco realiza: coerência, ação e resultado visível. O que não virar concreto aqui não vira mais nesta onda.',
+    'fechamento': 'Fechamento do arco: soltar o que sobrou, dividir o que aprendeu e recolher o sentido antes da próxima.',
+}
+
+
+def fase_do_degrau(degrau: int) -> str:
+    if degrau <= 3:
+        return 'abertura'
+    if degrau <= 7:
+        return 'construcao'
+    if degrau <= 10:
+        return 'realizacao'
+    return 'fechamento'
+
+
+# As seis estações. Chave = relação do selo inicial da onda com o Kin natal.
+ONDA_PESSOAL = {
+    'mesmo_selo': (
+        'A SUA PRÓPRIA ONDA',
+        'Estes 13 dias correm sob o arquétipo com que você nasceu. Acontece uma vez a cada '
+        '260 dias e é a única estação do ciclo em que o campo e você pedem a mesma coisa. '
+        'Se existe uma janela para começar o que é seu, é esta.'
+    ),
+    'selo_guia': (
+        'A ONDA DA SUA BÚSSOLA',
+        'Estes 13 dias correm sob o arquétipo que guia o seu mapa. A direção que você '
+        'costuma ter que ir procurar fica disponível por quase duas semanas seguidas. '
+        'É a melhor estação do ciclo para decidir o que é grande.'
+    ),
+    'selo_analogo': (
+        'A ONDA DO SEU ALIADO',
+        'Estes 13 dias correm sob o arquétipo que te apoia. O custo de mover é menor em '
+        'todos eles — não só num dia solto. É a estação para destravar o que está parado '
+        'há tempo demais.'
+    ),
+    'selo_antipoda': (
+        'A ONDA DO SEU TREINO',
+        'Estes 13 dias correm sob o arquétipo que mais te tira do sério. Não é maldição: '
+        'é a estação em que a lição que você vem adiando fica em cima da mesa todo dia. '
+        'Quem sabe que está nela atravessa; quem não sabe, reage.'
+    ),
+    'selo_oculto': (
+        'A ONDA DO SEU DOM ESCONDIDO',
+        'Estes 13 dias correm sob o arquétipo do que dorme em você. Não force — repare. '
+        'É a estação em que capacidades que você não usa costumam aparecer sozinhas, '
+        'principalmente quando você solta o controle.'
+    ),
+    'selo_quinta': (
+        'A ONDA DA SUA SÍNTESE',
+        'Estes 13 dias correm sob o arquétipo que soma as suas cinco forças. É a estação '
+        'em que as pontas soltas dos últimos meses tendem a se encaixar sem você empurrar.'
+    ),
+}
+
+# Onda fora do mapa: 14 das 20. Aparece só na abertura e no fechamento — não
+# há o que dizer todo dia sobre um arquétipo que não é da pessoa, e fingir que
+# há é exatamente o erro que o roast pegou.
+ONDA_DE_FORA = (
+    'Começa hoje um arco de 13 dias sob *{nome}* — um arquétipo que não está no seu mapa. '
+    'É aprendizado por fora, e é assim que a sua caixa de ferramentas cresce.'
+)
+ONDA_FECHA = 'Último dia do arco {artigo} *{nome}*. Antes de virar a página: o que ficou de pé?'

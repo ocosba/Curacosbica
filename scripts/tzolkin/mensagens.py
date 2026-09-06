@@ -722,6 +722,31 @@ def dia_pessoal(nascimento: datetime.date, nome: str = '',
               f"Hoje o campo é *Kin {kd['kin']:03d} — {kd['nome']}*"
               f"{' 🌀' if kd['is_pag'] else ''}")
 
+    # --- a onda como arco -----------------------------------------------
+    # Toda onda começa no tom 1, então a relação dela com o mapa é sempre por
+    # selo: exatamente 6 das 20 ondas do ciclo são estações da pessoa, uma por
+    # força do oráculo. São 78 dos 260 dias dentro de um arco que é dela.
+    #
+    # Dia é clima; onda é história. O texto do DEGRAU não entra aqui porque já
+    # vai no diário aberto — esta camada é só qual estação é esta e onde no
+    # arco ela está. Onda que não é da pessoa só fala na abertura e no
+    # fechamento: não há o que dizer todo dia sobre um arquétipo que não é dela.
+    onda = kd['onda']
+    degrau = onda['degrau']
+    rel_onda = core.relacao_com(natal, onda['inicio'])
+    bloco_onda = ''
+    if rel_onda in T.ONDA_PESSOAL:
+        tit_onda, txt_onda = T.ONDA_PESSOAL[rel_onda]
+        fase = T.FASE_ONDA[T.fase_do_degrau(degrau)]
+        bloco_onda = (f"\n🌊 *{tit_onda}* — dia {degrau} de 13\n"
+                      + (txt_onda + '\n' if degrau == 1 else '')
+                      + fase + '\n')
+    elif degrau == 1:
+        bloco_onda = '\n🌊 ' + T.ONDA_DE_FORA.format(nome=onda['nome']) + '\n'
+    elif degrau == 13:
+        bloco_onda = ('\n🌊 ' + T.ONDA_FECHA.format(artigo=onda['artigo'],
+                                                    nome=onda['nome']) + '\n')
+
     # A VÉSPERA. O que faltava para isto ser assinatura e não uma sequência de
     # bilhetes soltos: cada manhã aponta para a próxima que importa. Puro
     # cálculo, nenhum texto novo — e é o que faz a pessoa continuar amanhã.
@@ -742,7 +767,7 @@ _{O.ONDA_NARRATIVA[s_dia][0]}_
 
 🫀 {corpo}
 👉 {chamado}
-🗓️ Dia *{dia_do_ano}* dos 365 do seu ano.{aviso}
+{bloco_onda}🗓️ Dia *{dia_do_ano}* dos 365 do seu ano.{aviso}
 
 ✨ {T.ASSINATURA}""")
 
@@ -762,7 +787,7 @@ _{O.ONDA_NARRATIVA[s_dia][0]}_
 {manchete}{ritmo}
 🫀 {corpo}
 👉 {chamado}
-
+{bloco_onda}
 🗓️ *O SEU ANO*
 """ + '\n'.join(ano_linhas) + f"""{aviso}
 
