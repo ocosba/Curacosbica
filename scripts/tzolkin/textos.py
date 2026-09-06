@@ -714,3 +714,75 @@ ONDA_DE_FORA = (
     'É aprendizado por fora, e é assim que a sua caixa de ferramentas cresce.'
 )
 ONDA_FECHA = 'Último dia do arco {artigo} *{nome}*. Antes de virar a página: o que ficou de pé?'
+
+
+# ==========================================================
+# A DEVOLUTIVA — a pergunta da noite e o que ela devolve
+# ==========================================================
+# Decisão de 04/09/2026: só botão, sem texto livre. Isso não é uma versão
+# reduzida — é uma arquitetura diferente e muito mais simples. O callback do
+# Telegram já carrega o Kin e a data, então NÃO existe estado conversacional:
+# some a pendência, some a expiração, somem as regras de colisão entre "isso é
+# resposta" e "isso é comando". Texto livre entra depois sem migração nenhuma,
+# porque o registro guarda o Kin — e do Kin se deriva selo, tom, relação e onda.
+#
+# A pergunta só vai em dia grande (~92 por ciclo) e às 18h30, na volta do
+# trabalho: atenção ociosa e o dia inteiro ainda fresco. Às 21h a pessoa está
+# desacelerando e pergunta reflexiva vira dever de casa.
+#
+# A pergunta é FALSEÁVEL de propósito. Não "como foi seu dia?", que não se pode
+# errar — mas a previsão exata que foi feita de manhã. Se errar, se descobre.
+
+PERGUNTA_NOITE = {
+    'destino': 'Hoje foi o seu dia — o Kin do seu nascimento voltou. Deu pra sentir?',
+    'guia': 'Hoje o dia jogava a favor da sua direção. Você decidiu alguma coisa?',
+    'analogo': 'Hoje era pra ter menos atrito que o normal. Foi assim?',
+    'antipoda': 'Hoje era dia de treino: o que mais te tira do sério estava no ar. Te pegou?',
+    'oculto': 'Hoje era dia do que dorme em você aparecer. Apareceu?',
+    'quinta': 'Hoje era dia de as coisas se encaixarem. Encaixou alguma?',
+    'selo_guia': 'A sua direção estava no ar hoje. Ficou mais fácil enxergar o caminho?',
+    'selo_analogo': 'Hoje o campo trabalhava com você. O que estava travado andou?',
+    'selo_antipoda': 'Hoje o seu treino estava no ambiente. O dia te tirou do sério?',
+    'selo_oculto': 'Hoje era dia do seu dom escondido aparecer sozinho. Apareceu?',
+    'selo_quinta': 'Hoje era dia de encaixe. Alguma coisa se resolveu sem você empurrar?',
+    'mesmo_selo': 'Hoje trouxe o seu próprio arquétipo, em outro ritmo. Se sentiu em casa?',
+    'mesmo_tom': 'Hoje pulsava no seu ritmo. Você se sentiu no seu tempo?',
+}
+
+PERGUNTA_ABERTURA = '🌙 *{nome}, uma pergunta sobre hoje.*\n\n{pergunta}'
+PERGUNTA_RODAPE = '\n\n_Um toque só. Fica guardado no seu mapa e volta quando este dia voltar._'
+
+BOTOES_NOITE = [('✅ Bateu', 'bateu'), ('🤔 Em partes', 'partes'), ('❌ Não', 'nao')]
+
+CONFIRMA_NOTA = {
+    'bateu': '✅ Anotado. Isso volta quando este arquétipo voltar.',
+    'partes': '🤔 Anotado — "em partes" é a resposta mais honesta que existe.',
+    'nao': '❌ Anotado. Errar também é dado: é assim que a leitura afina.',
+}
+
+# ── O que volta ────────────────────────────────────────────────────────────
+# Duas devolutivas, e as duas saem do MESMO campo guardado (o Kin), sem
+# nenhuma coluna extra: selo e relação são derivados por matemática que o
+# core.py já faz. A primeira dispara por volta do dia 25 da assinatura.
+
+ECO_MESMO_SELO = '🔁 *O mesmo arquétipo voltou.* Há {dias} dias, nele, você marcou: *{resposta}*.'
+
+RESPOSTA_NOME = {'bateu': 'bateu', 'partes': 'em partes', 'nao': 'não bateu'}
+
+# O contador só aparece quando já há amostra: com uma ocorrência só, "1 de 1"
+# não é padrão, é anedota.
+CONTADOR = '📊 É o seu {n}º {rotulo} registrado. Dos {total} anteriores, *{bateram}* bateram.'
+
+# DIA_CURTO não serve aqui: os rótulos de lá carregam artigo ("um dia de
+# treino"), feitos para o aviso de véspera, e no contador saíam "o seu 3º um
+# dia de treino". Aqui o rótulo é substantivo puro.
+ROTULO_CONTADOR = {
+    'destino': 'Retorno de Kin',
+    'guia': 'dia de bússola', 'selo_guia': 'dia de bússola',
+    'analogo': 'dia de apoio', 'selo_analogo': 'dia de apoio',
+    'antipoda': 'dia de treino', 'selo_antipoda': 'dia de treino',
+    'oculto': 'dia de dom escondido', 'selo_oculto': 'dia de dom escondido',
+    'quinta': 'dia de síntese', 'selo_quinta': 'dia de síntese',
+    'mesmo_selo': 'dia do seu arquétipo',
+    'mesmo_tom': 'dia no seu ritmo',
+}

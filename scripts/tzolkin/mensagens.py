@@ -606,8 +606,66 @@ A pergunta do dia: {kd['tom'][5].lower()}""")
 # ESTRUTURA D — O DIA PESSOAL (produto de assinatura)
 # ==========================================================
 
+def _devolutiva(natal: int, kin_hoje: int, hoje: datetime.date, notas: list) -> str:
+    """O que o histórico da pessoa devolve sobre o dia de hoje.
+
+    O truque que faz isto ser barato: guarda-se UM número — o Kin da nota — e
+    daí saem todos os índices, porque selo, tom, relação e onda são deriváveis.
+    Nenhuma coluna extra, e nenhuma migração quando surgir um sexto tipo de
+    devolutiva: ele já vai estar indexado.
+
+    Duas saídas por enquanto:
+      eco      — a mesma nota, quando o SELO volta (a cada ~13 dias)
+      contador — quantas vezes este TIPO de dia já foi registrado
+
+    Medido no Kin 194: o eco dispara pela primeira vez no dia 25 da assinatura.
+    É antes do primeiro mês fechar — que é o que importa, porque é aí que a
+    pessoa decide se aquilo é leitura ou espelho.
+    """
+    rel_hoje = core.relacao_com(natal, kin_hoje)
+    # SÓ EM DIA GRANDE. Sem esta trava o eco disparava em 80% dos dias — assim
+    # que a base de notas enche, sempre há algum selo voltando. Devolutiva todo
+    # dia é a moldura fixa de novo, virando papel de parede. Ecoar uma nota num
+    # dia que não tem nada a ver com ela não é memória, é ruído.
+    if not notas or not rel_hoje:
+        return ''
+    linhas = []
+    s_hoje = core.seal_of(kin_hoje)
+
+    # 1. O eco: a nota mais recente sob o mesmo selo, sem contar hoje.
+    eco = None
+    for n in notas:
+        try:
+            d = datetime.date.fromisoformat(n['data'])
+        except Exception:
+            continue
+        if d >= hoje or core.seal_of(n['kin']) != s_hoje:
+            continue
+        if eco is None or d > datetime.date.fromisoformat(eco['data']):
+            eco = n
+    if eco:
+        dias = (hoje - datetime.date.fromisoformat(eco['data'])).days
+        # Além de ~2 meses o eco vira curiosidade arqueológica; aí quem fala
+        # melhor é o contador, que agrega em vez de citar um dia solto.
+        if dias <= 60:
+            linhas.append(T.ECO_MESMO_SELO.format(
+                dias=dias, resposta=T.RESPOSTA_NOME.get(eco['r'], eco['r'])))
+
+    # 2. O contador: mesmo TIPO de dia. Só com amostra — "1 de 1" é anedota.
+    if rel_hoje in T.ROTULO_CONTADOR:
+        iguais = [n for n in notas
+                  if n['data'] < hoje.isoformat()
+                  and core.relacao_com(natal, n['kin']) == rel_hoje]
+        if len(iguais) >= 2:
+            bateram = sum(1 for n in iguais if n['r'] == 'bateu')
+            linhas.append(T.CONTADOR.format(
+                n=len(iguais) + 1, rotulo=T.ROTULO_CONTADOR[rel_hoje],
+                total=len(iguais), bateram=bateram))
+    return ('\n' + '\n'.join(linhas) + '\n') if linhas else ''
+
+
 def dia_pessoal(nascimento: datetime.date, nome: str = '',
-                data: datetime.date = None) -> str:
+                data: datetime.date = None, notas: list = None) -> str:
     """O Kin do dia lido contra o mapa de quem recebe.
 
     A diferença entre isto e o kin_do_dia é a diferença entre o que se dá e o
@@ -747,6 +805,8 @@ def dia_pessoal(nascimento: datetime.date, nome: str = '',
         bloco_onda = ('\n🌊 ' + T.ONDA_FECHA.format(artigo=onda['artigo'],
                                                     nome=onda['nome']) + '\n')
 
+    eco = _devolutiva(natal, kd['kin'], hoje, notas or [])
+
     # A VÉSPERA. O que faltava para isto ser assinatura e não uma sequência de
     # bilhetes soltos: cada manhã aponta para a próxima que importa. Puro
     # cálculo, nenhum texto novo — e é o que faz a pessoa continuar amanhã.
@@ -767,7 +827,7 @@ _{O.ONDA_NARRATIVA[s_dia][0]}_
 
 🫀 {corpo}
 👉 {chamado}
-{bloco_onda}🗓️ Dia *{dia_do_ano}* dos 365 do seu ano.{aviso}
+{eco}{bloco_onda}🗓️ Dia *{dia_do_ano}* dos 365 do seu ano.{aviso}
 
 ✨ {T.ASSINATURA}""")
 
@@ -787,7 +847,7 @@ _{O.ONDA_NARRATIVA[s_dia][0]}_
 {manchete}{ritmo}
 🫀 {corpo}
 👉 {chamado}
-{bloco_onda}
+{eco}{bloco_onda}
 🗓️ *O SEU ANO*
 """ + '\n'.join(ano_linhas) + f"""{aviso}
 

@@ -50,6 +50,10 @@ BRT = datetime.timezone(datetime.timedelta(hours=-3))
 CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'telegram_config.json')
 HORA_DISPARO = int(os.environ.get('DISPATCH_HOUR', '6'))
 MINUTO_DISPARO = int(os.environ.get('DISPATCH_MINUTE', '0'))
+# 18h30: a volta do trabalho. Atenção ociosa e o dia inteiro ainda fresco.
+# Às 21h a pessoa está desacelerando e pergunta reflexiva vira dever de casa.
+HORA_PERGUNTA = int(os.environ.get('PERGUNTA_HOUR', '18'))
+MINUTO_PERGUNTA = int(os.environ.get('PERGUNTA_MINUTE', '30'))
 KIN_NATAL_LEO = int(os.environ.get('KIN_NATAL', '194'))
 
 RE_DATA = re.compile(r'(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})')
@@ -173,8 +177,12 @@ def _registro(nome='', nascimento=None, desde=None, ativo=True, plano='livre') -
             kin = core.calculate_kin(datetime.date.fromisoformat(nascimento))
         except Exception:
             nascimento = None
+    # 'notas' PRECISA existir aqui: carrega_base() só copia do arquivo as chaves
+    # que este registro declara. Sem isto, toda nota gravada seria descartada
+    # silenciosamente na primeira leitura seguinte.
     return {'nome': nome or '', 'nascimento': nascimento, 'kin': kin,
-            'desde': desde or _hoje_iso(), 'ativo': ativo, 'plano': plano}
+            'desde': desde or _hoje_iso(), 'ativo': ativo, 'plano': plano,
+            'notas': []}
 
 
 def _do_ambiente() -> dict:
@@ -257,14 +265,26 @@ def ultimo_disparo() -> str:
     return str(_le_arquivo().get('ultimo_disparo') or '')
 
 
-def marca_disparo(dia: datetime.date):
+def _marca(chave: str, dia: datetime.date):
     try:
         dados = _le_arquivo()
-        dados['ultimo_disparo'] = dia.isoformat()
+        dados[chave] = dia.isoformat()
         with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
             json.dump(dados, f, indent=2, ensure_ascii=False)
     except Exception as e:
-        print(f'[AVISO] não consegui marcar o disparo: {e}', flush=True)
+        print(f'[AVISO] não consegui marcar {chave}: {e}', flush=True)
+
+
+def marca_disparo(dia: datetime.date):
+    _marca('ultimo_disparo', dia)
+
+
+def ultima_pergunta() -> str:
+    return str(_le_arquivo().get('ultima_pergunta') or '')
+
+
+def marca_pergunta(dia: datetime.date):
+    _marca('ultima_pergunta', dia)
 
 
 def registra(chat_id: str, nome: str = '', nascimento: datetime.date = None) -> dict:
@@ -354,7 +374,8 @@ def _quebra(texto: str, limite: int = 4000) -> list:
     return blocos
 
 
-def envia(token: str, chat_id: str, texto, tentativas: int = 3, formatado: bool = False):
+def envia(token: str, chat_id: str, texto, tentativas: int = 3, formatado: bool = False,
+          botoes: list = None):
     """`texto` pode ser uma string ou uma lista de peças (ver mensagens.mapa_pessoal).
 
     `formatado=False` é o padrão porque as leituras existem para serem copiadas
@@ -373,6 +394,11 @@ def envia(token: str, chat_id: str, texto, tentativas: int = 3, formatado: bool 
             payload = {'chat_id': chat_id, 'text': bloco}
             if formatado:
                 payload['parse_mode'] = 'Markdown'
+            # Os botões vão só no ÚLTIMO pedaço: numa mensagem quebrada em
+            # três, teclado em cada pedaço daria três vezes a mesma pergunta.
+            if botoes and bloco is blocos[-1]:
+                payload['reply_markup'] = json.dumps({'inline_keyboard': [
+                    [{'text': t, 'callback_data': d} for t, d in botoes]]})
             req = urllib.request.Request(
                 url, data=urllib.parse.urlencode(payload).encode('utf-8'))
             try:
@@ -449,6 +475,8 @@ Vale a pena: sabendo o seu Kin, eu leio o dia *em cima do seu mapa* em vez de ma
 
 ⏰ O Kin do dia chega toda manhã às {HORA_DISPARO:02d}:{MINUTO_DISPARO:02d}.
 
+🌙 *E às {HORA_PERGUNTA:02d}:{MINUTO_PERGUNTA:02d}, só nos dias que tocam o seu mapa,* eu faço uma pergunta sobre o dia. Um toque, três botões. Fica guardado no seu mapa e volta quando aquele arquétipo voltar — é assim que a leitura deixa de ser sobre o dia e passa a ser sobre você.
+
 Uma coisa que costuma estranhar: as leituras chegam com os asteriscos à mostra, de propósito. É assim que você copia daqui e cola no WhatsApp já com o negrito certo.
 
 ✨ *Leonardo @o.cosba*
@@ -491,6 +519,91 @@ def recebe_pessoal(reg: dict) -> bool:
     return bool(reg.get('nascimento'))
 
 
+def salva_nota(chat_id: str, kin: int, dia: datetime.date, resposta: str):
+    """Guarda o Kin, a data e a resposta. Nada mais.
+
+    Selo, tom, relação e onda NÃO são guardados: saem todos do Kin por
+    matemática que o core.py já faz. Guardar um número dá cinco índices de
+    graça, e nenhuma migração quando surgir um tipo novo de devolutiva.
+    """
+    base = carrega_base()
+    reg = base.get(str(chat_id))
+    if not reg:
+        return
+    notas = [n for n in reg.get('notas', []) if n.get('data') != dia.isoformat()]
+    notas.append({'kin': kin, 'data': dia.isoformat(), 'r': resposta})
+    reg['notas'] = notas[-400:]          # ~4 anos de dias grandes
+    base[str(chat_id)] = reg
+    salva_base(base)
+
+
+def pergunta_da_noite(token: str, dia: datetime.date):
+    """A pergunta só em dia grande, e só para quem tem mapa na base.
+
+    Falseável de propósito: repete a previsão exata da manhã em vez de "como
+    foi seu dia?". Se a leitura errou, a resposta diz — que é o único jeito de
+    o sistema afinar com evidência em vez de opinião.
+    """
+    base = carrega_base()
+    kin = core.calculate_kin(dia)
+    enviadas = 0
+    for chat_id, reg in base.items():
+        if not reg.get('ativo', True) or not recebe_pessoal(reg):
+            continue
+        rel = core.relacao_com(reg['kin'], kin)
+        if rel not in TEXTOS.PERGUNTA_NOITE:
+            continue                      # dia comum: não se pergunta
+        if any(n.get('data') == dia.isoformat() for n in reg.get('notas', [])):
+            continue                      # já respondeu: não insiste
+        texto = (TEXTOS.PERGUNTA_ABERTURA.format(
+            nome=(reg.get('nome') or 'Ei').split()[0],
+            pergunta=TEXTOS.PERGUNTA_NOITE[rel]) + TEXTOS.PERGUNTA_RODAPE)
+        botoes = [(t, f'n|{v}|{kin}|{dia.isoformat()}') for t, v in TEXTOS.BOTOES_NOITE]
+        try:
+            envia(token, chat_id, texto, formatado=True, botoes=botoes)
+            enviadas += 1
+        except Exception as e:
+            print(f'   ✗ pergunta {chat_id}: {e}', flush=True)
+        time.sleep(0.6)
+    print(f'🌙 Pergunta da noite: {enviadas} enviadas\n', flush=True)
+    return enviadas
+
+
+def responde_callback(token: str, callback_id: str, aviso: str = ''):
+    """Sem isto o botão fica girando para sempre na tela da pessoa."""
+    try:
+        dados = {'callback_query_id': callback_id}
+        if aviso:
+            dados['text'] = aviso
+        urllib.request.urlopen(urllib.request.Request(
+            f'https://api.telegram.org/bot{token}/answerCallbackQuery',
+            data=urllib.parse.urlencode(dados).encode('utf-8')), timeout=15)
+    except Exception as e:
+        print(f'[AVISO] answerCallbackQuery: {e}', flush=True)
+
+
+def processa_callback(token: str, cb: dict):
+    chat_id = str(cb.get('message', {}).get('chat', {}).get('id', '')).strip()
+    dado = cb.get('data', '')
+    partes = dado.split('|')
+    if not chat_id or len(partes) != 4 or partes[0] != 'n':
+        responde_callback(token, cb.get('id', ''))
+        return
+    _, resposta, kin, data = partes
+    if resposta not in TEXTOS.CONFIRMA_NOTA:
+        responde_callback(token, cb.get('id', ''))
+        return
+    try:
+        salva_nota(chat_id, int(kin), datetime.date.fromisoformat(data), resposta)
+    except Exception as e:
+        print(f'[ERRO] salvar nota de {chat_id}: {e}', flush=True)
+        responde_callback(token, cb.get('id', ''), 'Não consegui guardar 😕')
+        return
+    print(f'📝 nota: {chat_id} kin {kin} = {resposta}', flush=True)
+    responde_callback(token, cb.get('id', ''), 'Anotado ✨')
+    envia(token, chat_id, TEXTOS.CONFIRMA_NOTA[resposta], formatado=True)
+
+
 def dispara_diario(token: str, inscritos: list, dia: datetime.date):
     """O coletivo para todo mundo; o pessoal para quem tem mapa na base.
 
@@ -518,7 +631,8 @@ def dispara_diario(token: str, inscritos: list, dia: datetime.date):
             continue
         try:
             nasc = datetime.date.fromisoformat(reg['nascimento'])
-            envia(token, chat_id, mensagens.dia_pessoal(nasc, reg.get('nome', ''), dia))
+            envia(token, chat_id, mensagens.dia_pessoal(
+                nasc, reg.get('nome', ''), dia, notas=reg.get('notas')))
             print(f'   ↳ pessoal: {chat_id} (Kin {reg.get("kin")})', flush=True)
         except Exception as e:
             # Falha na pessoal não pode derrubar o disparo: a coletiva já foi.
@@ -645,6 +759,17 @@ def processa(token: str, chat_id: str, texto: str, nome_usuario: str = ''):
               '💾 *Cole isto em TELEGRAM_SUBSCRIBERS no painel.*\n'
               'O disco some a cada deploy; a variável não.', formatado=True)
         envia(token, chat_id, linha_de_ambiente())
+        # As notas não cabem numa variável de ambiente e são o dado mais caro
+        # que existe aqui — cada uma custou um dia de vida de alguém. Enquanto
+        # a base não for banco de verdade, o backup é este JSON no seu chat.
+        b = carrega_base()
+        notas = {c: r['notas'] for c, r in b.items() if r.get('notas')}
+        if notas:
+            total = sum(len(v) for v in notas.values())
+            envia(token, chat_id,
+                  f'📝 *{total} notas de {len(notas)} pessoas.* Não cabem na variável — '
+                  'guarde este JSON, é o backup delas.', formatado=True)
+            envia(token, chat_id, json.dumps(notas, ensure_ascii=False))
 
     elif cmd in ('/estudo', '/aula'):
         if not eh_admin(chat_id):
@@ -712,6 +837,15 @@ def agendador(token: str):
                 if inscritos:
                     dispara_diario(token, inscritos, hoje)
                 marca_disparo(hoje)
+
+            # A pergunta da noite, com a mesma trava em disco do disparo: sem
+            # ela, um deploy às 20h refazia a pergunta de quem já respondeu.
+            passou_da_pergunta = (agora.hour > HORA_PERGUNTA or
+                                  (agora.hour == HORA_PERGUNTA
+                                   and agora.minute >= MINUTO_PERGUNTA))
+            if passou_da_pergunta and ultima_pergunta() != hoje.isoformat():
+                pergunta_da_noite(token, hoje)
+                marca_pergunta(hoje)
             time.sleep(30)
         except Exception as e:
             print(f'[AVISO] agendador: {e}', flush=True)
@@ -786,6 +920,14 @@ def main():
             updates = busca_updates(token, offset)
             for u in updates.get('result', []):
                 offset = u['update_id'] + 1
+                # O toque num botão não chega como 'message': vem em
+                # 'callback_query', e antes disto era descartado em silêncio.
+                if u.get('callback_query'):
+                    try:
+                        processa_callback(token, u['callback_query'])
+                    except Exception as e:
+                        print(f'[ERRO] callback: {e}', flush=True)
+                    continue
                 msg = u.get('message', {})
                 chat = msg.get('chat', {})
                 if chat.get('id') and msg.get('text'):
